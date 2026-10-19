@@ -31,6 +31,25 @@
 
 ---
 
+## 📸 运行效果截图 (Screenshots)
+
+<div align="center">
+  <table border="0">
+    <tr>
+      <td align="center" width="50%">
+        <b>⚡ 自动化控制与实时双语运行日志</b><br/><br/>
+        <img src="docs/images/preview-automation.png" alt="Automation Preview" width="380" />
+      </td>
+      <td align="center" width="50%">
+        <b>🐎 对局马匹雷达与海克斯战绩诊断</b><br/><br/>
+        <img src="docs/images/preview-horse-radar.png" alt="Horse Radar Preview" width="380" />
+      </td>
+    </tr>
+  </table>
+</div>
+
+---
+
 ## ✨ 核心功能全览
 
 ### 1. ⚡ 核心自动化控制 (Core Automation)

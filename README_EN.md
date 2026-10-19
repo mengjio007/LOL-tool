@@ -31,6 +31,25 @@
 
 ---
 
+## 📸 Application Screenshots
+
+<div align="center">
+  <table border="0">
+    <tr>
+      <td align="center" width="50%">
+        <b>⚡ Automation & Live Bilingual Activity Logs</b><br/><br/>
+        <img src="docs/images/preview-automation.png" alt="Automation Preview" width="380" />
+      </td>
+      <td align="center" width="50%">
+        <b>🐎 Match Horse Radar & Stat Penetration</b><br/><br/>
+        <img src="docs/images/preview-horse-radar.png" alt="Horse Radar Preview" width="380" />
+      </td>
+    </tr>
+  </table>
+</div>
+
+---
+
 ## ✨ Features
 
 ### 1. ⚡ Core Automation
