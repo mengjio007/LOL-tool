@@ -1,0 +1,21 @@
+# Binaries and build intermediates
+build/bin/
+frontend/dist/
+frontend/node_modules/
+lol-helper.exe
+
+# Local runtime configuration
+config.json
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & temp
+*.log
+*.tmp
+
+# Assistant metadata
+.agent/
+.agents/
