@@ -35,7 +35,7 @@ import {
   Check,
   Globe
 } from 'lucide-react';
-import { translations, type Language } from './i18n/translations';
+import { translations, translateLog, type Language } from './i18n/translations';
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
@@ -593,7 +593,7 @@ export default function App() {
                     return (
                       <div key={index} className="flex items-start gap-2 break-all">
                         <span className="text-slate-600 shrink-0 font-normal">{log.time}</span>
-                        <span className={`${color} flex-1`}>{log.message}</span>
+                        <span className={`${color} flex-1`}>{translateLog(log.message, lang)}</span>
                       </div>
                     );
                   })

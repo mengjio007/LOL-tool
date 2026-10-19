@@ -222,3 +222,127 @@ export const translations = {
     footerBrand: 'LOL Smart Assistant v1.0 · Non-intrusive',
   },
 };
+
+export function translateLog(msg: string, lang: Language): string {
+  if (lang === 'zh') return msg;
+
+  // English translation rules for real-time logs
+  // 1. Connection & Setup
+  if (msg.includes('检测到英雄联盟客户端')) {
+    const portMatch = msg.match(/端口:\s*(\d+)/);
+    const port = portMatch ? portMatch[1] : '';
+    return `Detected League of Legends client (Port: ${port}), establishing connection...`;
+  }
+  if (msg.includes('已成功订阅 LCU 事件总线')) {
+    return 'Subscribed to LCU event bus. Automation engine ready!';
+  }
+  if (msg.includes('与客户端连接断开')) {
+    return 'Disconnected from client, preparing to reconnect...';
+  }
+  if (msg.includes('欢迎召唤师:')) {
+    return msg.replace('欢迎召唤师:', 'Welcome Summoner:');
+  }
+  if (msg.includes('游戏阶段状态转换 ➔')) {
+    return msg.replace('游戏阶段状态转换 ➔', 'Gameflow Phase Transition ➔');
+  }
+
+  // 2. Smart Queue
+  if (msg.includes('[智能排队] 检测到处于房间中')) {
+    return '[Smart Queue] In lobby, checking readiness in 2s...';
+  }
+  if (msg.includes('房间已达目标人数') && msg.includes('全员就绪！立即发起排队')) {
+    const match = msg.match(/\((\d+)\/(\d+)人\)/);
+    const counts = match ? ` (${match[1]}/${match[2]})` : '';
+    return `[Smart Queue] >>> Target reached${counts} & all ready! Starting matchmaking... <<<`;
+  }
+  if (msg.includes('房间全员就绪') && msg.includes('立即发起排队')) {
+    const match = msg.match(/\((\d+)人\)/);
+    const count = match ? ` (${match[1]} players)` : '';
+    return `[Smart Queue] >>> Party ready${count}! Starting matchmaking... <<<`;
+  }
+  if (msg.includes('已成功进入排队队列！')) {
+    return '[Smart Queue] >>> Successfully entered matchmaking queue! <<<';
+  }
+  if (msg.includes('目标人数') && msg.includes('等待队友进房')) {
+    const match = msg.match(/目标人数\s*(\d+)\s*人，当前房间仅\s*(\d+)\s*人.*?\((\d+)\/45秒\)/);
+    if (match) {
+      return `[Smart Queue] Target ${match[1]} players, currently ${match[2]}, waiting for party... (${match[3]}/45s)`;
+    }
+    return '[Smart Queue] Waiting for party members to join...';
+  }
+  if (msg.includes('房间人数已达标') && msg.includes('正在等待全员就绪')) {
+    const match = msg.match(/\((\d+)人\).*?\((\d+)\/45秒\)/);
+    if (match) {
+      return `[Smart Queue] Party full (${match[1]} players), waiting for ready/lane selection... (${match[2]}/45s)`;
+    }
+    return '[Smart Queue] Waiting for all party members to be ready...';
+  }
+  if (msg.includes('智能排队超时') || msg.includes('已取消本次自动排队')) {
+    return '[Smart Queue Timeout] Waiting timed out (45s), auto-queue canceled.';
+  }
+  if (msg.includes('发起排队失败')) {
+    return msg.replace('[智能排队] 发起排队失败', '[Smart Queue] Failed to start matchmaking');
+  }
+
+  // 3. Ready Check & Accept
+  if (msg.includes('对局就绪] 自动接受已关闭')) {
+    return '[Ready Check] Auto-accept is disabled. Please accept manually.';
+  }
+  if (msg.includes('发现匹配对局！将在') && msg.includes('自动接受')) {
+    const delayMatch = msg.match(/将在\s*(\d+)\s*ms/);
+    const delay = delayMatch ? delayMatch[1] : '800';
+    return `[Ready Check] Match found! Auto-accepting in ${delay} ms...`;
+  }
+  if (msg.includes('已成功自动接受对局！')) {
+    return '[Auto Accept] >>> Successfully accepted match! <<<';
+  }
+  if (msg.includes('[自动接受失败]')) {
+    return msg.replace('[自动接受失败]', '[Auto Accept Failed]');
+  }
+
+  // 4. Analysis
+  if (msg.includes('进入选人/对局阶段，正在自动评估玩家最近10场战绩')) {
+    return '[Match Analysis] Analyzing recent 10-match histories of all players...';
+  }
+  if (msg.includes('玩家战绩与马匹评定已完成！')) {
+    const teamMatch = msg.match(/蓝方:(\d+)人,\s*红方:(\d+)人/);
+    if (teamMatch) {
+      return `[Match Analysis] Horse ratings complete! (Allies: ${teamMatch[1]}, Enemies: ${teamMatch[2]})`;
+    }
+    return '[Match Analysis] Player stats and horse ratings completed!';
+  }
+
+  // 5. Post Game & Play Again
+  if (msg.includes('游戏已结束，正在等待客户端加载战绩数据')) {
+    return '[Post Game] Match ended, waiting for client stats...';
+  }
+  if (msg.includes('检测到荣誉点赞界面，正在自动跳过')) {
+    return '[Post Game] Honor screen detected, skipping animation...';
+  }
+  if (msg.includes('已进入战绩结算界面，正在点击【再来一局】')) {
+    return '[Post Game] In post-game lobby, clicking [Play Again] to return party...';
+  }
+  if (msg.includes('已成功点击【再来一局】，正在返回组队房间')) {
+    return '[Post Game] >>> Clicked [Play Again] successfully, returning to lobby... <<<';
+  }
+  if (msg.includes('自动点击【再来一局】未响应')) {
+    return '[Post Game] [Play Again] unresponsive, please click manually.';
+  }
+
+  // 6. Manual Actions
+  if (msg.includes('[手动排队] 正在发起寻找对局')) {
+    return '[Manual Queue] Starting matchmaking...';
+  }
+  if (msg.includes('[手动取消] 正在取消寻找对局')) {
+    return '[Manual Queue] Canceling matchmaking...';
+  }
+  if (msg.includes('[手动接受] 正在点击接受对局')) {
+    return '[Manual Accept] Accepting match...';
+  }
+  if (msg.includes('[手动发言] 正在发送战报到房间聊天:')) {
+    return msg.replace('[手动发言] 正在发送战报到房间聊天:', '[Manual Chat] Sending report to chat:');
+  }
+
+  return msg;
+}
+
