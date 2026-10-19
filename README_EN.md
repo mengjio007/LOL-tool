@@ -139,7 +139,7 @@ The helper assembles a clean, concise single-line briefing summarizing key intel
 ## 🚀 Getting Started
 
 ### Option 1: Run the Precompiled Binary (Recommended)
-1. Download the latest single executable directly from the repository: [`lol-helper-v1.0.exe`](lol-helper-v1.0.exe) (~4.01 MB).
+1. Download the latest single executable directly from GitHub Releases: [**lol-helper-v1.0.exe**](https://github.com/mengjio007/LOL-tool/releases/latest/download/lol-helper-v1.0.exe) (~3.85 MB, direct download).
 2. Launch the League of Legends client (any order works; the assistant automatically detects and hooks the LCU event bus).
 3. Double-click `lol-helper-v1.0.exe` to run.
 

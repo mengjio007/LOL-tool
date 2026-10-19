@@ -138,7 +138,7 @@
 ## 🚀 快速使用指南
 
 ### 方式一：直接运行成品 (推荐)
-1. 从本仓库直接下载最新版的可执行文件：[`lol-helper-v1.0.exe`](lol-helper-v1.0.exe)（仅 4.01 MB）。
+1. 从本仓库直接下载最新版的可执行文件：[**lol-helper-v1.0.exe**](https://github.com/mengjio007/LOL-tool/releases/latest/download/lol-helper-v1.0.exe)（仅 3.85 MB，点击直链下载）。
 2. 打开英雄联盟客户端（先后启动顺序无所谓，助手会自动侦测连接）。
 3. 双击运行 `lol-helper-v1.0.exe` 即可享受全自动静默守护。
 
