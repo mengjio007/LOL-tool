@@ -247,6 +247,9 @@ export function translateLog(msg: string, lang: Language): string {
   }
 
   // 2. Smart Queue
+  if (msg.includes('已退出组队房间，已停止自动排队')) {
+    return '[Smart Queue] Exited lobby, auto-queue stopped.';
+  }
   if (msg.includes('[智能排队] 检测到处于房间中')) {
     return '[Smart Queue] In lobby, checking readiness in 2s...';
   }

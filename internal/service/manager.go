@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
@@ -44,6 +45,8 @@ type Manager struct {
 	// Automation flow states
 	isSearching          bool
 	isPlayAgainTriggered bool
+	queueCancel          context.CancelFunc
+	playAgainCancel      context.CancelFunc
 	stopChan             chan struct{}
 }
 
@@ -303,33 +306,55 @@ func (m *Manager) handlePhaseChange(phase string, client *lcu.Client) {
 	m.setPhase(phase)
 	m.AddLog("info", "游戏阶段状态转换 ➔ %s", phase)
 
+	// Whenever leaving Lobby, cancel active auto-queue immediately
+	m.mu.Lock()
+	if phase != "Lobby" && m.queueCancel != nil {
+		m.queueCancel()
+		m.queueCancel = nil
+		m.isSearching = false
+	}
+	if phase == "Lobby" && m.playAgainCancel != nil {
+		m.playAgainCancel()
+		m.playAgainCancel = nil
+	}
+	m.mu.Unlock()
+
 	switch phase {
 	case "Lobby":
 		m.mu.Lock()
 		m.isPlayAgainTriggered = false
+		if m.queueCancel != nil {
+			m.queueCancel()
+			m.queueCancel = nil
+		}
 		if !cfg.AutoQueue {
+			m.isSearching = false
 			m.mu.Unlock()
 			return
 		}
-		if !m.isSearching {
-			m.isSearching = true
-			m.mu.Unlock()
-			go func() {
-				defer func() {
-					if r := recover(); r != nil {
-						m.AddLog("error", "智能排队协程异常: %v", r)
-					}
-					m.mu.Lock()
-					m.isSearching = false
-					m.mu.Unlock()
-				}()
-				m.AddLog("info", "[智能排队] 检测到处于房间中，将在 2 秒后确认全员就绪...")
-				time.Sleep(2 * time.Second)
-				m.executeAutoQueue(client)
+		ctx, cancel := context.WithCancel(context.Background())
+		m.queueCancel = cancel
+		m.isSearching = true
+		m.mu.Unlock()
+
+		go func() {
+			defer func() {
+				if r := recover(); r != nil {
+					m.AddLog("error", "智能排队协程异常: %v", r)
+				}
+				m.mu.Lock()
+				m.isSearching = false
+				m.queueCancel = nil
+				m.mu.Unlock()
 			}()
-		} else {
-			m.mu.Unlock()
-		}
+			m.AddLog("info", "[智能排队] 检测到处于房间中，将在 2 秒后确认全员就绪...")
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(2 * time.Second):
+			}
+			m.executeAutoQueue(ctx, client)
+		}()
 
 	case "Matchmaking":
 		m.mu.Lock()
@@ -415,16 +440,28 @@ func (m *Manager) handlePhaseChange(phase string, client *lcu.Client) {
 		m.isSearching = false
 		if !m.isPlayAgainTriggered && cfg.AutoPlayAgain {
 			m.isPlayAgainTriggered = true
+			if m.playAgainCancel != nil {
+				m.playAgainCancel()
+			}
+			ctx, cancel := context.WithCancel(context.Background())
+			m.playAgainCancel = cancel
 			m.mu.Unlock()
 			go func() {
 				defer func() {
 					if r := recover(); r != nil {
 						m.AddLog("error", "再来一局协程异常: %v", r)
 					}
+					m.mu.Lock()
+					m.playAgainCancel = nil
+					m.mu.Unlock()
 				}()
 				m.AddLog("info", "[对局结算] 已进入战绩结算界面，正在点击【再来一局】返回组队房间...")
 				for i := 0; i < 8; i++ {
-					time.Sleep(1 * time.Second)
+					select {
+					case <-ctx.Done():
+						return
+					case <-time.After(1 * time.Second):
+					}
 					if client == nil {
 						return
 					}
@@ -448,7 +485,7 @@ func (m *Manager) handlePhaseChange(phase string, client *lcu.Client) {
 	}
 }
 
-func (m *Manager) executeAutoQueue(client *lcu.Client) {
+func (m *Manager) executeAutoQueue(ctx context.Context, client *lcu.Client) {
 	defer func() {
 		if r := recover(); r != nil {
 			m.AddLog("error", "自动排队执行异常: %v", r)
@@ -461,34 +498,61 @@ func (m *Manager) executeAutoQueue(client *lcu.Client) {
 
 	cfg := config.Get()
 	targetMembers := cfg.TargetMembers
+	lastLoggedMembers := -1
+	lastStatusTime := time.Time{}
 
 	for i := 0; i < 45; i++ {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+
 		st, err := client.GetLobbyStatus()
-		if err == nil && st != nil {
-			// 人数要求判定：若 targetMembers > 0，必须达到目标人数才开；0为不限人数
-			countSatisfied := (targetMembers <= 0) || (st.MemberCount >= targetMembers)
+		if err != nil || st == nil {
+			m.AddLog("info", "[智能排队] 已退出组队房间，已停止自动排队。")
+			return
+		}
 
-			if countSatisfied && st.CanStartActivity {
-				if targetMembers > 0 {
-					m.AddLog("success", "[智能排队] >>> 房间已达目标人数 (%d/%d人) 且全员就绪！立即发起排队... <<<", st.MemberCount, targetMembers)
-				} else {
-					m.AddLog("success", "[智能排队] >>> 房间全员就绪 (%d人)！立即发起排队... <<<", st.MemberCount)
-				}
+		// 人数要求判定：若 targetMembers > 0，必须达到目标人数才开；0为不限人数
+		countSatisfied := (targetMembers <= 0) || (st.MemberCount >= targetMembers)
 
-				if err := client.StartMatchmaking(); err != nil {
-					m.AddLog("error", "[智能排队] 发起排队失败: %v", err)
-				} else {
-					m.AddLog("success", "[智能排队] >>> 已成功进入排队队列！<<<")
-				}
-				return
-			} else if !countSatisfied {
-				m.AddLog("info", "[智能排队] 目标人数 %d 人，当前房间仅 %d 人，等待队友进房... (%d/45秒)", targetMembers, st.MemberCount, i+1)
+		if countSatisfied && st.CanStartActivity {
+			if targetMembers > 0 {
+				m.AddLog("success", "[智能排队] >>> 房间已达目标人数 (%d/%d人) 且全员就绪！立即发起排队... <<<", st.MemberCount, targetMembers)
+			} else {
+				m.AddLog("success", "[智能排队] >>> 房间全员就绪 (%d人)！立即发起排队... <<<", st.MemberCount)
+			}
+
+			if err := client.StartMatchmaking(); err != nil {
+				m.AddLog("error", "[智能排队] 发起排队失败: %v", err)
+			} else {
+				m.AddLog("success", "[智能排队] >>> 已成功进入排队队列！<<<")
+			}
+			return
+		}
+
+		// 限制日志刷屏频率：仅在人数变动或每隔10秒心跳时输出一次提示
+		now := time.Now()
+		shouldLog := (st.MemberCount != lastLoggedMembers) || now.Sub(lastStatusTime) >= 10*time.Second
+		if shouldLog {
+			lastLoggedMembers = st.MemberCount
+			lastStatusTime = now
+
+			if !countSatisfied {
+				m.AddLog("info", "[智能排队] 目标人数 %d 人，当前房间 %d 人，等待队友进房... (%d/45秒)", targetMembers, st.MemberCount, i+1)
 			} else {
 				m.AddLog("info", "[智能排队] 房间人数已达标 (%d人)，正在等待全员就绪/选定分路... (%d/45秒)", st.MemberCount, i+1)
 			}
 		}
-		time.Sleep(1 * time.Second)
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-time.After(1 * time.Second):
+		}
 	}
+
 	m.AddLog("warn", "[智能排队超时] 等待房间人数或就绪条件超时 (45秒)，已取消本次自动排队。")
 }
 
