@@ -95,14 +95,13 @@ export default function App() {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [updateToast, setUpdateToast] = useState<{ type: 'info' | 'success' | 'warn'; msg: string } | null>(null);
 
-  // Background check on mount (delay 2s)
+  // Background check on mount (delay 2s) - Silent check only, never auto-popup
   useEffect(() => {
     const timer = setTimeout(() => {
       WailsBridge.checkForUpdate()
         .then((info) => {
-          if (info && info.hasUpdate) {
+          if (info) {
             setUpdateInfo(info);
-            setShowUpdateModal(true);
           }
         })
         .catch(() => {});
@@ -309,7 +308,13 @@ export default function App() {
           </div>
           <span className="text-xs font-bold tracking-wider text-[#f0e6d2]">{t.appTitle}</span>
           <button
-            onClick={() => handleCheckUpdate(true)}
+            onClick={() => {
+              if (updateInfo?.hasUpdate) {
+                setShowUpdateModal(true);
+              } else {
+                handleCheckUpdate(true);
+              }
+            }}
             title={updateInfo?.hasUpdate ? t.hasNewVersionDot : t.checkUpdate}
             disabled={isCheckingUpdate}
             className="non-draggable relative flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-[#c89b3c]/15 hover:bg-[#c89b3c]/30 text-[#c89b3c] font-mono border border-[#c89b3c]/30 transition-all cursor-pointer"
@@ -865,13 +870,22 @@ export default function App() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => handleCheckUpdate(true)}
+            onClick={() => {
+              if (updateInfo?.hasUpdate) {
+                setShowUpdateModal(true);
+              } else {
+                handleCheckUpdate(true);
+              }
+            }}
             disabled={isCheckingUpdate}
             className="text-slate-400 hover:text-[#c89b3c] transition-colors flex items-center gap-1 cursor-pointer"
             title={t.checkUpdate}
           >
             <RefreshCw className={`w-2.5 h-2.5 ${isCheckingUpdate ? 'animate-spin text-[#c89b3c]' : ''}`} />
             <span>{t.checkUpdate}</span>
+            {updateInfo?.hasUpdate && (
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            )}
           </button>
           <span>·</span>
           <div>{t.footerBrand}</div>
