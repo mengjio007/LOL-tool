@@ -155,6 +155,15 @@ The helper assembles a clean, concise single-line briefing summarizing key intel
 
 ---
 
+### 6. 🚀 Smart & Non-Forced GitHub Release Updates
+- **Authoritative GitHub Releases Baseline**: Queries GitHub Releases API on startup or manual click, comparing SemVer tags accurately.
+- **100% Non-Intrusive**: Never forces or locks the UI. Users can dismiss with a single click or continue using the app completely undisturbed.
+- **One-Click In-App Update**: Downloads the latest release with live progress tracking, safely hot-replaces the executable, and restarts smoothly.
+- **Dual Fallback to Browser**: Supports direct redirection to GitHub Releases page if network conditions restrict in-app downloads.
+
+
+---
+
 ## 🚀 Getting Started
 
 ### Option 1: Run the Precompiled Binary (Recommended)

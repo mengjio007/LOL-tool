@@ -6,12 +6,20 @@ export function AcceptMatch() {
   return window['go']['main']['App']['AcceptMatch']();
 }
 
+export function CheckForUpdate() {
+  return window['go']['main']['App']['CheckForUpdate']();
+}
+
 export function ClearLogs() {
   return window['go']['main']['App']['ClearLogs']();
 }
 
 export function CloseApp() {
   return window['go']['main']['App']['CloseApp']();
+}
+
+export function DownloadAndApplyUpdate(arg1) {
+  return window['go']['main']['App']['DownloadAndApplyUpdate'](arg1);
 }
 
 export function GenerateHorseReport() {
@@ -40,6 +48,10 @@ export function HideWindow() {
 
 export function MinimizeWindow() {
   return window['go']['main']['App']['MinimizeWindow']();
+}
+
+export function OpenBrowser(arg1) {
+  return window['go']['main']['App']['OpenBrowser'](arg1);
 }
 
 export function SaveConfig(arg1) {

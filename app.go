@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"time"
 	"lol/internal/analysis"
 	"lol/internal/config"
 	"lol/internal/service"
+	"lol/internal/updater"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -24,6 +26,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+	updater.CleanupOldFiles()
 	a.manager = service.NewManager(func(eventName string, data ...interface{}) {
 		if a.ctx != nil {
 			wailsRuntime.EventsEmit(a.ctx, eventName, data...)
@@ -138,3 +141,29 @@ func (a *App) CloseApp() {
 		wailsRuntime.Quit(a.ctx)
 	}
 }
+
+func (a *App) CheckForUpdate() (*updater.UpdateInfo, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	return updater.CheckUpdate(ctx)
+}
+
+func (a *App) DownloadAndApplyUpdate(downloadUrl string) error {
+	ctx := context.Background()
+	return updater.DownloadAndApplyUpdate(ctx, downloadUrl, func(percent int, downloadedBytes int64, totalBytes int64) {
+		if a.ctx != nil {
+			wailsRuntime.EventsEmit(a.ctx, "update:progress", map[string]interface{}{
+				"percent":    percent,
+				"downloaded": downloadedBytes,
+				"total":      totalBytes,
+			})
+		}
+	})
+}
+
+func (a *App) OpenBrowser(url string) {
+	if a.ctx != nil {
+		wailsRuntime.BrowserOpenURL(a.ctx, url)
+	}
+}
+

@@ -110,6 +110,23 @@ export const translations = {
     // Footer
     backgroundActive: '后台静默监控已启用',
     footerBrand: 'LOL 智能助手 v1.0 · 静默无打扰',
+
+    // Updates
+    checkUpdate: '检查更新',
+    checkingUpdate: '正在检查最新版本...',
+    alreadyLatest: '当前已是最新版本 ({version})',
+    checkUpdateFailed: '检查更新失败，请稍后重试',
+    newVersionFound: '发现新版本 {version}',
+    currentVersionLabel: '当前版本: {version}',
+    releaseNotes: '更新说明:',
+    noReleaseNotes: '暂无详细更新说明',
+    updateNow: '立即在线更新',
+    updateDownloading: '正在下载更新 ({percent}%)...',
+    updateSuccessRestarting: '下载完成，正在重启应用...',
+    updateFailedFallback: '自动更新异常，已为您打开浏览器下载页面',
+    openInBrowser: '浏览器下载',
+    remindLater: '稍后提醒',
+    hasNewVersionDot: '发现新版本！点击查看',
   },
   en: {
     // Header
@@ -220,6 +237,23 @@ export const translations = {
     // Footer
     backgroundActive: 'Background monitoring active',
     footerBrand: 'LOL Smart Assistant v1.0 · Non-intrusive',
+
+    // Updates
+    checkUpdate: 'Check for Updates',
+    checkingUpdate: 'Checking for updates...',
+    alreadyLatest: 'You are on the latest version ({version})',
+    checkUpdateFailed: 'Failed to check for updates, please try again later',
+    newVersionFound: 'New Version Available: {version}',
+    currentVersionLabel: 'Current Version: {version}',
+    releaseNotes: 'Changelog:',
+    noReleaseNotes: 'No detailed release notes provided',
+    updateNow: 'Update Now',
+    updateDownloading: 'Downloading update ({percent}%)...',
+    updateSuccessRestarting: 'Download complete, restarting app...',
+    updateFailedFallback: 'Auto-update failed, opening browser download page...',
+    openInBrowser: 'Download in Browser',
+    remindLater: 'Remind Me Later',
+    hasNewVersionDot: 'New version available! Click to view',
   },
 };
 

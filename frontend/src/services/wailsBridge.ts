@@ -71,6 +71,24 @@ export interface MatchAnalysisResult {
   lastUpdated: string;
 }
 
+export interface UpdateInfo {
+  currentVersion: string;
+  latestVersion: string;
+  hasUpdate: boolean;
+  releaseName: string;
+  releaseNotes: string;
+  releaseUrl: string;
+  downloadUrl: string;
+  assetSize: number;
+  publishedAt: string;
+}
+
+export interface UpdateProgress {
+  percent: number;
+  downloaded: number;
+  total: number;
+}
+
 // Safely access Wails runtime and bound methods
 declare global {
   interface Window {
@@ -91,6 +109,9 @@ declare global {
           GetMatchAnalysis: () => Promise<MatchAnalysisResult>;
           SendChatMessage: (msg: string) => Promise<void>;
           GenerateHorseReport: () => Promise<string>;
+          CheckForUpdate: () => Promise<UpdateInfo>;
+          DownloadAndApplyUpdate: (downloadUrl: string) => Promise<void>;
+          OpenBrowser: (url: string) => Promise<void>;
         };
       };
     };
@@ -209,6 +230,34 @@ export const WailsBridge = {
       return await window.go.main.App.GenerateHorseReport();
     }
     return '';
+  },
+
+  async checkForUpdate(): Promise<UpdateInfo | null> {
+    if (window.go?.main?.App?.CheckForUpdate) {
+      return await window.go.main.App.CheckForUpdate();
+    }
+    return null;
+  },
+
+  async downloadAndApplyUpdate(downloadUrl: string): Promise<void> {
+    if (window.go?.main?.App?.DownloadAndApplyUpdate) {
+      await window.go.main.App.DownloadAndApplyUpdate(downloadUrl);
+    }
+  },
+
+  async openBrowser(url: string): Promise<void> {
+    if (window.go?.main?.App?.OpenBrowser) {
+      await window.go.main.App.OpenBrowser(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  },
+
+  onUpdateProgress(callback: (progress: UpdateProgress) => void): () => void {
+    if (window.runtime?.EventsOn) {
+      return window.runtime.EventsOn('update:progress', callback);
+    }
+    return () => {};
   },
 
   onStatusChange(callback: (status: ServiceStatus) => void): () => void {

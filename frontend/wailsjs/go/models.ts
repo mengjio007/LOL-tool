@@ -250,3 +250,36 @@ export namespace service {
 
 }
 
+export namespace updater {
+	
+	export class UpdateInfo {
+	    currentVersion: string;
+	    latestVersion: string;
+	    hasUpdate: boolean;
+	    releaseName: string;
+	    releaseNotes: string;
+	    releaseUrl: string;
+	    downloadUrl: string;
+	    assetSize: number;
+	    publishedAt: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new UpdateInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.currentVersion = source["currentVersion"];
+	        this.latestVersion = source["latestVersion"];
+	        this.hasUpdate = source["hasUpdate"];
+	        this.releaseName = source["releaseName"];
+	        this.releaseNotes = source["releaseNotes"];
+	        this.releaseUrl = source["releaseUrl"];
+	        this.downloadUrl = source["downloadUrl"];
+	        this.assetSize = source["assetSize"];
+	        this.publishedAt = source["publishedAt"];
+	    }
+	}
+
+}
+
