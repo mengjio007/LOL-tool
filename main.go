@@ -16,7 +16,7 @@ func main() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:  "LOL 智能助手 v1.0.1",
+		Title:  "LOL 智能助手 v1.0.2",
 		Width:  560,
 		Height: 680,
 		AssetServer: &assetserver.Options{

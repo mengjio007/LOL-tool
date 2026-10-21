@@ -56,9 +56,25 @@ export interface PlayerAnalysis {
   avgAssists: number;
   avgKp?: number;
   kda: number;
-  horseTier: 'top' | 'mid' | 'bottom';
+  score?: number;
+  horseTier: 's_plus' | 's' | 'a' | 'b' | 'c' | 'd' | 'top' | 'mid' | 'bottom';
+  horseRank?: string;
   horseName: string;
   horseTag: string;
+  avgDamage?: number;
+  avgDamageTaken?: number;
+  avgMitigated?: number;
+  avgHeal?: number;
+  avgTurretDamage?: number;
+  damageShare?: number;
+  damageTakenShare?: number;
+  healShare?: number;
+  guardianRatio?: number;
+  pentaCount?: number;
+  quadraCount?: number;
+  tripleCount?: number;
+  streak?: number;
+  isTilted?: boolean;
   tags: string[];
   topChampions: ChampionStat[];
 }

@@ -4,7 +4,7 @@ export const translations = {
   zh: {
     // Header
     appTitle: 'LOL 智能助手',
-    version: 'v1.0.1',
+    version: 'v1.0.2',
     alwaysOnTop: '窗口置顶',
     unpin: '取消置顶',
     minimize: '最小化',
@@ -107,9 +107,24 @@ export const translations = {
     midHorse: '中等马',
     bottomHorse: '下等马',
 
+    // 6-Tier System
+    tierSPlus: 'S+ 特等 · 降维通天代',
+    tierS: 'S 上等 · 全场掌舵者',
+    tierA: 'A 中等 · 中流砥柱',
+    tierB: 'B 次等 · 状态摇摆者',
+    tierC: 'C 下等 · 红温突破口',
+    tierD: 'D 劣等 · 下水道纯牛马',
+
+    // Stats
+    statDamage: '输出',
+    statTank: '承伤',
+    statHeal: '治疗',
+    statGuardian: '守护者出装',
+    statScore: '综合战力分',
+
     // Footer
     backgroundActive: '后台静默监控已启用',
-    footerBrand: 'LOL 智能助手 v1.0.1 · 静默无打扰',
+    footerBrand: 'LOL 智能助手 v1.0.2 · 静默无打扰',
 
     // Updates
     checkUpdate: '检查更新',
@@ -131,7 +146,7 @@ export const translations = {
   en: {
     // Header
     appTitle: 'LOL Smart Assistant',
-    version: 'v1.0.1',
+    version: 'v1.0.2',
     alwaysOnTop: 'Always on Top',
     unpin: 'Unpin',
     minimize: 'Minimize',
@@ -234,9 +249,24 @@ export const translations = {
     midHorse: 'Mid Horse',
     bottomHorse: 'Bottom Horse',
 
+    // 6-Tier System
+    tierSPlus: 'S+ Grand · Transcendent Carry',
+    tierS: 'S Core · Team Helmsman',
+    tierA: 'A Solid · Team Anchor',
+    tierB: 'B Wavering · Rollercoaster',
+    tierC: 'C Vulnerable · Tilt Point',
+    tierD: 'D Disaster · Bottom Feeder',
+
+    // Stats
+    statDamage: 'Damage',
+    statTank: 'Tank',
+    statHeal: 'Heal',
+    statGuardian: 'Guardian Build',
+    statScore: 'Combat Rating',
+
     // Footer
     backgroundActive: 'Background monitoring active',
-    footerBrand: 'LOL Smart Assistant v1.0.1 · Non-intrusive',
+    footerBrand: 'LOL Smart Assistant v1.0.2 · Non-intrusive',
 
     // Updates
     checkUpdate: 'Check for Updates',

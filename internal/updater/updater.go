@@ -15,7 +15,7 @@ import (
 )
 
 // CurrentVersion is the hardcoded version of this release
-const CurrentVersion = "v1.0.1"
+var CurrentVersion = "v1.0.2"
 
 // GitHub repo configuration
 const (

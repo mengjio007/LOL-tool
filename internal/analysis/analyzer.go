@@ -21,27 +21,48 @@ type ChampionStat struct {
 }
 
 type PlayerAnalysis struct {
-	SummonerID   int64          `json:"summonerId"`
-	Puuid        string         `json:"puuid"`
-	SummonerName string         `json:"summonerName"`
-	Team         string         `json:"team"` // "blue" or "red"
-	IsSelf       bool           `json:"isSelf"`
-	Role         string         `json:"role"`
-	RankTier     string         `json:"rankTier"` // e.g. "钻石 II"
-	TotalGames   int            `json:"totalGames"`
-	Wins         int            `json:"wins"`
-	Losses       int            `json:"losses"`
-	WinRate      float64        `json:"winRate"` // 0.0 ~ 100.0
-	AvgKills     float64        `json:"avgKills"`
-	AvgDeaths    float64        `json:"avgDeaths"`
-	AvgAssists   float64        `json:"avgAssists"`
-	AvgKP        float64        `json:"avgKp"`
-	KDA          float64        `json:"kda"`
-	HorseTier    string         `json:"horseTier"` // "top", "mid", "bottom"
-	HorseName    string         `json:"horseName"` // "上等马", "中等马", "下等马"
-	HorseTag     string         `json:"horseTag"`  // e.g. "大爹通天代", "队伍突破口"
-	Tags         []string       `json:"tags"`
-	TopChampions []ChampionStat `json:"topChampions"`
+	SummonerID       int64          `json:"summonerId"`
+	Puuid            string         `json:"puuid"`
+	SummonerName     string         `json:"summonerName"`
+	Team             string         `json:"team"` // "blue" or "red"
+	IsSelf           bool           `json:"isSelf"`
+	Role             string         `json:"role"`
+	RankTier         string         `json:"rankTier"` // e.g. "钻石 II"
+	TotalGames       int            `json:"totalGames"`
+	Wins             int            `json:"wins"`
+	Losses           int            `json:"losses"`
+	WinRate          float64        `json:"winRate"` // 0.0 ~ 100.0
+	AvgKills         float64        `json:"avgKills"`
+	AvgDeaths        float64        `json:"avgDeaths"`
+	AvgAssists       float64        `json:"avgAssists"`
+	AvgKP            float64        `json:"avgKp"`
+	KDA              float64        `json:"kda"`
+
+	// 6-Tier Architecture & Composite Score
+	Score            int            `json:"score"`           // 综合战力分，基准 100
+	HorseTier        string         `json:"horseTier"`       // "s_plus", "s", "a", "b", "c", "d"
+	HorseRank        string         `json:"horseRank"`       // "S+ 特等", "S 上等", "A 中等", "B 次等", "C 下等", "D 劣等"
+	HorseName        string         `json:"horseName"`       // "降维通天代", "全场掌舵者", "中流砥柱", "状态摇摆者", "红温突破口", "下水道纯牛马"
+	HorseTag         string         `json:"horseTag"`        // e.g. "输出占比35%/五杀收割"
+
+	// Tactical & Combat Metrics
+	AvgDamage        int            `json:"avgDamage"`       // 场均输出伤害
+	AvgDamageTaken   int            `json:"avgDamageTaken"`  // 场均承伤
+	AvgMitigated     int            `json:"avgMitigated"`    // 场均伤害减免
+	AvgHeal          int            `json:"avgHeal"`         // 场均治疗与护盾
+	AvgTurretDamage  int            `json:"avgTurretDamage"` // 场均拆塔伤害
+	DamageShare      float64        `json:"damageShare"`     // 全队伤害占比 (0.0 ~ 100.0)
+	DamageTakenShare float64        `json:"damageTakenShare"`// 全队承伤占比 (0.0 ~ 100.0)
+	HealShare        float64        `json:"healShare"`       // 全队治疗占比 (0.0 ~ 100.0)
+	GuardianRatio    float64        `json:"guardianRatio"`   // 守护者系列出装占比 (0.0 ~ 100.0)
+	PentaCount       int            `json:"pentaCount"`      // 近期五杀次数
+	QuadraCount      int            `json:"quadraCount"`     // 近期四杀次数
+	TripleCount      int            `json:"tripleCount"`     // 近期三杀次数
+	Streak           int            `json:"streak"`          // 当前连胜(>0)或连败(<0)
+	IsTilted         bool           `json:"isTilted"`        // 是否当天连败破防
+
+	Tags             []string       `json:"tags"`
+	TopChampions     []ChampionStat `json:"topChampions"`
 }
 
 type MatchAnalysisResult struct {
@@ -297,14 +318,34 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 	var matchData struct {
 		Games struct {
 			Games []struct {
-				GameMode              string `json:"gameMode"`
-				Participants          []struct {
-					ChampionID int `json:"championId"`
-					Stats      struct {
-						Win     bool `json:"win"`
-						Kills   int  `json:"kills"`
-						Deaths  int  `json:"deaths"`
-						Assists int  `json:"assists"`
+				GameMode     string `json:"gameMode"`
+				GameDuration int    `json:"gameDuration"`
+				Participants []struct {
+					ParticipantID int `json:"participantId"`
+					TeamID        int `json:"teamId"`
+					ChampionID    int `json:"championId"`
+					Stats         struct {
+						Win                         bool `json:"win"`
+						Kills                       int  `json:"kills"`
+						Deaths                      int  `json:"deaths"`
+						Assists                     int  `json:"assists"`
+						TotalDamageDealtToChampions int  `json:"totalDamageDealtToChampions"`
+						TotalDamageTaken            int  `json:"totalDamageTaken"`
+						DamageSelfMitigated         int  `json:"damageSelfMitigated"`
+						TotalHeal                   int  `json:"totalHeal"`
+						DamageDealtToTurrets        int  `json:"damageDealtToTurrets"`
+						TimeCCingOthers             int  `json:"timeCCingOthers"`
+						Item0                       int  `json:"item0"`
+						Item1                       int  `json:"item1"`
+						Item2                       int  `json:"item2"`
+						Item3                       int  `json:"item3"`
+						Item4                       int  `json:"item4"`
+						Item5                       int  `json:"item5"`
+						Item6                       int  `json:"item6"`
+						PentaKills                  int  `json:"pentaKills"`
+						QuadraKills                 int  `json:"quadraKills"`
+						TripleKills                 int  `json:"tripleKills"`
+						FirstBloodKill              bool `json:"firstBloodKill"`
 					} `json:"stats"`
 				} `json:"participants"`
 				ParticipantIdentities []struct {
@@ -321,12 +362,23 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 	}
 
 	if err := json.Unmarshal(body, &matchData); err != nil || len(matchData.Games.Games) == 0 {
+		res.HorseRank = "B 次等"
+		res.HorseTier = "b"
+		res.HorseName = "状态摇摆者"
 		res.HorseTag = "暂无近期对局"
 		return res
 	}
 
 	games := matchData.Games.Games
 	totalKills, totalDeaths, totalAssists := 0, 0, 0
+	totalDmg, totalTank, totalMitigated, totalHeal, totalTurretDmg, totalCC := 0, 0, 0, 0, 0, 0
+	pentaCount, quadraCount, tripleCount, fbCount := 0, 0, 0, 0
+	dmgShareSum, tankShareSum, healShareSum := 0.0, 0.0, 0.0
+	shareCount := 0
+	guardianGamesCount := 0
+	validGuardianGamesCount := 0
+	streakDeathsSum := 0
+
 	champMap := make(map[int]*ChampionStat)
 	streak := 0
 	streakDecided := false
@@ -336,7 +388,6 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 		for _, pi := range g.ParticipantIdentities {
 			if pi.Player.Puuid == puuid {
 				targetPartID = pi.ParticipantID
-				// If name still unresolved, take from match history player record
 				if res.SummonerName == "" || res.SummonerName == "队友" || res.SummonerName == "对手" || res.SummonerName == "未知玩家" {
 					if pi.Player.GameName != "" {
 						if pi.Player.TagLine != "" {
@@ -356,8 +407,46 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 			targetPartID = 1
 		}
 
+		// Find target team ID and calculate team totals
+		targetTeamID := 100
 		for idx, p := range g.Participants {
-			if idx+1 == targetPartID || len(g.Participants) == 1 {
+			pID := p.ParticipantID
+			if pID == 0 {
+				pID = idx + 1
+			}
+			if pID == targetPartID {
+				if p.TeamID != 0 {
+					targetTeamID = p.TeamID
+				} else if idx >= 5 {
+					targetTeamID = 200
+				}
+				break
+			}
+		}
+
+		teamDmg, teamTank, teamHeal := 0, 0, 0
+		for idx, p := range g.Participants {
+			pTeam := p.TeamID
+			if pTeam == 0 {
+				if idx < 5 {
+					pTeam = 100
+				} else {
+					pTeam = 200
+				}
+			}
+			if pTeam == targetTeamID {
+				teamDmg += p.Stats.TotalDamageDealtToChampions
+				teamTank += p.Stats.TotalDamageTaken
+				teamHeal += p.Stats.TotalHeal
+			}
+		}
+
+		for idx, p := range g.Participants {
+			pID := p.ParticipantID
+			if pID == 0 {
+				pID = idx + 1
+			}
+			if pID == targetPartID || len(g.Participants) == 1 {
 				res.TotalGames++
 				if p.Stats.Win {
 					res.Wins++
@@ -373,6 +462,7 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 					if !streakDecided {
 						if streak <= 0 {
 							streak--
+							streakDeathsSum += p.Stats.Deaths
 						} else {
 							streakDecided = true
 						}
@@ -383,7 +473,54 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 				totalDeaths += p.Stats.Deaths
 				totalAssists += p.Stats.Assists
 
-				// Record champion
+				totalDmg += p.Stats.TotalDamageDealtToChampions
+				totalTank += p.Stats.TotalDamageTaken
+				totalMitigated += p.Stats.DamageSelfMitigated
+				totalHeal += p.Stats.TotalHeal
+				totalTurretDmg += p.Stats.DamageDealtToTurrets
+				totalCC += p.Stats.TimeCCingOthers
+
+				pentaCount += p.Stats.PentaKills
+				quadraCount += p.Stats.QuadraKills
+				tripleCount += p.Stats.TripleKills
+				if p.Stats.FirstBloodKill {
+					fbCount++
+				}
+
+				// Calculate team shares
+				if teamDmg > 0 {
+					dmgShareSum += (float64(p.Stats.TotalDamageDealtToChampions) / float64(teamDmg)) * 100.0
+					tankShareSum += (float64(p.Stats.TotalDamageTaken) / float64(teamTank)) * 100.0
+					if teamHeal > 0 {
+						healShareSum += (float64(p.Stats.TotalHeal) / float64(teamHeal)) * 100.0
+					}
+					shareCount++
+				}
+
+				// Check Guardian Items: 2051(号角), 3112(宝珠), 3177(战刃), 3184(战锤)
+				hasGuardian := false
+				inventory := []int{p.Stats.Item0, p.Stats.Item1, p.Stats.Item2, p.Stats.Item3, p.Stats.Item4, p.Stats.Item5}
+				completedItemsCount := 0
+				for _, itemID := range inventory {
+					if itemID == 2051 || itemID == 3112 || itemID == 3177 || itemID == 3184 {
+						hasGuardian = true
+					}
+					if itemID > 0 {
+						completedItemsCount++
+					}
+				}
+
+				// Duration-aware Guardian evaluation:
+				// If game duration is >= 20 mins (1200s) and player has 5-6 full items, selling Guardian is standard; don't penalize.
+				if hasGuardian {
+					guardianGamesCount++
+					validGuardianGamesCount++
+				} else if g.GameDuration < 1140 || completedItemsCount < 5 {
+					// Game ended before full build, so missing guardian was an intentional choice
+					validGuardianGamesCount++
+				}
+
+				// Record champion stat
 				cStat, exists := champMap[p.ChampionID]
 				if !exists {
 					cStat = &ChampionStat{
@@ -415,6 +552,29 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 		} else {
 			res.KDA = float64(totalKills + totalAssists)
 		}
+
+		res.AvgDamage = totalDmg / res.TotalGames
+		res.AvgDamageTaken = totalTank / res.TotalGames
+		res.AvgMitigated = totalMitigated / res.TotalGames
+		res.AvgHeal = totalHeal / res.TotalGames
+		res.AvgTurretDamage = totalTurretDmg / res.TotalGames
+		res.PentaCount = pentaCount
+		res.QuadraCount = quadraCount
+		res.TripleCount = tripleCount
+		res.Streak = streak
+
+		if shareCount > 0 {
+			res.DamageShare = dmgShareSum / float64(shareCount)
+			res.DamageTakenShare = tankShareSum / float64(shareCount)
+			res.HealShare = healShareSum / float64(shareCount)
+		} else {
+			res.DamageShare = 20.0
+			res.DamageTakenShare = 20.0
+		}
+
+		if validGuardianGamesCount > 0 {
+			res.GuardianRatio = (float64(guardianGamesCount) / float64(validGuardianGamesCount)) * 100.0
+		}
 	}
 
 	// Top champions
@@ -433,7 +593,180 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 	}
 	res.TopChampions = champList
 
-	// Horse Rating Evaluation (海克斯大乱斗专属规则)
+	// Check Tilt (连败破防红温状态)
+	if streak <= -3 {
+		avgDeathsInStreak := float64(streakDeathsSum) / float64(-streak)
+		if avgDeathsInStreak >= 7.5 || res.AvgKP <= 14.0 {
+			res.IsTilted = true
+		}
+	}
+
+	// ==========================================
+	// 5大支柱战力评分引擎 (Base: 100)
+	// ==========================================
+	score := 100
+
+	// 1. 战术占比维度 (Role Tactical Share: -25 ~ +25)
+	carryScore := 0
+	if res.DamageShare >= 31.0 {
+		carryScore = 25
+	} else if res.DamageShare >= 26.0 {
+		carryScore = 16
+	} else if res.DamageShare >= 21.0 {
+		carryScore = 6
+	} else if res.DamageShare >= 17.0 {
+		carryScore = 0
+	} else if res.DamageShare >= 13.0 {
+		carryScore = -12
+	} else {
+		carryScore = -22
+	}
+
+	tankScore := 0
+	if res.DamageTakenShare >= 35.0 || (res.AvgMitigated >= 26000 && res.DamageTakenShare >= 28.0) {
+		tankScore = 25
+	} else if res.DamageTakenShare >= 29.0 {
+		tankScore = 16
+	} else if res.DamageTakenShare >= 23.0 {
+		tankScore = 6
+	} else if res.DamageTakenShare >= 18.0 {
+		tankScore = 0
+	} else {
+		tankScore = -14
+	}
+
+	healScore := 0
+	if res.HealShare >= 45.0 && res.AvgHeal >= 14000 {
+		healScore = 24
+	} else if res.HealShare >= 30.0 {
+		healScore = 14
+	}
+
+	tacticalBonus := carryScore
+	if tankScore > tacticalBonus {
+		tacticalBonus = tankScore
+	}
+	if healScore > tacticalBonus {
+		tacticalBonus = healScore
+	}
+	score += tacticalBonus
+
+	// 2. 装备与时长认知维度 (Itemization: -12 ~ +15)
+	if res.GuardianRatio >= 35.0 {
+		score += 15
+	} else if res.GuardianRatio >= 20.0 {
+		score += 8
+	} else if res.GuardianRatio >= 10.0 {
+		score += 3
+	} else if res.GuardianRatio == 0.0 && res.AvgDeaths >= 8.5 && res.WinRate <= 45.0 {
+		score -= 12
+	}
+
+	// 3. 心态与即时状态维度 (Tilt & Streak: -25 ~ +15)
+	if streak >= 4 {
+		score += 15
+	} else if streak >= 2 {
+		score += 7
+	} else if streak <= -4 {
+		score -= 25
+		res.IsTilted = true
+	} else if streak <= -2 {
+		score -= 10
+	}
+
+	// 4. 高光爆发与拆塔维度 (Highlights: 0 ~ +15)
+	if res.PentaCount >= 1 {
+		score += 10
+	}
+	if res.QuadraCount >= 1 {
+		score += 5
+	}
+	if res.TripleCount >= 2 {
+		score += 3
+	}
+	if res.AvgTurretDamage >= 3200 {
+		score += 4
+	}
+
+	// 5. 极端胜率激活与段位基石 (-20 ~ +20)
+	if res.TotalGames >= 10 {
+		if res.WinRate >= 70.0 {
+			score += 20
+		} else if res.WinRate >= 60.0 {
+			score += 8
+		} else if res.WinRate <= 35.0 {
+			score -= 20
+		} else if res.WinRate <= 42.0 {
+			score -= 8
+		}
+	}
+
+	if strings.Contains(res.RankTier, "王者") || strings.Contains(res.RankTier, "宗师") {
+		score += 10
+	} else if strings.Contains(res.RankTier, "大师") {
+		score += 7
+	} else if strings.Contains(res.RankTier, "钻石") {
+		score += 4
+	}
+
+	// Tilt penalty override
+	if res.IsTilted && score >= 90 {
+		score = 80 // 连败破防选手强制降级
+	}
+
+	res.Score = score
+
+	// ==========================================
+	// 6 档战力金字塔映射 (S+ / S / A / B / C / D)
+	// ==========================================
+	if score >= 140 {
+		res.HorseTier = "s_plus"
+		res.HorseRank = "S+ 特等"
+		res.HorseName = "降维通天代"
+	} else if score >= 120 {
+		res.HorseTier = "s"
+		res.HorseRank = "S 上等"
+		res.HorseName = "全场掌舵者"
+	} else if score >= 100 {
+		res.HorseTier = "a"
+		res.HorseRank = "A 中等"
+		res.HorseName = "中流砥柱"
+	} else if score >= 85 {
+		res.HorseTier = "b"
+		res.HorseRank = "B 次等"
+		res.HorseName = "状态摇摆者"
+	} else if score >= 70 {
+		res.HorseTier = "c"
+		res.HorseRank = "C 下等"
+		res.HorseName = "红温突破口"
+	} else {
+		res.HorseTier = "d"
+		res.HorseRank = "D 劣等"
+		res.HorseName = "下水道纯牛马"
+	}
+
+	// Descriptive Tag Generation
+	if res.PentaCount >= 1 {
+		res.HorseTag = fmt.Sprintf("五杀弑神大爹(Penta×%d)", res.PentaCount)
+	} else if res.DamageShare >= 30.0 {
+		res.HorseTag = fmt.Sprintf("全队输出占比%.0f%%/绝对大核", res.DamageShare)
+	} else if res.DamageTakenShare >= 34.0 {
+		res.HorseTag = fmt.Sprintf("全队承伤占比%.0f%%/钢铁真前排", res.DamageTakenShare)
+	} else if res.HealShare >= 40.0 {
+		res.HorseTag = fmt.Sprintf("全队治愈占比%.0f%%/救赎天使", res.HealShare)
+	} else if res.IsTilted {
+		res.HorseTag = fmt.Sprintf("当天%d连败红温破防", -streak)
+	} else if res.GuardianRatio >= 35.0 {
+		res.HorseTag = fmt.Sprintf("守护者信仰(%.0f%%)/顶级理解", res.GuardianRatio)
+	} else if score >= 120 {
+		res.HorseTag = "核心掌舵/大局稳健"
+	} else if score < 70 {
+		res.HorseTag = "连败送头/下水道天坑"
+	} else {
+		res.HorseTag = "均势发挥/稳健基石"
+	}
+
+	// Generate visual tags
 	tags := make([]string, 0)
 	if streak >= 3 {
 		tags = append(tags, fmt.Sprintf("%d连胜 🔥", streak))
@@ -441,62 +774,28 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 		tags = append(tags, fmt.Sprintf("%d连败 ⚠️", -streak))
 	}
 
-	if len(champList) > 0 && champList[0].Games >= 3 {
-		tags = append(tags, fmt.Sprintf("常玩%s", champList[0].ChampionName))
+	if res.PentaCount > 0 {
+		tags = append(tags, fmt.Sprintf("👑 五杀×%d", res.PentaCount))
+	} else if res.QuadraCount > 0 {
+		tags = append(tags, fmt.Sprintf("⚔️ 四杀×%d", res.QuadraCount))
 	}
 
-	isHighRank := strings.Contains(res.RankTier, "王者") ||
-		strings.Contains(res.RankTier, "宗师") ||
-		strings.Contains(res.RankTier, "大师") ||
-		strings.Contains(res.RankTier, "钻石")
+	if res.GuardianRatio >= 25.0 {
+		tags = append(tags, fmt.Sprintf("🛡️ 守护者偏好 %.0f%%", res.GuardianRatio))
+	}
 
-	// 评级逻辑（专为海克斯大乱斗量身定制）：
-	// 1. 上等马 (Top Horse):
-	//    - 胜率 >= 65% 必须至少经历 15~20 场大样本检验（防止运气好连赢几把虚高）
-	//    - 高段位玩家单排段位降维打击
-	//    - 极度强力的团战发动机（高参团率 + 高胜率）
-	//    - 手感滚烫的真大连胜
-	if (res.TotalGames >= 15 && res.WinRate >= 65.0) ||
-		(isHighRank && res.WinRate >= 50.0 && res.AvgKP >= 22.0) ||
-		(res.KDA >= 3.2 && res.AvgKP >= 28.0 && res.WinRate >= 55.0 && res.TotalGames >= 10) ||
-		(streak >= 4 && res.WinRate >= 60.0 && res.TotalGames >= 10) {
-		res.HorseTier = "top"
-		res.HorseName = "上等马"
-		if res.TotalGames >= 18 && res.WinRate >= 70.0 {
-			res.HorseTag = "通天代/乱斗大爹"
-		} else if isHighRank {
-			res.HorseTag = "高分段降维打击"
-		} else if res.AvgKP >= 30.0 {
-			res.HorseTag = "团战发动机/输出拉满"
-		} else {
-			res.HorseTag = "大样本稳健上等马"
-		}
-	} else if (res.TotalGames >= 12 && res.WinRate <= 35.0) ||
-		(res.AvgDeaths >= 9.0 && res.AvgKP <= 18.0 && res.WinRate <= 45.0) ||
-		(streak <= -4 && res.WinRate <= 45.0) ||
-		(res.AvgKP <= 14.0 && res.WinRate <= 40.0 && res.TotalGames >= 8) {
-		res.HorseTier = "bottom"
-		res.HorseName = "下等马"
-		if res.AvgDeaths >= 9.0 && res.AvgKP <= 18.0 {
-			res.HorseTag = "纯送提款机/无效阵亡"
-		} else if streak <= -4 {
-			res.HorseTag = "连败破防/状态崩盘"
-		} else if res.AvgKP <= 14.0 {
-			res.HorseTag = "逛街OB怪/零参团"
-		} else {
-			res.HorseTag = "胜率低迷/乱斗黑洞"
-		}
-	} else {
-		res.HorseTier = "mid"
-		res.HorseName = "中等马"
-		// 在大乱斗中，死得多但参团极高，是极具价值的肉身开团手
-		if res.AvgDeaths >= 8.0 && res.AvgKP >= 26.0 {
-			res.HorseTag = "敢打敢开/肉身献祭流"
-		} else if res.KDA >= 2.5 {
-			res.HorseTag = "表现稳健/团队基石"
-		} else {
-			res.HorseTag = "均势发挥/常规选手"
-		}
+	if res.DamageShare >= 26.0 {
+		tags = append(tags, fmt.Sprintf("💥 伤害占比 %.0f%%", res.DamageShare))
+	} else if res.DamageTakenShare >= 30.0 {
+		tags = append(tags, fmt.Sprintf("🛡️ 承伤占比 %.0f%%", res.DamageTakenShare))
+	}
+
+	if res.AvgTurretDamage >= 3200 {
+		tags = append(tags, "🏰 拆塔分奴")
+	}
+
+	if len(champList) > 0 && champList[0].Games >= 3 {
+		tags = append(tags, fmt.Sprintf("常玩%s", champList[0].ChampionName))
 	}
 
 	res.Tags = tags
@@ -764,11 +1063,11 @@ func (a *Analyzer) AnalyzeCurrentMatch() (*MatchAnalysisResult, error) {
 func (a *Analyzer) GenerateHorseReport(res *MatchAnalysisResult) (report string) {
 	defer func() {
 		if r := recover(); r != nil {
-			report = "【马匹战报】解析异常"
+			report = "【对局战报】解析异常"
 		}
 	}()
 	if res == nil || !res.HasData {
-		return "【马匹战报】暂无对局数据"
+		return "【对局战报】暂无对局数据"
 	}
 
 	var allyBottom []string
@@ -781,10 +1080,10 @@ func (a *Analyzer) GenerateHorseReport(res *MatchAnalysisResult) (report string)
 		if idx := strings.Index(name, "#"); idx != -1 {
 			name = name[:idx]
 		}
-		if p.HorseTier == "bottom" && !p.IsSelf {
-			allyBottom = append(allyBottom, fmt.Sprintf("%s(%s,胜率%.0f%%)", name, p.HorseTag, p.WinRate))
-		} else if p.HorseTier == "top" && !p.IsSelf {
-			allyTop = append(allyTop, fmt.Sprintf("%s(%s)", name, p.HorseTag))
+		if (p.HorseTier == "d" || p.HorseTier == "c") && !p.IsSelf {
+			allyBottom = append(allyBottom, fmt.Sprintf("%s(%s,%s)", name, p.HorseRank, p.HorseTag))
+		} else if (p.HorseTier == "s_plus" || p.HorseTier == "s") && !p.IsSelf {
+			allyTop = append(allyTop, fmt.Sprintf("%s(%s,%s)", name, p.HorseRank, p.HorseTag))
 		}
 	}
 
@@ -793,29 +1092,29 @@ func (a *Analyzer) GenerateHorseReport(res *MatchAnalysisResult) (report string)
 		if idx := strings.Index(name, "#"); idx != -1 {
 			name = name[:idx]
 		}
-		if p.HorseTier == "top" {
-			enemyTop = append(enemyTop, fmt.Sprintf("%s(%s,%s)", name, p.RankTier, p.HorseTag))
-		} else if p.HorseTier == "bottom" {
-			enemyBottom = append(enemyBottom, fmt.Sprintf("%s(突破口)", name))
+		if p.HorseTier == "s_plus" || p.HorseTier == "s" {
+			enemyTop = append(enemyTop, fmt.Sprintf("%s(%s,%s)", name, p.HorseRank, p.HorseTag))
+		} else if p.HorseTier == "d" || p.HorseTier == "c" {
+			enemyBottom = append(enemyBottom, fmt.Sprintf("%s(%s,突破口)", name, p.HorseRank))
 		}
 	}
 
 	var parts []string
+	if len(allyTop) > 0 {
+		parts = append(parts, fmt.Sprintf("💪我方大核: %s", strings.Join(allyTop, "; ")))
+	}
 	if len(allyBottom) > 0 {
-		parts = append(parts, fmt.Sprintf("⚠️我方注意防崩: %s", strings.Join(allyBottom, "; ")))
+		parts = append(parts, fmt.Sprintf("⚠️我方防崩: %s", strings.Join(allyBottom, "; ")))
 	}
 	if len(enemyTop) > 0 {
-		parts = append(parts, fmt.Sprintf("🚨敌方通天代: %s", strings.Join(enemyTop, "; ")))
+		parts = append(parts, fmt.Sprintf("🚨敌方通天大爹: %s", strings.Join(enemyTop, "; ")))
 	}
 	if len(enemyBottom) > 0 {
-		parts = append(parts, fmt.Sprintf("🎯敌方突破口: %s", strings.Join(enemyBottom, "; ")))
-	}
-	if len(allyTop) > 0 {
-		parts = append(parts, fmt.Sprintf("💪我方核心: %s", strings.Join(allyTop, "; ")))
+		parts = append(parts, fmt.Sprintf("🎯敌方下水道突破口: %s", strings.Join(enemyBottom, "; ")))
 	}
 
 	if len(parts) == 0 {
-		return "【马匹分析】双方均为均势中等马，正常稳健发挥！"
+		return "【对局战报】双方战力均衡，均为 A/B 级中流砥柱，稳扎稳打即可！"
 	}
-	return "【马匹战报】" + strings.Join(parts, " | ")
+	return "【对局战报】" + strings.Join(parts, " | ")
 }

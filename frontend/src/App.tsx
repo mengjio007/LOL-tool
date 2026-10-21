@@ -28,7 +28,6 @@ import {
   Square,
   Swords,
   RefreshCw,
-  Flame,
   Info,
   MessageSquare,
   Send,
@@ -1006,17 +1005,38 @@ export default function App() {
 
 // Single Player Horse Card Component
 function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof translations.zh }) {
-  const isTop = player.horseTier === 'top';
-  const isBottom = player.horseTier === 'bottom';
+  const tier = player.horseTier;
 
-  const badgeBg = isTop
-    ? 'bg-gradient-to-r from-amber-500/25 via-emerald-500/20 to-amber-500/25 border-amber-500/60 text-amber-300 shadow-[0_0_8px_rgba(200,155,60,0.25)]'
-    : isBottom
-    ? 'bg-rose-500/20 border-rose-500/40 text-rose-300 shadow-[0_0_8px_rgba(244,63,94,0.2)]'
-    : 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300';
+  // 6-Tier Visual Theme Configuration
+  let badgeBg = 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300';
+  let tierIcon = '🛡️';
+  let tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'A 中等 · 中流砥柱';
 
-  const horseIcon = isTop ? '🐎' : isBottom ? '🐴' : '🐎';
-  const horseLabel = isTop ? t.topHorse : isBottom ? t.bottomHorse : t.midHorse;
+  if (tier === 's_plus') {
+    badgeBg = 'bg-gradient-to-r from-amber-400/30 via-purple-500/25 to-amber-400/30 border-amber-400/70 text-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.35)] animate-pulse';
+    tierIcon = '👑';
+    tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'S+ 特等 · 降维通天代';
+  } else if (tier === 's' || tier === 'top') {
+    badgeBg = 'bg-gradient-to-r from-emerald-500/25 via-amber-500/20 to-emerald-500/25 border-emerald-500/60 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.25)]';
+    tierIcon = '⚔️';
+    tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'S 上等 · 全场掌舵者';
+  } else if (tier === 'a' || tier === 'mid') {
+    badgeBg = 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300';
+    tierIcon = '🛡️';
+    tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'A 中等 · 中流砥柱';
+  } else if (tier === 'b') {
+    badgeBg = 'bg-amber-500/15 border-amber-500/30 text-amber-300';
+    tierIcon = '⚠️';
+    tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'B 次等 · 状态摇摆者';
+  } else if (tier === 'c' || tier === 'bottom') {
+    badgeBg = 'bg-orange-500/20 border-orange-500/40 text-orange-300 shadow-[0_0_8px_rgba(249,115,22,0.2)]';
+    tierIcon = '🚨';
+    tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'C 下等 · 红温突破口';
+  } else if (tier === 'd') {
+    badgeBg = 'bg-rose-600/25 border-rose-600/70 text-rose-300 shadow-[0_0_12px_rgba(225,29,72,0.35)]';
+    tierIcon = '🐮';
+    tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'D 劣等 · 下水道纯牛马';
+  }
 
   const winRateNum = player.winRate ?? 0;
   const avgKillsNum = player.avgKills ?? 0;
@@ -1024,6 +1044,12 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
   const avgAssistsNum = player.avgAssists ?? 0;
   const kdaNum = player.kda ?? 0;
   const avgKpNum = player.avgKp ?? (avgKillsNum + avgAssistsNum);
+
+  const avgDmgK = player.avgDamage ? (player.avgDamage / 1000).toFixed(1) : '0';
+  const avgTankK = player.avgDamageTaken ? (player.avgDamageTaken / 1000).toFixed(1) : '0';
+  const dmgShare = player.damageShare ? player.damageShare.toFixed(0) : '20';
+  const tankShare = player.damageTakenShare ? player.damageTakenShare.toFixed(0) : '20';
+  const guardianPct = player.guardianRatio !== undefined ? `${player.guardianRatio.toFixed(0)}%` : '0%';
 
   return (
     <div
@@ -1033,7 +1059,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
           : 'border-rose-500/20 bg-[#160a14]/75 hover:border-rose-500/40'
       }`}
     >
-      {/* Header: Name, Rank, Horse Rating */}
+      {/* Header: Name, Rank, 6-Tier Rating Badge */}
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-1.5 overflow-hidden">
           <span
@@ -1048,7 +1074,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
               {t.selfBadge}
             </span>
           )}
-          <span className="text-xs font-semibold text-[#f0e6d2] truncate max-w-[170px] flex items-baseline" title={player.summonerName}>
+          <span className="text-xs font-semibold text-[#f0e6d2] truncate max-w-[160px] flex items-baseline" title={player.summonerName}>
             {player.summonerName && player.summonerName !== '未知玩家' ? (
               player.summonerName.includes('#') ? (
                 <>
@@ -1064,22 +1090,25 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
               t.unknownPlayer
             )}
           </span>
-          <span className="text-[10px] text-slate-400 font-mono truncate max-w-[100px]">
+          <span className="text-[10px] text-slate-400 font-mono truncate max-w-[90px]">
             {player.rankTier}
           </span>
         </div>
 
+        {/* 6-Tier Unified Badge */}
         <div
           className={`px-2 py-0.5 rounded-full border text-[11px] font-bold flex items-center gap-1 shrink-0 ${badgeBg}`}
         >
-          <span>{horseIcon}</span>
-          <span>{horseLabel}</span>
-          <span className="text-[10px] font-normal opacity-85">· {player.horseTag}</span>
+          <span>{tierIcon}</span>
+          <span>{tierDisplay}</span>
+          {player.score !== undefined && (
+            <span className="text-[9px] font-mono opacity-80 ml-0.5">({player.score}分)</span>
+          )}
         </div>
       </div>
 
-      {/* Stats summary: 近N场胜率 & KDA & 参团贡献 */}
-      <div className="grid grid-cols-3 gap-1 bg-black/40 rounded-lg p-1.5 text-[11px] mb-1.5 border border-white/5">
+      {/* Row 1: 近N场胜率 & KDA & 参团贡献 */}
+      <div className="grid grid-cols-3 gap-1 bg-black/40 rounded-lg p-1.5 text-[11px] mb-1 border border-white/5">
         <div>
           <div className="text-[10px] text-slate-500">
             {t.recentWr.replace('{count}', String(player.totalGames || 20))}
@@ -1112,7 +1141,27 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
         </div>
       </div>
 
-      {/* Top Champions & Tags */}
+      {/* Row 2: 核心战术占比排 (输出占比 & 承伤占比 & 守护者出装) */}
+      <div className="grid grid-cols-3 gap-1 bg-black/25 rounded-md px-1.5 py-1 text-[10px] mb-1.5 border border-white/5 font-mono">
+        <div className="flex items-center gap-1">
+          <span className="text-slate-400">💥输出:</span>
+          <span className="font-bold text-amber-300">{avgDmgK}k</span>
+          <span className="text-[9px] text-slate-500">({dmgShare}%)</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="text-slate-400">🛡️承伤:</span>
+          <span className="font-bold text-cyan-300">{avgTankK}k</span>
+          <span className="text-[9px] text-slate-500">({tankShare}%)</span>
+        </div>
+        <div className="flex items-center gap-1 truncate">
+          <span className="text-slate-400">🎒守护者:</span>
+          <span className={`font-semibold ${player.guardianRatio && player.guardianRatio >= 25 ? 'text-emerald-400' : 'text-slate-400'}`}>
+            {guardianPct}
+          </span>
+        </div>
+      </div>
+
+      {/* Row 3: Top Champions & Highlights Tags */}
       <div className="flex items-center justify-between text-[10px]">
         <div className="flex items-center gap-1 overflow-hidden">
           <span className="text-slate-500 shrink-0">{t.oftenPlays}</span>
@@ -1120,7 +1169,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
             player.topChampions.map((c, i) => (
               <span
                 key={i}
-                className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-slate-300 truncate max-w-[100px]"
+                className="px-1.5 py-0.5 rounded bg-white/5 border border-white/5 text-slate-300 truncate max-w-[90px]"
               >
                 {c.championName} ({c.games}把 {(c.winRate ?? 0).toFixed(0)}%)
               </span>
@@ -1135,9 +1184,14 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
             player.tags.map((tagItem, i) => (
               <span
                 key={i}
-                className="px-1.5 py-0.5 rounded bg-[#c89b3c]/15 text-[#c89b3c] border border-[#c89b3c]/30 font-semibold flex items-center gap-0.5"
+                className={`px-1.5 py-0.5 rounded border font-semibold flex items-center gap-0.5 ${
+                  tagItem.includes('五杀') || tagItem.includes('🔥')
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_6px_rgba(251,191,36,0.2)]'
+                    : tagItem.includes('⚠️')
+                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                    : 'bg-[#c89b3c]/15 text-[#c89b3c] border-[#c89b3c]/30'
+                }`}
               >
-                {tagItem.includes('🔥') && <Flame className="w-2.5 h-2.5 text-amber-400" />}
                 {tagItem}
               </span>
             ))}

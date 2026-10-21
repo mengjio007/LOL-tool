@@ -1,7 +1,7 @@
-# LOL-tool (LOL Smart Assistant v1.0)
+# LOL-tool (LOL Smart Assistant v1.0.2)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-v1.0-gold?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-v1.0.2-gold?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Language-Go%201.25%20%7C%20React%2019-blue?style=for-the-badge" alt="Tech Stack">
   <img src="https://img.shields.io/badge/GUI-Wails%20v2-emerald?style=for-the-badge" alt="Wails">
   <img src="https://img.shields.io/badge/Package%20Size-~4.0MB%20(UPX)-purple?style=for-the-badge" alt="Size">
@@ -66,62 +66,38 @@
 
 ---
 
-### 2. 🐎 Match Horse Radar & Hextech ARAM Horse Rating Algorithm
+### 2. 🐎 6-Tier Full-Spectrum Battle Power Radar (Hextech ARAM Multi-Pillar Engine)
 
-Upon entering **Champ Select** or an **Active Match (InProgress)**, the tool analyzes recent match records of all 10 players concurrently via high-speed Go routines, labeling `[YOU]`, `[Allies]`, and `[Enemies]` with comprehensive horse ratings and tactical tags.
+Upon entering **Champ Select** or an **Active Match (InProgress)**, the tool analyzes recent match records of all 10 players concurrently via high-speed Go routines, presenting an intuitive **6-tier pyramid rating system** alongside in-depth tactical badges.
 
-#### 🧠 Horse Rating ("Top / Mid / Bottom Horse") Algorithm Breakdown
+#### 🏆 6-Tier Hierarchy Overview
 
-Traditional stat tools label players as "feeders" or "carries" simply based on KDA or short-term win rates. In high-intensity modes like **ARAM** and **Hextech ARAM**, this is often misleading. LOL-tool utilizes a specialized **multi-dimensional, big-sample weighted algorithm**:
+| Tier | Score Range | Unified Card Badge | In-Game Performance & Archetype |
+| :---: | :---: | :--- | :--- |
+| **S+** | $\ge 140$ pts | **👑 S+ Grand · Transcendent Carry** | **Raid Boss**: Damage share >30%, multi-penta/quadra kills, 65%+ win rate & hot streak. Protect him to win! |
+| **S** | $120 \sim 139$ | **⚔️ S Core · Team Helmsman** | **Major Pillar**: Damage share 26%+, or 35%+ tanking share frontline with Horn. Highly dependable. |
+| **A** | $100 \sim 119$ | **🛡️ A Solid · Team Anchor** | **Solid Performer**: Stats hover near 20% team baseline, solid team player who listens and doesn't feed. |
+| **B** | $85 \sim 99$ | **⚠️ B Wavering · Rollercoaster** | **Slight Drag**: Sub-par damage share (13%~16%), requires allies to pick up the slack. |
+| **C** | $70 \sim 84$ | **🚨 C Vulnerable · Tilt Point** | **Liability**: High deaths, low damage contribution, primary target for enemies and focus for ally caution. |
+| **D** | $< 70$ pts | **🐮 D Disaster · Bottom Feeder** | **Walking Disaster**: On a 4+ loss tilt streak today, 10+ deaths per game, extreme tilt. Explicit warning! |
 
-```
-                    ┌───────────────────────────────┐
-                    │ Retrieve Recent 20-Game Sample│
-                    └──────────────┬────────────────┘
-                                   │
-         ┌─────────────────────────┴─────────────────────────┐
-         ▼                                                   ▼
-┌─────────────────────────────────┐         ┌─────────────────────────────────┐
-│ Big Sample & Rank Verification  │         │ Tactical Value Weighting (ARAM) │
-│ - WR >= 65% (Requires >=15~20G) │         │ - Kill Participation KP = K + A │
-│ - High Rank (Master/GM/Chall)   │         │ - Deaths (Frontline initiation) │
-└────────────────┬────────────────┘         └────────────────┬────────────────┘
-                 │                                           │
-                 └─────────────────────────┬─────────────────┘
-                                           │
-                       ┌───────────────────┴───────────────────┐
-                       ▼                                       ▼
-        ┌─────────────────────────────┐         ┌─────────────────────────────┐
-        │       🌟 Top Horse (上等马)  │         │    ⚠️ Bottom Horse (下等马) │
-        │ - 20-Game proven big carry  │         │ - Low WR (<=35%) + Low KP   │
-        │ - High rank dimension crush │         │ - True feeder / useless deaths│
-        │ - Teamfight engine (high KP)│         │ - Tilt streak / zero KP AFK │
-        └─────────────────────────────┘         └─────────────────────────────┘
-                                           │
-                                           ▼
-                        ┌─────────────────────────────────────┐
-                        │        🛡️ Mid Horse (中等马)         │
-                        │ - Sacrificial Tank (High D, High KP)│
-                        │ - Steady performer / Team anchor    │
-                        │ - Standard balanced player          │
-                        └─────────────────────────────────────┘
-```
+#### 🧠 5-Pillar Comprehensive Decision Engine
 
-#### Detailed Decision Dimensions:
-
-1. **Big Sample Requirement for High Win Rate ($\ge 65\%$)**:
-   - In ARAM, a player winning 3 to 4 games in a row (75%~100% win rate) is often just fortunate champion RNG or teammate luck.
-   - The algorithm mandates: **Win rates $\ge 65\%$ must have at least 15~20 games in the sample** before being awarded `Top Horse / Hard Carry` status.
-2. **Recognition of the "Sacrificial Tank" in Hextech ARAM (Why High Deaths $\ne$ Feeder)**:
-   - In ARAM, dying is mandatory to purchase items and restore health, and frontline tanks must soak cooldowns and initiate teamfights.
-   - If a player averages 8~10 deaths per game but maintains high kill participation ($KP = Kills + Assists \ge 26 \sim 32$), **they are the true teamfight engine of the squad!**
-   - The algorithm rewards this playstyle with tags like `🐎 Mid Horse · Aggressive Initiator / Sacrificial Tank`, never misclassifying them as feeders.
-3. **Strict Criteria for Bottom Horse (The True Liability)**:
-   - A player is tagged as `🐴 Bottom Horse · ATM Machine / Useless Deaths` only when meeting all three conditions: **Low Win Rate ($\le 40\%$) AND High Deaths ($\ge 9$) AND Low KP ($\le 18$)**.
-   - Players who play passively to preserve KDA with zero damage output and under 14 KP are tagged as `🐴 Bottom Horse · Spectator / Zero KP`.
-   - Players on a $\ge 4$-game losing streak with sub-45% win rate receive the `Tilt Streak / Collapsed State` warning.
-4. **High-Rank Solo Queue Dimension Reduction**:
-   - Analyzes players' 5v5 Solo Queue rank (Challenger, Grandmaster, Master, Diamond) and LP to highlight elite players entering casual queues.
+1. **Role Tactical Share (40%) —— Rebuffing Damage Inflation**:
+   - Rejects raw damage values that are inflated by Hextech augments;
+   - Calculates **Damage Share %**, **Damage Taken Share %**, and **Heal Share %** relative to the 20% team baseline.
+2. **Itemization & Duration Awareness (15%) —— Dynamic Guardian Items**:
+   - Tracks Guardian items (Horn 2051, Blade 3177, Hammer 3184, Orb 3112);
+   - Duration-aware: Evaluates Horn in <16min games; selling Guardian items at 20+ min full build is acknowledged as high-tier play without penalty!
+3. **Mental State & Tilt Index (20%) —— Tilt Override Power**:
+   - Players on a 4+ losing streak today with inflated deaths are marked as `⚠️ Tilt Warning` and **stripped of S/A tier eligibility**;
+   - 3+ game win streaks trigger the `🔥 Hot Streak` aura.
+4. **Highlights & Objectives (15%) —— Multi-Kills & Turret Damage**:
+   - Accounts for Penta, Quadra, and Triple kills;
+   - Factors in **Damage Dealt to Turrets** to reward players focused on destroying the nexus.
+5. **Extreme Win Rate Activation (10%) —— Big Sample Anti-RNG**:
+   - Neutral weight between 45%~60%;
+   - High weights only activate in extreme territory ($\ge 70\%$ or $\le 35\%$).
 
 ---
 
