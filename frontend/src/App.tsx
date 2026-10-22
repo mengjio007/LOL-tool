@@ -159,7 +159,9 @@ export default function App() {
       setIsUpdating(false);
       setUpdateToast({ type: 'warn', msg: t.updateFailedFallback });
       setTimeout(() => setUpdateToast(null), 5000);
-      if (updateInfo.releaseUrl) {
+      if (updateInfo.gitCodeUrl) {
+        await WailsBridge.openBrowser(updateInfo.gitCodeUrl);
+      } else if (updateInfo.releaseUrl) {
         await WailsBridge.openBrowser(updateInfo.releaseUrl);
       }
     }
@@ -964,36 +966,54 @@ export default function App() {
                   />
                 </div>
                 <p className="text-[10px] text-slate-400 text-center mt-1">
-                  {updateProgress >= 100 ? t.updateSuccessRestarting : '正在从 GitHub 安全下载，请稍候...'}
+                  {updateProgress >= 100 ? t.updateSuccessRestarting : '正在从国内加速节点下载并校验，请稍候...'}
                 </p>
               </div>
             ) : (
-              <div className="flex items-center gap-2 pt-2 border-t border-white/10">
-                <button
-                  onClick={handleStartUpdate}
-                  className="flex-1 py-1.5 px-3 rounded bg-gradient-to-r from-[#c89b3c] to-[#a87f28] hover:from-[#d8ab4c] hover:to-[#b88f38] text-black font-semibold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#c89b3c]/20 transition-all cursor-pointer"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>{t.updateNow}</span>
-                </button>
+              <div className="space-y-2.5 pt-2 border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleStartUpdate}
+                    className="flex-1 py-1.5 px-3 rounded bg-gradient-to-r from-[#c89b3c] to-[#a87f28] hover:from-[#d8ab4c] hover:to-[#b88f38] text-black font-semibold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#c89b3c]/20 transition-all cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>{t.updateNow}</span>
+                  </button>
 
-                <button
-                  onClick={() => {
-                    if (updateInfo.releaseUrl) WailsBridge.openBrowser(updateInfo.releaseUrl);
-                  }}
-                  className="py-1.5 px-2.5 rounded bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                  title={t.openInBrowser}
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>{t.openInBrowser}</span>
-                </button>
+                  <button
+                    onClick={() => setShowUpdateModal(false)}
+                    className="py-1.5 px-2.5 rounded bg-transparent hover:bg-white/5 text-slate-400 hover:text-slate-200 text-xs transition-colors cursor-pointer"
+                  >
+                    <span>{t.remindLater}</span>
+                  </button>
+                </div>
 
-                <button
-                  onClick={() => setShowUpdateModal(false)}
-                  className="py-1.5 px-2.5 rounded bg-transparent hover:bg-white/5 text-slate-400 hover:text-slate-200 text-xs transition-colors cursor-pointer"
-                >
-                  <span>{t.remindLater}</span>
-                </button>
+                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-white/5">
+                  <span className="text-[10px] text-slate-400">备用手动下载源:</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        if (updateInfo.gitCodeUrl) WailsBridge.openBrowser(updateInfo.gitCodeUrl);
+                      }}
+                      className="hover:text-[#c89b3c] text-cyan-400 underline underline-offset-2 flex items-center gap-1 text-[11px] cursor-pointer"
+                      title={t.openGitCode}
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>{t.openGitCode}</span>
+                    </button>
+                    <span className="text-slate-600">|</span>
+                    <button
+                      onClick={() => {
+                        if (updateInfo.releaseUrl) WailsBridge.openBrowser(updateInfo.releaseUrl);
+                      }}
+                      className="hover:text-[#c89b3c] text-slate-300 underline underline-offset-2 flex items-center gap-1 text-[11px] cursor-pointer"
+                      title={t.openInBrowser}
+                    >
+                      <ExternalLink className="w-3 h-3" />
+                      <span>{t.openInBrowser}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

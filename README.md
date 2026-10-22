@@ -1,7 +1,7 @@
-# LOL-tool (英雄联盟智能助手 v1.0.2)
+# LOL-tool (英雄联盟智能助手 v1.0.3)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-v1.0.2-gold?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-v1.0.3-gold?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Language-Go%201.25%20%7C%20React%2019-blue?style=for-the-badge" alt="Tech Stack">
   <img src="https://img.shields.io/badge/GUI-Wails%20v2-emerald?style=for-the-badge" alt="Wails">
   <img src="https://img.shields.io/badge/Package%20Size-~4.0MB%20(UPX)-purple?style=for-the-badge" alt="Size">
@@ -132,11 +132,11 @@
 
 ---
 
-### 6. 🚀 智能版本检测与非强制平滑更新 (Smart & Non-Forced Update)
-- **以 GitHub Release 为唯一基准**：应用启动时在后台静默检测，或点击标题栏版本号/底部【检查更新】即时校验，精准比对语义化版本号。
+### 6. 🚀 智能多源版本检测与国内无阻平滑更新 (Smart & Dual-Channel Update)
+- **国内双渠道智能互备 (GitCode + GitHub)**：应用启动时后台静默检测，同时接入 **GitCode 国内镜像源** 与 **GitHub 官方源**，智能规避 GitHub 在国内的 DNS 污染与 60次/小时 API 频控限制。
+- **国内 CDN 自动故障转移**：应用内点击【立即在线更新】时，底层自动配置国内高速加速节点与 Windows PE 二进制完整性校验，国内直连用户无需梯子或 VPN 即可享受秒级极速下载。
 - **绝对非强制，使用零打扰**：检测到新版本时仅优雅浮现弹窗与呼吸提示灯，绝不强制阻塞用户正常使用，支持一键点击【稍后提醒】或随时关闭。
-- **一键在线平滑更新**：点击【立即在线更新】即可在应用内自动下载并显示实时进度条，下载完成后安全替换并自动重启。
-- **浏览器下载双重兜底**：若遇到极端网络环境，可直接点击【浏览器下载】跳转至 GitHub Releases 页面手动下载。
+- **多平台直达双重兜底**：若遇到极端断网，更新弹窗贴心提供【GitCode 国内下载】与【GitHub 下载】双通道，一键唤起浏览器手动保存。
 
 
 ---
@@ -144,9 +144,11 @@
 ## 🚀 快速使用指南
 
 ### 方式一：直接运行成品 (推荐)
-1. 从本仓库直接下载最新版的可执行文件：[**lol-helper-v1.0.exe**](https://github.com/mengjio007/LOL-tool/releases/latest/download/lol-helper-v1.0.exe)（仅 3.85 MB，点击直链下载）。
+- **国内直连用户 (推荐)**：[**前往 GitCode 发行版下载**](https://gitcode.com/mengjio007/lol-tool/releases)（电信/联通/移动满速，无需代理）。
+- **海外或 GitHub 用户**：[**前往 GitHub Releases 官方下载**](https://github.com/mengjio007/LOL-tool/releases/latest)。
+1. 下载最新版的可执行文件 `lol-helper-v1.0.3.exe`（单文件仅 ~3.87 MB，免安装解压即用）。
 2. 打开英雄联盟客户端（先后启动顺序无所谓，助手会自动侦测连接）。
-3. 双击运行 `lol-helper-v1.0.exe` 即可享受全自动静默守护。
+3. 双击运行 `lol-helper-v1.0.3.exe` 即可享受全自动静默守护。
 
 ---
 

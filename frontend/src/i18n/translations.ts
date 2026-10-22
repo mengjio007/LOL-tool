@@ -4,7 +4,7 @@ export const translations = {
   zh: {
     // Header
     appTitle: 'LOL 智能助手',
-    version: 'v1.0.2',
+    version: 'v1.0.3',
     alwaysOnTop: '窗口置顶',
     unpin: '取消置顶',
     minimize: '最小化',
@@ -124,7 +124,7 @@ export const translations = {
 
     // Footer
     backgroundActive: '后台静默监控已启用',
-    footerBrand: 'LOL 智能助手 v1.0.2 · 静默无打扰',
+    footerBrand: 'LOL 智能助手 v1.0.3 · 静默无打扰',
 
     // Updates
     checkUpdate: '检查更新',
@@ -138,15 +138,16 @@ export const translations = {
     updateNow: '立即在线更新',
     updateDownloading: '正在下载更新 ({percent}%)...',
     updateSuccessRestarting: '下载完成，正在重启应用...',
-    updateFailedFallback: '自动更新异常，已为您打开浏览器下载页面',
-    openInBrowser: '浏览器下载',
+    updateFailedFallback: '自动更新异常，已为您打开下载页面（GitHub / GitCode）',
+    openInBrowser: 'GitHub 下载',
+    openGitCode: 'GitCode 国内下载',
     remindLater: '稍后提醒',
     hasNewVersionDot: '发现新版本！点击查看',
   },
   en: {
     // Header
     appTitle: 'LOL Smart Assistant',
-    version: 'v1.0.2',
+    version: 'v1.0.3',
     alwaysOnTop: 'Always on Top',
     unpin: 'Unpin',
     minimize: 'Minimize',
@@ -266,7 +267,7 @@ export const translations = {
 
     // Footer
     backgroundActive: 'Background monitoring active',
-    footerBrand: 'LOL Smart Assistant v1.0.2 · Non-intrusive',
+    footerBrand: 'LOL Smart Assistant v1.0.3 · Non-intrusive',
 
     // Updates
     checkUpdate: 'Check for Updates',
@@ -280,8 +281,9 @@ export const translations = {
     updateNow: 'Update Now',
     updateDownloading: 'Downloading update ({percent}%)...',
     updateSuccessRestarting: 'Download complete, restarting app...',
-    updateFailedFallback: 'Auto-update failed, opening browser download page...',
-    openInBrowser: 'Download in Browser',
+    updateFailedFallback: 'Auto-update failed, opening release download pages...',
+    openInBrowser: 'GitHub Download',
+    openGitCode: 'GitCode Mirror',
     remindLater: 'Remind Me Later',
     hasNewVersionDot: 'New version available! Click to view',
   },

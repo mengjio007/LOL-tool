@@ -291,9 +291,11 @@ export namespace updater {
 	    releaseName: string;
 	    releaseNotes: string;
 	    releaseUrl: string;
+	    gitCodeUrl: string;
 	    downloadUrl: string;
 	    assetSize: number;
 	    publishedAt: string;
+	    sourceChannel: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new UpdateInfo(source);
@@ -307,9 +309,11 @@ export namespace updater {
 	        this.releaseName = source["releaseName"];
 	        this.releaseNotes = source["releaseNotes"];
 	        this.releaseUrl = source["releaseUrl"];
+	        this.gitCodeUrl = source["gitCodeUrl"];
 	        this.downloadUrl = source["downloadUrl"];
 	        this.assetSize = source["assetSize"];
 	        this.publishedAt = source["publishedAt"];
+	        this.sourceChannel = source["sourceChannel"];
 	    }
 	}
 

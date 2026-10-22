@@ -94,9 +94,11 @@ export interface UpdateInfo {
   releaseName: string;
   releaseNotes: string;
   releaseUrl: string;
+  gitCodeUrl?: string;
   downloadUrl: string;
   assetSize: number;
   publishedAt: string;
+  sourceChannel?: string;
 }
 
 export interface UpdateProgress {
