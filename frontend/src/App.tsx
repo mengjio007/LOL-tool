@@ -38,8 +38,10 @@ import {
   ExternalLink,
   Sparkles,
   Loader2,
+  BookOpen,
 } from 'lucide-react';
 import { translations, translateLog, type Language } from './i18n/translations';
+import { AlgorithmGuideView } from './components/AlgorithmGuideView';
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
@@ -55,7 +57,7 @@ export default function App() {
     localStorage.setItem('lol_helper_lang', nextLang);
   };
 
-  const [activeTab, setActiveTab] = useState<'automation' | 'analysis'>('automation');
+  const [activeTab, setActiveTab] = useState<'automation' | 'analysis' | 'algorithm'>('automation');
   const [teamFilter, setTeamFilter] = useState<'all' | 'blue' | 'red'>('all');
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
 
@@ -398,6 +400,18 @@ export default function App() {
             <span className="w-2 h-2 rounded-full bg-[#0ac8b9] animate-pulse" />
           )}
         </button>
+
+        <button
+          onClick={() => setActiveTab('algorithm')}
+          className={`flex items-center gap-1.5 py-2 px-3 border-b-2 font-medium transition-colors ${
+            activeTab === 'algorithm'
+              ? 'border-[#c89b3c] text-[#f0e6d2]'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <BookOpen className="w-3.5 h-3.5 text-[#c89b3c]" />
+          <span>{t.tabAlgorithm}</span>
+        </button>
       </div>
 
       {/* Main Content Area */}
@@ -720,6 +734,14 @@ export default function App() {
                   <Info className="w-3 h-3" />
                   {t.localOnlyBadge}
                 </span>
+                <button
+                  onClick={() => setActiveTab('algorithm')}
+                  className="text-[10px] text-[#c89b3c] hover:text-[#f0e6d2] flex items-center gap-1 bg-[#c89b3c]/15 hover:bg-[#c89b3c]/25 px-1.5 py-0.5 rounded border border-[#c89b3c]/30 transition-colors cursor-pointer"
+                  title={t.viewAlgorithmHelp}
+                >
+                  <BookOpen className="w-2.5 h-2.5" />
+                  <span>{t.tabAlgorithm}</span>
+                </button>
               </div>
               <button
                 onClick={handleRefreshAnalysis}
@@ -860,6 +882,11 @@ export default function App() {
               </div>
             )}
           </div>
+        )}
+
+        {/* TAB 3: Algorithm Guide */}
+        {activeTab === 'algorithm' && (
+          <AlgorithmGuideView t={t} />
         )}
       </div>
 
