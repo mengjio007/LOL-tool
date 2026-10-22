@@ -13,13 +13,13 @@ import {
   Loader2,
   ShieldCheck,
   CheckCircle2,
-  Sliders,
   Globe,
 } from 'lucide-react';
 import type { UpdateInfo } from '../services/wailsBridge';
 import { WailsBridge } from '../services/wailsBridge';
 import type { translations } from '../i18n/translations';
 import { AlgorithmGuideView } from './AlgorithmGuideView';
+import appLogo from '../assets/appicon.png';
 
 export type SettingsTab = 'updates' | 'algorithm' | 'changelog' | 'contact';
 
@@ -78,8 +78,8 @@ export function SettingsModal({
         {/* 1. Modal Top Bar */}
         <div className="draggable relative z-10 px-4 py-3 bg-[#0a1428]/90 border-b border-white/10 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-[#c89b3c]/20 border border-[#c89b3c]/40 text-[#c89b3c]">
-              <Sliders className="w-4 h-4 text-[#c89b3c]" />
+            <div className="w-6 h-6 rounded-lg bg-[#c89b3c]/20 border border-[#c89b3c]/40 overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
+              <img src={appLogo} alt="Logo" className="w-full h-full object-cover rounded" />
             </div>
             <div>
               <h3 className="text-xs font-bold text-[#f0e6d2] flex items-center gap-2">

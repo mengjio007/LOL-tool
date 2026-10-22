@@ -6,6 +6,7 @@ lol-helper.exe
 lol-helper-v1.0.1.exe
 lol-helper-v1.0.2.exe
 lol-helper-v1.0.3.exe
+build/icon_*.png
 
 # Local runtime configuration
 config.json

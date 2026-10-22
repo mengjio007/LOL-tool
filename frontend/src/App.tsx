@@ -11,7 +11,6 @@ import type {
   UpdateInfo,
 } from './services/wailsBridge';
 import {
-  Shield,
   Zap,
   Users,
   RotateCcw,
@@ -42,6 +41,7 @@ import {
 import { translations, translateLog, type Language } from './i18n/translations';
 import { PlayerSearchView } from './components/PlayerSearchView';
 import { SettingsModal, type SettingsTab } from './components/SettingsModal';
+import appLogo from './assets/appicon.png';
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
@@ -312,8 +312,8 @@ export default function App() {
       {/* 1. Custom Title Bar */}
       <header className="draggable h-10 px-3 bg-[#091428]/95 flex items-center justify-between border-b border-[#c89b3c]/20">
         <div className="flex items-center gap-2">
-          <div className="p-1 rounded bg-[#c89b3c]/20 border border-[#c89b3c]/40 text-[#c89b3c]">
-            <Shield className="w-3.5 h-3.5" />
+          <div className="p-0.5 rounded bg-[#c89b3c]/20 border border-[#c89b3c]/40 text-[#c89b3c] flex items-center justify-center overflow-hidden shadow-inner">
+            <img src={appLogo} alt="Logo" className="w-4 h-4 rounded-sm object-cover" />
           </div>
           <span className="text-xs font-bold tracking-wider text-[#f0e6d2]">{t.appTitle}</span>
           <button
