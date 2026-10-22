@@ -3,6 +3,9 @@ build/bin/
 frontend/dist/
 frontend/node_modules/
 lol-helper.exe
+lol-helper-v1.0.1.exe
+lol-helper-v1.0.2.exe
+lol-helper-v1.0.3.exe
 
 # Local runtime configuration
 config.json

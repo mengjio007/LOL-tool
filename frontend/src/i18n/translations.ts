@@ -4,7 +4,7 @@ export const translations = {
   zh: {
     // Header
     appTitle: 'LOL 智能助手',
-    version: 'v1.0.3',
+    version: 'v1.0.4',
     alwaysOnTop: '窗口置顶',
     unpin: '取消置顶',
     minimize: '最小化',
@@ -127,7 +127,7 @@ export const translations = {
 
     // Footer
     backgroundActive: '后台静默监控已启用',
-    footerBrand: 'LOL 智能助手 v1.0.3 · 静默无打扰',
+    footerBrand: 'LOL 智能助手 v1.0.4 · 静默无打扰',
 
     // Updates
     checkUpdate: '检查更新',
@@ -218,11 +218,31 @@ export const translations = {
     searchScoreDetail: '5 大支柱综合评估画像',
     statGamesDetail: '{games} 场 · {wins}胜 {losses}负',
     statWinrateRate: '胜率 {rate}%',
+
+    // Settings & About Modal
+    settingsModalTitle: '设置与关于',
+    settingsTabUpdates: '软件更新',
+    settingsTabAlgorithm: '算法体系',
+    settingsTabChangelog: '版本历程',
+    settingsTabContact: '联系与反馈',
+    contactTitle: '开发者联系方式',
+    contactDesc: '如果您在使用过程中遇到任何问题，或对大乱斗马匹算法、自动化功能有任何改进建议，欢迎随时与我联系！',
+    contactEmail: '谷歌邮箱 (Gmail)',
+    contactEmailDesc: 'mengjio007@gmail.com',
+    contactGithub: 'GitHub 官方开源仓库',
+    contactGithubDesc: 'https://github.com/mengjio007/LOL-tool',
+    contactGitcode: 'GitCode 国内发行版镜像',
+    contactGitcodeDesc: 'https://gitcode.com/mengjio007/lol-tool',
+    copyEmailBtn: '复制邮箱',
+    sendEmailBtn: '发送邮件',
+    openLinkBtn: '浏览器打开',
+    copyLinkBtn: '复制链接',
+    aboutAppDesc: 'LOL 智能助手是一款基于 Wails v2 + React 19 构建的超轻量级英雄联盟桌面工具，零内存注入，不修改任何游戏文件，100% 绿色安全。',
   },
   en: {
     // Header
     appTitle: 'LOL Smart Assistant',
-    version: 'v1.0.3',
+    version: 'v1.0.4',
     alwaysOnTop: 'Always on Top',
     unpin: 'Unpin',
     minimize: 'Minimize',
@@ -345,7 +365,7 @@ export const translations = {
 
     // Footer
     backgroundActive: 'Background monitoring active',
-    footerBrand: 'LOL Smart Assistant v1.0.3 · Non-intrusive',
+    footerBrand: 'LOL Smart Assistant v1.0.4 · Non-intrusive',
 
     // Updates
     checkUpdate: 'Check for Updates',
@@ -436,6 +456,26 @@ export const translations = {
     searchScoreDetail: '5-Pillar Tactical Evaluation Breakdown',
     statGamesDetail: '{games} games · {wins}W {losses}L',
     statWinrateRate: 'Win Rate {rate}%',
+
+    // Settings & About Modal
+    settingsModalTitle: 'Settings & About',
+    settingsTabUpdates: 'Updates',
+    settingsTabAlgorithm: 'Algorithm',
+    settingsTabChangelog: 'Changelog',
+    settingsTabContact: 'Contact & About',
+    contactTitle: 'Developer Contact',
+    contactDesc: 'If you encounter any issues or have suggestions for the Hextech ARAM rating algorithm or automation features, feel free to reach out!',
+    contactEmail: 'Google Mail (Gmail)',
+    contactEmailDesc: 'mengjio007@gmail.com',
+    contactGithub: 'GitHub Official Repository',
+    contactGithubDesc: 'https://github.com/mengjio007/LOL-tool',
+    contactGitcode: 'GitCode Domestic Mirror',
+    contactGitcodeDesc: 'https://gitcode.com/mengjio007/lol-tool',
+    copyEmailBtn: 'Copy Email',
+    sendEmailBtn: 'Send Email',
+    openLinkBtn: 'Open in Browser',
+    copyLinkBtn: 'Copy URL',
+    aboutAppDesc: 'LOL Smart Assistant is an ultra-lightweight League of Legends desktop companion built on Wails v2 + React 19. 100% Zero-Memory-Injection and Vanguard safe.',
   },
 };
 

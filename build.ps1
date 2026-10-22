@@ -9,11 +9,11 @@ $upx = "C:\Users\Administrator\AppData\Local\Microsoft\WinGet\Packages\UPX.UPX_M
 if (Test-Path $upx) {
     & $upx -9 -f --compress-icons=0 "build\bin\lol-helper-raw.exe" -o "lol-helper.exe"
     Copy-Item "lol-helper.exe" -Destination "build\bin\lol-helper.exe" -Force
-    Copy-Item "lol-helper.exe" -Destination "lol-helper-v1.0.3.exe" -Force
+    Copy-Item "lol-helper.exe" -Destination "lol-helper-v1.0.4.exe" -Force
     Copy-Item "lol-helper.exe" -Destination "lol-helper-v1.0.exe" -Force
 } else {
     Copy-Item "build\bin\lol-helper-raw.exe" -Destination "lol-helper.exe" -Force
-    Copy-Item "build\bin\lol-helper-raw.exe" -Destination "lol-helper-v1.0.3.exe" -Force
+    Copy-Item "build\bin\lol-helper-raw.exe" -Destination "lol-helper-v1.0.4.exe" -Force
     Copy-Item "build\bin\lol-helper-raw.exe" -Destination "lol-helper-v1.0.exe" -Force
 }
 

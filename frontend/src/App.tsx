@@ -34,16 +34,14 @@ import {
   Copy,
   Check,
   Globe,
-  Download,
-  ExternalLink,
-  Sparkles,
   Loader2,
   BookOpen,
   Search,
+  Settings,
 } from 'lucide-react';
 import { translations, translateLog, type Language } from './i18n/translations';
-import { AlgorithmGuideView } from './components/AlgorithmGuideView';
 import { PlayerSearchView } from './components/PlayerSearchView';
+import { SettingsModal, type SettingsTab } from './components/SettingsModal';
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
@@ -59,7 +57,7 @@ export default function App() {
     localStorage.setItem('lol_helper_lang', nextLang);
   };
 
-  const [activeTab, setActiveTab] = useState<'automation' | 'analysis' | 'search' | 'algorithm'>('automation');
+  const [activeTab, setActiveTab] = useState<'automation' | 'analysis' | 'search'>('automation');
   const [teamFilter, setTeamFilter] = useState<'all' | 'blue' | 'red'>('all');
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
 
@@ -90,13 +88,19 @@ export default function App() {
   const [chatFeedback, setChatFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  // Update State
+  // Update & Settings State
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateProgress, setUpdateProgress] = useState(0);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('updates');
   const [updateToast, setUpdateToast] = useState<{ type: 'info' | 'success' | 'warn'; msg: string } | null>(null);
+
+  const openSettings = (tab: SettingsTab = 'updates') => {
+    setSettingsTab(tab);
+    setShowSettingsModal(true);
+  };
 
   // Background check on mount (delay 2s) - Silent check only, never auto-popup
   useEffect(() => {
@@ -131,7 +135,7 @@ export default function App() {
       if (info) {
         setUpdateInfo(info);
         if (info.hasUpdate) {
-          setShowUpdateModal(true);
+          openSettings('updates');
           if (isManual) setUpdateToast(null);
         } else {
           if (isManual) {
@@ -313,20 +317,11 @@ export default function App() {
           </div>
           <span className="text-xs font-bold tracking-wider text-[#f0e6d2]">{t.appTitle}</span>
           <button
-            onClick={() => {
-              if (updateInfo?.hasUpdate) {
-                setShowUpdateModal(true);
-              } else {
-                handleCheckUpdate(true);
-              }
-            }}
-            title={updateInfo?.hasUpdate ? t.hasNewVersionDot : t.checkUpdate}
-            disabled={isCheckingUpdate}
-            className="non-draggable relative flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-[#c89b3c]/15 hover:bg-[#c89b3c]/30 text-[#c89b3c] font-mono border border-[#c89b3c]/30 transition-all cursor-pointer"
+            onClick={() => openSettings('updates')}
+            title={updateInfo?.hasUpdate ? t.hasNewVersionDot : t.settingsModalTitle}
+            className="non-draggable relative flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full bg-[#c89b3c]/15 hover:bg-[#c89b3c]/30 text-[#c89b3c] font-medium border border-[#c89b3c]/30 transition-all cursor-pointer"
           >
-            {isCheckingUpdate ? (
-              <Loader2 className="w-2.5 h-2.5 animate-spin text-[#c89b3c]" />
-            ) : null}
+            <Settings className="w-3 h-3 text-[#c89b3c]" />
             <span>{t.version}</span>
             {updateInfo?.hasUpdate && (
               <span className="relative flex h-2 w-2">
@@ -342,10 +337,19 @@ export default function App() {
           <button
             onClick={toggleLang}
             title={t.langToggleTitle}
-            className="px-2 py-0.5 rounded text-[11px] font-semibold text-[#c89b3c] bg-[#c89b3c]/15 hover:bg-[#c89b3c]/30 border border-[#c89b3c]/40 flex items-center gap-1 transition-colors cursor-pointer mr-1"
+            className="px-2 py-0.5 rounded text-[11px] font-semibold text-[#c89b3c] bg-[#c89b3c]/15 hover:bg-[#c89b3c]/30 border border-[#c89b3c]/40 flex items-center gap-1 transition-colors cursor-pointer mr-0.5"
           >
             <Globe className="w-3 h-3 text-[#c89b3c]" />
             <span>{t.langToggle}</span>
+          </button>
+
+          {/* Settings & About Button */}
+          <button
+            onClick={() => openSettings('updates')}
+            title={t.settingsModalTitle}
+            className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-[#c89b3c] transition-colors cursor-pointer"
+          >
+            <Settings className="w-3.5 h-3.5" />
           </button>
 
           <button
@@ -413,18 +417,6 @@ export default function App() {
         >
           <Search className="w-3.5 h-3.5 text-[#0ac8b9]" />
           <span>{t.tabSearch}</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('algorithm')}
-          className={`flex items-center gap-1.5 py-2 px-3 border-b-2 font-medium transition-colors ${
-            activeTab === 'algorithm'
-              ? 'border-[#c89b3c] text-[#f0e6d2]'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          <BookOpen className="w-3.5 h-3.5 text-[#c89b3c]" />
-          <span>{t.tabAlgorithm}</span>
         </button>
       </div>
 
@@ -757,7 +749,7 @@ export default function App() {
                   <span>{t.tabSearch}</span>
                 </button>
                 <button
-                  onClick={() => setActiveTab('algorithm')}
+                  onClick={() => openSettings('algorithm')}
                   className="text-[10px] text-[#c89b3c] hover:text-[#f0e6d2] flex items-center gap-1 bg-[#c89b3c]/15 hover:bg-[#c89b3c]/25 px-1.5 py-0.5 rounded border border-[#c89b3c]/30 transition-colors cursor-pointer"
                   title={t.viewAlgorithmHelp}
                 >
@@ -912,13 +904,8 @@ export default function App() {
             t={t}
             clientConnected={status.connected}
             currentSummoner={status.summoner}
-            onViewAlgorithm={() => setActiveTab('algorithm')}
+            onViewAlgorithm={() => openSettings('algorithm')}
           />
-        )}
-
-        {/* TAB 4: Algorithm Guide */}
-        {activeTab === 'algorithm' && (
-          <AlgorithmGuideView t={t} />
         )}
       </div>
 
@@ -930,19 +917,12 @@ export default function App() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => {
-              if (updateInfo?.hasUpdate) {
-                setShowUpdateModal(true);
-              } else {
-                handleCheckUpdate(true);
-              }
-            }}
-            disabled={isCheckingUpdate}
+            onClick={() => openSettings('updates')}
             className="text-slate-400 hover:text-[#c89b3c] transition-colors flex items-center gap-1 cursor-pointer"
-            title={t.checkUpdate}
+            title={updateInfo?.hasUpdate ? t.hasNewVersionDot : t.settingsModalTitle}
           >
-            <RefreshCw className={`w-2.5 h-2.5 ${isCheckingUpdate ? 'animate-spin text-[#c89b3c]' : ''}`} />
-            <span>{t.checkUpdate}</span>
+            <Settings className="w-3 h-3" />
+            <span>{t.settingsModalTitle}</span>
             {updateInfo?.hasUpdate && (
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             )}
@@ -966,118 +946,19 @@ export default function App() {
         </div>
       )}
 
-      {/* Non-forced Update Modal Dialog */}
-      {showUpdateModal && updateInfo && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="relative w-full max-w-sm bg-[#091428] border border-[#c89b3c]/50 rounded-xl shadow-2xl p-5 text-[#f0e6d2] overflow-hidden">
-            {/* Background Glow */}
-            <div className="absolute -top-12 -right-12 w-32 h-32 bg-[#c89b3c]/15 rounded-full blur-2xl pointer-events-none" />
-
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-[#c89b3c]/20 border border-[#c89b3c]/40 text-[#c89b3c]">
-                  <Sparkles className="w-4 h-4 text-[#c89b3c]" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-[#f0e6d2] flex items-center gap-1.5">
-                    <span>{t.newVersionFound.replace('{version}', updateInfo.latestVersion)}</span>
-                  </h3>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
-                    {t.currentVersionLabel.replace('{version}', updateInfo.currentVersion)}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowUpdateModal(false)}
-                disabled={isUpdating}
-                className="p-1 rounded text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                title={t.remindLater}
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Release Notes */}
-            <div className="my-3.5 space-y-1.5">
-              <div className="text-[11px] font-semibold text-[#c89b3c] flex items-center gap-1">
-                <span>{t.releaseNotes}</span>
-              </div>
-              <div className="max-h-32 overflow-y-auto rounded bg-black/40 border border-white/10 p-2.5 text-xs text-slate-300 leading-relaxed font-sans whitespace-pre-wrap select-text">
-                {updateInfo.releaseNotes?.trim() || t.noReleaseNotes}
-              </div>
-            </div>
-
-            {/* Downloading State or Action Buttons */}
-            {isUpdating ? (
-              <div className="space-y-2 py-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-[#0ac8b9] font-medium flex items-center gap-1.5">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>{t.updateDownloading.replace('{percent}', updateProgress.toString())}</span>
-                  </span>
-                  <span className="text-slate-400 font-mono text-[11px]">{updateProgress}%</span>
-                </div>
-                <div className="w-full bg-black/60 h-2.5 rounded-full overflow-hidden border border-white/10">
-                  <div
-                    className="bg-gradient-to-r from-[#0ac8b9] via-[#c89b3c] to-[#0ac8b9] h-full transition-all duration-300"
-                    style={{ width: `${Math.max(5, updateProgress)}%` }}
-                  />
-                </div>
-                <p className="text-[10px] text-slate-400 text-center mt-1">
-                  {updateProgress >= 100 ? t.updateSuccessRestarting : '正在从国内加速节点下载并校验，请稍候...'}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2.5 pt-2 border-t border-white/10">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={handleStartUpdate}
-                    className="flex-1 py-1.5 px-3 rounded bg-gradient-to-r from-[#c89b3c] to-[#a87f28] hover:from-[#d8ab4c] hover:to-[#b88f38] text-black font-semibold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#c89b3c]/20 transition-all cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>{t.updateNow}</span>
-                  </button>
-
-                  <button
-                    onClick={() => setShowUpdateModal(false)}
-                    className="py-1.5 px-2.5 rounded bg-transparent hover:bg-white/5 text-slate-400 hover:text-slate-200 text-xs transition-colors cursor-pointer"
-                  >
-                    <span>{t.remindLater}</span>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-white/5">
-                  <span className="text-[10px] text-slate-400">备用手动下载源:</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        if (updateInfo.gitCodeUrl) WailsBridge.openBrowser(updateInfo.gitCodeUrl);
-                      }}
-                      className="hover:text-[#c89b3c] text-cyan-400 underline underline-offset-2 flex items-center gap-1 text-[11px] cursor-pointer"
-                      title={t.openGitCode}
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>{t.openGitCode}</span>
-                    </button>
-                    <span className="text-slate-600">|</span>
-                    <button
-                      onClick={() => {
-                        if (updateInfo.releaseUrl) WailsBridge.openBrowser(updateInfo.releaseUrl);
-                      }}
-                      className="hover:text-[#c89b3c] text-slate-300 underline underline-offset-2 flex items-center gap-1 text-[11px] cursor-pointer"
-                      title={t.openInBrowser}
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>{t.openInBrowser}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Settings & About Modal */}
+      <SettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        initialTab={settingsTab}
+        t={t}
+        updateInfo={updateInfo}
+        isCheckingUpdate={isCheckingUpdate}
+        isUpdating={isUpdating}
+        updateProgress={updateProgress}
+        onCheckUpdate={() => handleCheckUpdate(true)}
+        onStartUpdate={handleStartUpdate}
+      />
     </div>
   );
 }

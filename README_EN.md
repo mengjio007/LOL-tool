@@ -1,7 +1,7 @@
-# LOL-tool (LOL Smart Assistant v1.0.3)
+# LOL-tool (LOL Smart Assistant v1.0.4)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-v1.0.3-gold?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-v1.0.4-gold?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Language-Go%201.25%20%7C%20React%2019-blue?style=for-the-badge" alt="Tech Stack">
   <img src="https://img.shields.io/badge/GUI-Wails%20v2-emerald?style=for-the-badge" alt="Wails">
   <img src="https://img.shields.io/badge/Package%20Size-~4.0MB%20(UPX)-purple?style=for-the-badge" alt="Size">
@@ -135,7 +135,13 @@ The helper assembles a clean, concise single-line briefing summarizing key intel
 - **Domestic & International Dual-Channel Updates**: Silently queries GitCode (mainland China mirror) and GitHub official releases, completely bypassing domestic firewall blocks and GitHub API rate limits.
 - **Automated High-Speed CDN Proxy Failover**: In-app one-click update automatically cascades through high-speed CDN acceleration nodes and verifies Windows PE binary headers, allowing Chinese users to update smoothly without VPNs or proxies.
 - **100% Non-Intrusive**: Never forces or locks the UI. Users can dismiss with a single click or continue using the app completely undisturbed.
-- **Browser Dual-Mirror Fallback**: Provides direct links to both GitCode releases and GitHub releases if manual downloads are preferred.
+
+---
+
+### 7. 🔍 Player Lookup & Centralized Settings Center
+- **Individual Summoner Rating Lookup**: Query any player by summoner name or Riot ID (e.g. `Name#001`) or check your current account with one click to see their full 6-tier combat rating and 5-pillar breakdown.
+- **All-in-One Settings & About Center**: Combines online updates, algorithm guide, changelog timeline, and developer contact into a sleek modal dialog.
+- **Direct Developer Communication**: One-click copy for the official developer email (`mengjio007@gmail.com`) and GitHub repository link.
 
 
 ---
@@ -145,9 +151,9 @@ The helper assembles a clean, concise single-line briefing summarizing key intel
 ### Option 1: Run the Precompiled Binary (Recommended)
 - **Mainland China Users (Fastest, No VPN)**: [**Download via GitCode Releases**](https://gitcode.com/mengjio007/lol-tool/releases).
 - **International / GitHub Users**: [**Download via GitHub Releases**](https://github.com/mengjio007/LOL-tool/releases/latest).
-1. Download the single executable `lol-helper-v1.0.3.exe` (only ~3.87 MB, portable with zero installation).
+1. Download the single executable `lol-helper-v1.0.4.exe` (only ~3.89 MB, portable with zero installation).
 2. Launch the League of Legends client (any order works; the assistant automatically detects and hooks the LCU event bus).
-3. Double-click `lol-helper-v1.0.3.exe` to run.
+3. Double-click `lol-helper-v1.0.4.exe` to run.
 
 ---
 
