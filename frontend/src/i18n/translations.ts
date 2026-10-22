@@ -15,6 +15,7 @@ export const translations = {
     // Tabs
     tabAutomation: '自动化控制',
     tabAnalysis: '对局马匹分析',
+    tabSearch: '战力单查',
     tabAlgorithm: '算法原理解读',
     viewAlgorithmHelp: '点击查看 6 档战力与 5 大支柱算法解读',
 
@@ -200,6 +201,23 @@ export const translations = {
 
     algoSafetyTitle: '100% 绿色安全合规承诺',
     algoSafetyDesc: '纯基于拳头官方 LCU (League Client Update) REST API 与 WebSocket 全双工事件总线，绝不注入游戏本体进程，不修改任何内存，完全兼容 Vanguard 拳头反作弊机制。',
+
+    // Player Search View
+    searchTabTitle: '召唤师战力独立侦测',
+    searchTabDesc: '基于 5 大支柱与 6 档战力模型，单人穿透查询近 10~20 场实战数据与马匹评级。',
+    searchPlaceholder: '输入召唤师昵称 / Riot ID (如 Uzi#001) / 留空查自己...',
+    searchBtn: '查询战力',
+    searchSelfBtn: '查我自己',
+    searching: '正在穿透战绩并深度计算...',
+    searchRecent: '最近查询:',
+    clientRequiredWarning: '⚠️ 需英雄联盟客户端在线（待机即可，无需在对局中）。国服没有公开免登录数据接口，必须通过本地客户端与服务器的官方通道安全获取数据。',
+    searchEmptyHint: '请输入召唤师名称，或点击“查我自己”快速查看当前登录账号战力评级。',
+    searchFailed: '查询失败',
+    searchNoGames: '未能拉取到该玩家近期的有效对局记录',
+    searchHistoryEmpty: '暂无历史查询',
+    searchScoreDetail: '5 大支柱综合评估画像',
+    statGamesDetail: '{games} 场 · {wins}胜 {losses}负',
+    statWinrateRate: '胜率 {rate}%',
   },
   en: {
     // Header
@@ -215,6 +233,7 @@ export const translations = {
     // Tabs
     tabAutomation: 'Automation',
     tabAnalysis: 'Horse Radar',
+    tabSearch: 'Player Lookup',
     tabAlgorithm: 'Algorithm Guide',
     viewAlgorithmHelp: 'Click to view 6-Tier and 5-Pillar Algorithm Guide',
 
@@ -400,6 +419,23 @@ export const translations = {
 
     algoSafetyTitle: '100% Anti-Ban & Vanguard Safe Commitment',
     algoSafetyDesc: '100% Zero-Memory-Injection. Operates entirely through Riot\'s official LCU REST API and WebSocket events. Fully compliant with Riot Developer Policies and Vanguard safe.',
+
+    // Player Search View
+    searchTabTitle: 'Summoner Combat Rating Lookup',
+    searchTabDesc: 'Individual 10~20 game penetration analysis and 6-tier combat rating powered by the 5-pillar engine.',
+    searchPlaceholder: 'Enter summoner name / Riot ID (e.g. Uzi#001) or leave empty for self...',
+    searchBtn: 'Search',
+    searchSelfBtn: 'Check Myself',
+    searching: 'Penetrating match history and calculating...',
+    searchRecent: 'Recent:',
+    clientRequiredWarning: '⚠️ Note: Requires the League of Legends client running (lobby/idle is fine, no need to be in a match). Match histories must be securely fetched through the official local client bridge.',
+    searchEmptyHint: 'Enter a summoner name or click "Check Myself" to analyze your current account.',
+    searchFailed: 'Search failed',
+    searchNoGames: 'No recent valid match records found for this player',
+    searchHistoryEmpty: 'No search history',
+    searchScoreDetail: '5-Pillar Tactical Evaluation Breakdown',
+    statGamesDetail: '{games} games · {wins}W {losses}L',
+    statWinrateRate: 'Win Rate {rate}%',
   },
 };
 

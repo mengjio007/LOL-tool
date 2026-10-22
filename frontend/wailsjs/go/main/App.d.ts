@@ -33,6 +33,8 @@ export function OpenBrowser(arg1:string):Promise<void>;
 
 export function SaveConfig(arg1:config.Config):Promise<void>;
 
+export function SearchPlayerAnalysis(arg1:string):Promise<analysis.PlayerAnalysis>;
+
 export function SendChatMessage(arg1:string):Promise<void>;
 
 export function SetAlwaysOnTop(arg1:boolean):Promise<void>;

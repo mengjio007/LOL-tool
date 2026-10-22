@@ -633,3 +633,15 @@ func (m *Manager) GenerateHorseReport() string {
 	}
 	return analyzer.GenerateHorseReport(last)
 }
+
+func (m *Manager) SearchPlayerAnalysis(query string) (*analysis.PlayerAnalysis, error) {
+	m.mu.RLock()
+	analyzer := m.analyzer
+	m.mu.RUnlock()
+
+	if analyzer == nil {
+		return nil, fmt.Errorf("英雄联盟客户端未连接，请先启动游戏客户端")
+	}
+
+	return analyzer.SearchAndAnalyzePlayer(query)
+}

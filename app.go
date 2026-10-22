@@ -136,6 +136,13 @@ func (a *App) GenerateHorseReport() string {
 	return a.manager.GenerateHorseReport()
 }
 
+func (a *App) SearchPlayerAnalysis(query string) (*analysis.PlayerAnalysis, error) {
+	if a.manager == nil {
+		return nil, nil
+	}
+	return a.manager.SearchPlayerAnalysis(query)
+}
+
 func (a *App) CloseApp() {
 	if a.ctx != nil {
 		wailsRuntime.Quit(a.ctx)

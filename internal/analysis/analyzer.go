@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 	"sync"
@@ -1117,4 +1118,120 @@ func (a *Analyzer) GenerateHorseReport(res *MatchAnalysisResult) (report string)
 		return "【对局战报】双方战力均衡，均为 A/B 级中流砥柱，稳扎稳打即可！"
 	}
 	return "【对局战报】" + strings.Join(parts, " | ")
+}
+
+// SearchAndAnalyzePlayer searches for a summoner by name, riot id, or puuid, and runs the 6-tier combat analysis
+func (a *Analyzer) SearchAndAnalyzePlayer(query string) (*PlayerAnalysis, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			// recover from any unexpected panic
+		}
+	}()
+
+	if a == nil || a.client == nil {
+		return nil, fmt.Errorf("英雄联盟客户端未连接，请先启动游戏客户端")
+	}
+
+	query = strings.TrimSpace(query)
+
+	var targetSummonerID int64
+	var targetPuuid string
+	var targetName string
+
+	// 1. If query is empty or asking for self, fetch current summoner
+	if query == "" || query == "我" || query == "self" || query == "当前账号" || query == "我自己" {
+		curr, err := a.client.GetCurrentSummoner()
+		if err != nil {
+			return nil, fmt.Errorf("获取当前登录账号失败: %w", err)
+		}
+		targetSummonerID = curr.SummonerID
+		targetPuuid = curr.Puuid
+		targetName = curr.DisplayName
+	} else if len(query) > 40 && !strings.Contains(query, "#") && !strings.Contains(query, " ") {
+		// 2. Query looks like a PUUID
+		targetPuuid = query
+	} else {
+		// 3. Query is a summoner name or Riot ID (e.g. "GameName#Tag" or "Name")
+		// Strategy A: /lol-summoner/v1/summoners?name=<name>
+		status, body, err := a.client.Request(http.MethodGet, "/lol-summoner/v1/summoners?name="+url.QueryEscape(query), nil)
+		if err == nil && status == http.StatusOK {
+			var s lcu.SummonerInfo
+			if json.Unmarshal(body, &s) == nil && (s.SummonerID > 0 || s.Puuid != "") {
+				targetSummonerID = s.SummonerID
+				targetPuuid = s.Puuid
+				targetName = s.DisplayName
+			}
+		}
+
+		// Strategy B: If query contains '#', try searching by gameName
+		if targetSummonerID == 0 && targetPuuid == "" && strings.Contains(query, "#") {
+			parts := strings.SplitN(query, "#", 2)
+			gameName := parts[0]
+			status, body, err := a.client.Request(http.MethodGet, "/lol-summoner/v1/summoners?name="+url.QueryEscape(gameName), nil)
+			if err == nil && status == http.StatusOK {
+				var s lcu.SummonerInfo
+				if json.Unmarshal(body, &s) == nil && (s.SummonerID > 0 || s.Puuid != "") {
+					targetSummonerID = s.SummonerID
+					targetPuuid = s.Puuid
+					targetName = s.DisplayName
+				}
+			}
+		}
+
+		// Strategy C: POST /lol-summoner/v2/summoners/names with [query]
+		if targetSummonerID == 0 && targetPuuid == "" {
+			reqBody, _ := json.Marshal([]string{query})
+			status, body, err := a.client.Request(http.MethodPost, "/lol-summoner/v2/summoners/names", reqBody)
+			if err == nil && status == http.StatusOK {
+				var list []lcu.SummonerInfo
+				if json.Unmarshal(body, &list) == nil && len(list) > 0 {
+					targetSummonerID = list[0].SummonerID
+					targetPuuid = list[0].Puuid
+					targetName = list[0].DisplayName
+				}
+			}
+		}
+
+		// Strategy D: Search friend list /lol-chat/v1/friends
+		if targetSummonerID == 0 && targetPuuid == "" {
+			status, body, err := a.client.Request(http.MethodGet, "/lol-chat/v1/friends", nil)
+			if err == nil && status == http.StatusOK {
+				var friends []struct {
+					SummonerID int64  `json:"summonerId"`
+					Puuid      string `json:"puuid"`
+					Name       string `json:"name"`
+					GameName   string `json:"gameName"`
+					GameTag    string `json:"gameTag"`
+				}
+				if json.Unmarshal(body, &friends) == nil {
+					lowerQuery := strings.ToLower(query)
+					for _, f := range friends {
+						fullName := strings.ToLower(fmt.Sprintf("%s#%s", f.GameName, f.GameTag))
+						if strings.ToLower(f.Name) == lowerQuery || strings.ToLower(f.GameName) == lowerQuery || fullName == lowerQuery {
+							targetSummonerID = f.SummonerID
+							targetPuuid = f.Puuid
+							if f.GameName != "" {
+								targetName = fmt.Sprintf("%s#%s", f.GameName, f.GameTag)
+							} else {
+								targetName = f.Name
+							}
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if targetSummonerID == 0 && targetPuuid == "" {
+		return nil, fmt.Errorf("未找到召唤师「%s」，请确认名称是否正确", query)
+	}
+
+	// Run player analysis using the 5-pillar composite scoring engine
+	res := a.AnalyzePlayer(targetSummonerID, targetPuuid, targetName, "blue", "NONE")
+	if res.TotalGames == 0 && res.SummonerName == "" {
+		return nil, fmt.Errorf("未能拉取到该玩家近期的有效对局记录")
+	}
+
+	return &res, nil
 }

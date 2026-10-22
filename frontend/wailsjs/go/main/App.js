@@ -58,6 +58,10 @@ export function SaveConfig(arg1) {
   return window['go']['main']['App']['SaveConfig'](arg1);
 }
 
+export function SearchPlayerAnalysis(arg1) {
+  return window['go']['main']['App']['SearchPlayerAnalysis'](arg1);
+}
+
 export function SendChatMessage(arg1) {
   return window['go']['main']['App']['SendChatMessage'](arg1);
 }

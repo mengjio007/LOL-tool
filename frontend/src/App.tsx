@@ -39,9 +39,11 @@ import {
   Sparkles,
   Loader2,
   BookOpen,
+  Search,
 } from 'lucide-react';
 import { translations, translateLog, type Language } from './i18n/translations';
 import { AlgorithmGuideView } from './components/AlgorithmGuideView';
+import { PlayerSearchView } from './components/PlayerSearchView';
 
 export default function App() {
   const [lang, setLang] = useState<Language>(() => {
@@ -57,7 +59,7 @@ export default function App() {
     localStorage.setItem('lol_helper_lang', nextLang);
   };
 
-  const [activeTab, setActiveTab] = useState<'automation' | 'analysis' | 'algorithm'>('automation');
+  const [activeTab, setActiveTab] = useState<'automation' | 'analysis' | 'search' | 'algorithm'>('automation');
   const [teamFilter, setTeamFilter] = useState<'all' | 'blue' | 'red'>('all');
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
 
@@ -402,6 +404,18 @@ export default function App() {
         </button>
 
         <button
+          onClick={() => setActiveTab('search')}
+          className={`flex items-center gap-1.5 py-2 px-3 border-b-2 font-medium transition-colors ${
+            activeTab === 'search'
+              ? 'border-[#0ac8b9] text-[#f0e6d2]'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Search className="w-3.5 h-3.5 text-[#0ac8b9]" />
+          <span>{t.tabSearch}</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('algorithm')}
           className={`flex items-center gap-1.5 py-2 px-3 border-b-2 font-medium transition-colors ${
             activeTab === 'algorithm'
@@ -735,6 +749,14 @@ export default function App() {
                   {t.localOnlyBadge}
                 </span>
                 <button
+                  onClick={() => setActiveTab('search')}
+                  className="text-[10px] text-[#0ac8b9] hover:text-[#f0e6d2] flex items-center gap-1 bg-[#0ac8b9]/15 hover:bg-[#0ac8b9]/25 px-1.5 py-0.5 rounded border border-[#0ac8b9]/30 transition-colors cursor-pointer"
+                  title={t.tabSearch}
+                >
+                  <Search className="w-2.5 h-2.5" />
+                  <span>{t.tabSearch}</span>
+                </button>
+                <button
                   onClick={() => setActiveTab('algorithm')}
                   className="text-[10px] text-[#c89b3c] hover:text-[#f0e6d2] flex items-center gap-1 bg-[#c89b3c]/15 hover:bg-[#c89b3c]/25 px-1.5 py-0.5 rounded border border-[#c89b3c]/30 transition-colors cursor-pointer"
                   title={t.viewAlgorithmHelp}
@@ -884,7 +906,17 @@ export default function App() {
           </div>
         )}
 
-        {/* TAB 3: Algorithm Guide */}
+        {/* TAB 3: Player Search & Individual Rating */}
+        {activeTab === 'search' && (
+          <PlayerSearchView
+            t={t}
+            clientConnected={status.connected}
+            currentSummoner={status.summoner}
+            onViewAlgorithm={() => setActiveTab('algorithm')}
+          />
+        )}
+
+        {/* TAB 4: Algorithm Guide */}
         {activeTab === 'algorithm' && (
           <AlgorithmGuideView t={t} />
         )}

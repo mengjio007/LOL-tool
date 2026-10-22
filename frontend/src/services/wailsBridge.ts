@@ -127,6 +127,7 @@ declare global {
           GetMatchAnalysis: () => Promise<MatchAnalysisResult>;
           SendChatMessage: (msg: string) => Promise<void>;
           GenerateHorseReport: () => Promise<string>;
+          SearchPlayerAnalysis: (query: string) => Promise<PlayerAnalysis>;
           CheckForUpdate: () => Promise<UpdateInfo>;
           DownloadAndApplyUpdate: (downloadUrl: string) => Promise<void>;
           OpenBrowser: (url: string) => Promise<void>;
@@ -248,6 +249,13 @@ export const WailsBridge = {
       return await window.go.main.App.GenerateHorseReport();
     }
     return '';
+  },
+
+  async searchPlayerAnalysis(query: string): Promise<PlayerAnalysis | null> {
+    if (window.go?.main?.App?.SearchPlayerAnalysis) {
+      return await window.go.main.App.SearchPlayerAnalysis(query);
+    }
+    return null;
   },
 
   async checkForUpdate(): Promise<UpdateInfo | null> {
