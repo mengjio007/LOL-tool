@@ -118,12 +118,12 @@ export function DeathVideoOverlay({
   );
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-[440px] bg-[#101726] border-2 border-[#c89b3c]/60 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-md flex items-center justify-center p-3 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-[440px] glass-panel border border-rose-500/40 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col">
         {/* Top Header: Death Status & Respawn Timer */}
-        <div className="bg-gradient-to-r from-[#1c1218] via-[#101726] to-[#0c1c24] px-4 py-2.5 border-b border-white/10 flex items-center justify-between">
+        <div className="bg-slate-950/60 backdrop-blur-xl px-4 py-2.5 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 animate-pulse">
+            <div className="w-7 h-7 rounded-lg bg-rose-500/20 border border-rose-500/40 flex items-center justify-center text-rose-400 animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.3)]">
               <Skull className="w-4 h-4" />
             </div>
             <div>
@@ -144,7 +144,7 @@ export function DeathVideoOverlay({
             {/* Volume toggle */}
             <button
               onClick={() => setIsMuted(!isMuted)}
-              className="p-1.5 rounded-lg bg-black/40 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg glass-pill text-slate-300 hover:text-white transition-colors cursor-pointer"
               title={isMuted ? '取消静音' : '静音'}
             >
               {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
@@ -155,7 +155,7 @@ export function DeathVideoOverlay({
               <button
                 onClick={loadNextVideo}
                 disabled={isLoadingVideo}
-                className="p-1.5 rounded-lg bg-black/40 hover:bg-white/10 text-slate-300 hover:text-[#c89b3c] transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg glass-pill text-slate-300 hover:text-amber-300 transition-colors cursor-pointer"
                 title="换一个视频"
               >
                 <RotateCw className={`w-4 h-4 ${isLoadingVideo ? 'animate-spin' : ''}`} />
@@ -165,7 +165,7 @@ export function DeathVideoOverlay({
             {/* Close Button */}
             <button
               onClick={handleSafeClose}
-              className="p-1.5 rounded-lg bg-black/40 hover:bg-rose-500/30 text-slate-400 hover:text-rose-300 transition-colors cursor-pointer"
+              className="p-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/35 border border-rose-500/30 text-rose-300 hover:text-white transition-colors cursor-pointer"
               title="立即关闭 (Esc)"
             >
               <X className="w-4 h-4" />

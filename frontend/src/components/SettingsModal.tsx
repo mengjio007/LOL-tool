@@ -198,18 +198,18 @@ export function SettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-[560px] max-h-[90vh] bg-[#0c1424] border border-[#c89b3c]/40 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-[#f0e6d2]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-[580px] max-h-[90vh] glass-panel border border-white/[0.16] rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-100">
         {/* 1. Header Bar */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-gradient-to-r from-[#091428] via-[#0b162c] to-[#041220] shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-slate-950/40 backdrop-blur-xl shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-lg bg-[#c89b3c]/20 border border-[#c89b3c]/40 overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-cyan-400/20 to-indigo-500/20 border border-white/15 overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
               <img src={appLogo} alt="Logo" className="w-full h-full object-cover rounded" />
             </div>
             <div>
-              <h3 className="text-xs font-bold text-[#f0e6d2] flex items-center gap-2">
+              <h3 className="text-xs font-bold text-white flex items-center gap-2">
                 <span>控制与设置中心</span>
-                <span className="text-[10px] font-mono text-[#c89b3c] bg-[#c89b3c]/15 px-1.5 py-0.5 rounded border border-[#c89b3c]/30">
+                <span className="text-[10px] font-mono text-cyan-300 glass-pill px-1.5 py-0.5 rounded">
                   v2.0.0
                 </span>
               </h3>
@@ -218,7 +218,7 @@ export function SettingsModal({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white glass-pill transition-colors cursor-pointer"
             title="关闭"
           >
             <X className="w-4 h-4" />
@@ -226,13 +226,13 @@ export function SettingsModal({
         </div>
 
         {/* 2. Horizontal Navigation Tabs */}
-        <div className="flex items-center bg-[#070e1b] px-2 border-b border-white/5 text-[11px] shrink-0 overflow-x-auto scrollbar-none">
+        <div className="flex items-center bg-black/30 px-2 border-b border-white/[0.08] text-[11px] shrink-0 overflow-x-auto scrollbar-none">
           {/* Tab: Algorithm Config */}
           <button
             onClick={() => setActiveTab('algoConfig')}
             className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === 'algoConfig'
-                ? 'border-[#c89b3c] text-[#c89b3c] font-bold'
+                ? 'border-cyan-400 text-cyan-300 font-bold'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >

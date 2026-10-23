@@ -66,12 +66,14 @@ export function InGameMiniBar({
   return (
     <div
       style={{ '--wails-draggable': 'drag' } as React.CSSProperties}
-      className="w-full h-full bg-[#0a1120]/95 border border-[#c89b3c]/50 rounded-xl px-2.5 py-1.5 flex items-center justify-between shadow-2xl backdrop-blur-md select-none relative"
+      className="w-full h-full glass-panel border border-cyan-400/35 rounded-2xl px-2.5 py-1.5 flex items-center justify-between shadow-[0_12px_32px_rgba(0,0,0,0.5)] backdrop-blur-2xl select-none relative overflow-hidden"
     >
       {/* Brand & Mini Icon */}
       <div className="flex items-center gap-1.5 shrink-0">
-        <img src={appLogo} alt="Logo" className="w-5 h-5 object-contain" />
-        <span className="text-[10px] font-bold text-[#c89b3c] hidden sm:inline">战力胶囊</span>
+        <div className="w-5 h-5 rounded-lg bg-gradient-to-br from-cyan-400/20 to-indigo-500/20 border border-white/10 flex items-center justify-center p-0.5">
+          <img src={appLogo} alt="Logo" className="w-full h-full object-contain" />
+        </div>
+        <span className="text-[10px] font-bold text-cyan-300 hidden sm:inline tracking-wide">战力胶囊</span>
       </div>
 
       {/* 5 Teammates Fast Badges */}
@@ -95,7 +97,7 @@ export function InGameMiniBar({
             );
           })
         ) : (
-          <span className="text-[11px] text-slate-400 font-medium">进入对局自动显示队友马力</span>
+          <span className="text-[11px] text-slate-300 font-medium">进入对局自动感知马力</span>
         )}
       </div>
 
@@ -107,21 +109,21 @@ export function InGameMiniBar({
         <button
           onClick={onRestore}
           title="展开完整窗口"
-          className="p-1 rounded-md bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white transition-colors cursor-pointer"
+          className="p-1 rounded-lg glass-pill text-slate-300 hover:text-white transition-colors cursor-pointer"
         >
           <Maximize2 className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={onMinimize}
           title="最小化"
-          className="p-1 rounded-md bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white transition-colors cursor-pointer"
+          className="p-1 rounded-lg glass-pill text-slate-300 hover:text-white transition-colors cursor-pointer"
         >
           <Minus className="w-3.5 h-3.5" />
         </button>
         <button
           onClick={onClose}
           title="关闭"
-          className="p-1 rounded-md bg-white/5 hover:bg-rose-500/30 text-slate-400 hover:text-rose-300 transition-colors cursor-pointer"
+          className="p-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/35 border border-rose-500/30 text-rose-300 hover:text-white transition-colors cursor-pointer"
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -131,18 +133,18 @@ export function InGameMiniBar({
       {hoveredPlayer && (
         <div
           style={{ '--wails-draggable': 'no-drag' } as React.CSSProperties}
-          className="absolute -bottom-20 left-1/2 -translate-x-1/2 z-50 bg-[#0d1627] border border-[#c89b3c]/60 rounded-xl p-2.5 shadow-2xl text-left pointer-events-none min-w-[220px] animate-in fade-in zoom-in-95 duration-150"
+          className="absolute -bottom-20 left-1/2 -translate-x-1/2 z-50 glass-panel border border-cyan-400/40 rounded-xl p-2.5 shadow-2xl text-left pointer-events-none min-w-[220px] animate-in fade-in zoom-in-95 duration-150"
         >
           <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
             <span className="truncate max-w-[130px]">{hoveredPlayer.summonerName}</span>
-            <span className="text-amber-400 font-mono">{hoveredPlayer.score}分</span>
+            <span className="text-amber-300 font-mono">{hoveredPlayer.score}分</span>
           </div>
           <div className="text-[10px] text-slate-300 flex items-center justify-between font-mono mb-1">
             <span>胜率: {hoveredPlayer.winRate.toFixed(1)}%</span>
             <span>KDA: {hoveredPlayer.kda.toFixed(2)}</span>
             <span>{hoveredPlayer.rankTier || '暂无段位'}</span>
           </div>
-          <div className="text-[10px] text-[#0ac8b9] truncate font-medium">
+          <div className="text-[10px] text-cyan-300 truncate font-medium">
             {hoveredPlayer.horseRank}: {hoveredPlayer.horseTag}
           </div>
         </div>

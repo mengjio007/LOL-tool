@@ -167,11 +167,11 @@ export function PlayerSearchView({
   return (
     <div className="space-y-3.5 text-slate-100 pb-6 max-w-4xl mx-auto w-full">
       {/* 1. Search Box Card */}
-      <section className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141b28] p-4 shadow-xl backdrop-blur">
+      <section className="relative overflow-hidden rounded-2xl glass-panel p-4 shadow-xl">
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-sky-400" />
+              <Sparkles className="w-4 h-4 text-cyan-400" />
               <span>{t.searchTabTitle}</span>
             </h2>
             <p className="text-xs text-slate-400 leading-relaxed mt-1">
@@ -181,10 +181,10 @@ export function PlayerSearchView({
 
           <button
             onClick={onViewAlgorithm}
-            className="text-xs text-sky-300 hover:text-white flex items-center gap-1.5 bg-sky-500/10 hover:bg-sky-500/20 px-2.5 py-1 rounded-xl border border-sky-500/30 transition-all shrink-0 cursor-pointer font-medium active:scale-95"
+            className="text-xs text-cyan-300 hover:text-white flex items-center gap-1.5 glass-pill px-2.5 py-1 rounded-xl transition-all shrink-0 cursor-pointer font-medium active:scale-95"
             title={t.viewAlgorithmHelp}
           >
-            <BookOpen className="w-3.5 h-3.5" />
+            <BookOpen className="w-3.5 h-3.5 text-cyan-400" />
             <span>{t.tabAlgorithm}</span>
           </button>
         </div>
@@ -200,7 +200,7 @@ export function PlayerSearchView({
               onKeyDown={handleKeyDown}
               placeholder={t.searchPlaceholder}
               disabled={isLoading}
-              className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#0b0f17]/70 border border-white/[0.1] focus:border-sky-400 focus:outline-none text-xs text-slate-100 placeholder:text-slate-500 font-sans transition-colors shadow-inner"
+              className="w-full pl-9 pr-8 py-2 rounded-xl bg-black/40 border border-white/[0.1] focus:border-cyan-400 focus:outline-none text-xs text-slate-100 placeholder:text-slate-500 font-sans transition-colors shadow-inner"
             />
             {query && (
               <button
@@ -215,7 +215,7 @@ export function PlayerSearchView({
           <button
             onClick={() => handleSearch()}
             disabled={isLoading}
-            className="py-2 px-4 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-500/20 transition-all shrink-0 cursor-pointer disabled:opacity-50 active:scale-95"
+            className="py-2 px-4 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-500 hover:from-cyan-300 hover:to-indigo-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 transition-all shrink-0 cursor-pointer disabled:opacity-50 active:scale-95"
           >
             {isLoading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -228,7 +228,7 @@ export function PlayerSearchView({
           <button
             onClick={handleSearchSelf}
             disabled={isLoading || !clientConnected}
-            className="py-2 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-sky-300 border border-white/[0.08] text-xs flex items-center justify-center gap-1.5 transition-colors shrink-0 cursor-pointer disabled:opacity-40 font-medium active:scale-95"
+            className="py-2 px-3 rounded-xl glass-pill text-cyan-300 hover:text-white text-xs flex items-center justify-center gap-1.5 transition-colors shrink-0 cursor-pointer disabled:opacity-40 font-medium active:scale-95"
             title={t.searchSelfBtn}
           >
             <User className="w-3.5 h-3.5" />
@@ -254,14 +254,14 @@ export function PlayerSearchView({
             {recentSearches.map((name) => (
               <div
                 key={name}
-                className="group flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-slate-300 transition-colors text-[11px]"
+                className="group flex items-center gap-1 px-2.5 py-0.5 rounded-lg glass-pill text-slate-300 transition-colors text-[11px]"
               >
                 <button
                   onClick={() => {
                     setQuery(name);
                     handleSearch(name);
                   }}
-                  className="hover:text-sky-300 cursor-pointer font-medium"
+                  className="hover:text-cyan-300 cursor-pointer font-medium"
                 >
                   {name}
                 </button>
@@ -288,7 +288,7 @@ export function PlayerSearchView({
 
       {/* 2. Search Result Showcase */}
       {result && theme && (
-        <section className={`relative overflow-hidden rounded-2xl border ${theme.border} ${theme.bg} p-4 shadow-2xl space-y-4 backdrop-blur`}>
+        <section className={`relative overflow-hidden rounded-2xl glass-panel border ${theme.border} p-4 shadow-2xl space-y-4`}>
           {/* Background Ambient Glow */}
           <div className={`absolute -top-16 -right-16 w-44 h-44 ${theme.glow} rounded-full blur-3xl pointer-events-none`} />
 
@@ -318,7 +318,7 @@ export function PlayerSearchView({
 
               <div className="flex items-center gap-2 text-xs pt-1">
                 <span className="text-base font-bold text-slate-100">{result.summonerName}</span>
-                <span className="text-slate-400 font-mono text-[11px] bg-white/[0.05] px-2 py-0.5 rounded border border-white/[0.08]">
+                <span className="text-slate-300 font-mono text-[11px] glass-pill px-2 py-0.5 rounded">
                   {result.rankTier || '段位未知'}
                 </span>
               </div>
@@ -327,7 +327,7 @@ export function PlayerSearchView({
             {/* Score Bubble */}
             <div className="text-right shrink-0">
               <div className="text-[10px] text-slate-400 font-medium">综合战力评分</div>
-              <div className="text-2xl font-black font-mono text-sky-400 flex items-baseline justify-end gap-0.5">
+              <div className="text-2xl font-black font-mono text-cyan-300 flex items-baseline justify-end gap-0.5">
                 <span>{result.score || 500}</span>
                 <span className="text-xs font-normal text-slate-400">分</span>
               </div>
@@ -336,7 +336,7 @@ export function PlayerSearchView({
 
           {/* Tactical Tag / Highlights */}
           {result.horseTag && (
-            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.08] p-2.5 text-xs text-slate-200 flex items-center gap-2">
+            <div className="rounded-xl glass-card p-2.5 text-xs text-slate-200 flex items-center gap-2">
               <Award className="w-4 h-4 text-amber-400 shrink-0" />
               <span>{result.horseTag}</span>
             </div>
@@ -345,7 +345,7 @@ export function PlayerSearchView({
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
             {/* Win rate */}
-            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.06] p-2.5 space-y-0.5">
+            <div className="rounded-xl glass-card p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">近期战绩</div>
               <div className="text-sm font-bold text-slate-100 font-mono">
                 {result.winRate.toFixed(1)}%
@@ -356,7 +356,7 @@ export function PlayerSearchView({
             </div>
 
             {/* KDA */}
-            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.06] p-2.5 space-y-0.5">
+            <div className="rounded-xl glass-card p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">场均 KDA</div>
               <div className="text-sm font-bold text-amber-300 font-mono">
                 {result.kda.toFixed(2)}
@@ -367,7 +367,7 @@ export function PlayerSearchView({
             </div>
 
             {/* Damage Share */}
-            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.06] p-2.5 space-y-0.5">
+            <div className="rounded-xl glass-card p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">全队伤害占比</div>
               <div className="text-sm font-bold text-rose-300 font-mono">
                 {result.damageShare !== undefined ? result.damageShare.toFixed(1) : '20.0'}%
@@ -378,9 +378,9 @@ export function PlayerSearchView({
             </div>
 
             {/* Damage Taken Share */}
-            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.06] p-2.5 space-y-0.5">
+            <div className="rounded-xl glass-card p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">全队承伤占比</div>
-              <div className="text-sm font-bold text-sky-300 font-mono">
+              <div className="text-sm font-bold text-cyan-300 font-mono">
                 {result.damageTakenShare !== undefined ? result.damageTakenShare.toFixed(1) : '20.0'}%
               </div>
               <div

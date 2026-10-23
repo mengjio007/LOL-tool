@@ -40,6 +40,9 @@ import {
   Settings,
   Tv,
   Sparkles,
+  FolderOpen,
+  Film,
+  Volume2,
 } from 'lucide-react';
 import { translations, translateLog, type Language } from './i18n/translations';
 import { PlayerSearchView } from './components/PlayerSearchView';
@@ -406,11 +409,16 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen select-none bg-[#0b0f17] text-[#f1f5f9] border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl">
-      {/* 1. Material 3 Top App Bar */}
-      <header className="draggable h-12 px-4 bg-[#111724]/95 flex items-center justify-between border-b border-white/[0.06] backdrop-blur-md">
+    <div className="relative flex flex-col h-screen select-none bg-[#070a13] text-[#f1f5f9] border border-white/[0.1] rounded-2xl overflow-hidden shadow-2xl">
+      {/* macOS Vibrancy Ambient Background Auroras */}
+      <div className="aurora-orb-cyan -top-24 -left-24 w-80 h-80 opacity-70" />
+      <div className="aurora-orb-indigo top-1/4 -right-20 w-96 h-96 opacity-60" />
+      <div className="aurora-orb-rose -bottom-24 left-1/3 w-80 h-80 opacity-50" />
+
+      {/* 1. macOS Vibrancy Top App Bar */}
+      <header className="draggable relative z-10 h-12 px-4 glass-panel flex items-center justify-between border-b border-white/[0.08]">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-sky-500/20 via-amber-500/20 to-sky-500/10 border border-white/10 flex items-center justify-center p-1 shadow-sm overflow-hidden">
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400/20 via-indigo-500/20 to-cyan-400/10 border border-white/15 flex items-center justify-center p-1 shadow-sm overflow-hidden backdrop-blur-md">
             <img src={appLogo} alt="Logo" className="w-full h-full object-cover rounded-lg" />
           </div>
           <span className="text-xs font-black tracking-wide text-white">
@@ -419,9 +427,9 @@ export default function App() {
           <button
             onClick={() => openSettings('updates')}
             title={updateInfo?.hasUpdate ? t.hasNewVersionDot : '点击查看版本与更新'}
-            className="non-draggable relative flex items-center gap-1.5 text-[10px] px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/15 via-sky-500/15 to-emerald-500/15 text-amber-300 font-bold border border-amber-400/30 shadow-sm transition-all hover:scale-105 cursor-pointer"
+            className="non-draggable relative flex items-center gap-1.5 text-[10px] px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400/20 via-cyan-400/20 to-indigo-400/20 text-amber-300 font-bold border border-amber-400/40 shadow-sm transition-all hover:scale-105 cursor-pointer backdrop-blur-md"
           >
-            <Sparkles className="w-3 h-3 text-amber-400" />
+            <Sparkles className="w-3 h-3 text-amber-300" />
             <span>v2.0.0 Pro</span>
             {updateInfo?.hasUpdate && (
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
@@ -434,17 +442,17 @@ export default function App() {
           <button
             onClick={toggleLang}
             title={t.langToggleTitle}
-            className="px-2.5 py-1 rounded-full text-[10px] font-bold text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 flex items-center gap-1 transition-all cursor-pointer mr-0.5"
+            className="px-2.5 py-1 rounded-full text-[10px] font-bold text-cyan-300 glass-pill flex items-center gap-1 cursor-pointer mr-0.5"
           >
-            <Globe className="w-3 h-3 text-sky-400" />
+            <Globe className="w-3 h-3 text-cyan-400" />
             <span>{t.langToggle}</span>
           </button>
 
           {/* Settings & About Button */}
           <button
             onClick={() => openSettings('algoConfig')}
-            title="控制与设置中心 (算法权重/死亡视频/更新)"
-            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/15 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            title="控制与设置中心 (算法权重/更新/说明)"
+            className="w-7 h-7 rounded-full glass-pill text-slate-300 hover:text-white flex items-center justify-center cursor-pointer"
           >
             <Settings className="w-3.5 h-3.5" />
           </button>
@@ -453,16 +461,16 @@ export default function App() {
           <button
             onClick={() => handleToggleMiniMode(true)}
             title="进入极简局内小胶囊模式 (380×52，不挡游戏对线)"
-            className="w-7 h-7 rounded-full bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-full glass-pill text-cyan-300 hover:text-cyan-200 border-cyan-400/30 flex items-center justify-center cursor-pointer"
           >
-            <Tv className="w-3.5 h-3.5" />
+            <Tv className="w-3.5 h-3.5 text-cyan-400" />
           </button>
 
           <button
             onClick={toggleAlwaysOnTop}
             title={config.alwaysOnTop ? t.unpin : t.alwaysOnTop}
-            className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-              config.alwaysOnTop ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' : 'bg-white/5 text-slate-400 hover:text-white'
+            className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+              config.alwaysOnTop ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 shadow-[0_0_10px_rgba(34,211,238,0.3)]' : 'glass-pill text-slate-400 hover:text-white'
             }`}
           >
             <Pin className="w-3.5 h-3.5" />
@@ -470,14 +478,14 @@ export default function App() {
           <button
             onClick={() => WailsBridge.minimize()}
             title={t.minimize}
-            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-full glass-pill text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleToggleMaximize}
             title={isMaximized ? t.restore : t.maximize}
-            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/15 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-full glass-pill text-slate-400 hover:text-white flex items-center justify-center cursor-pointer"
           >
             {isMaximized ? (
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -491,25 +499,25 @@ export default function App() {
           <button
             onClick={() => WailsBridge.close()}
             title={t.close}
-            className="w-7 h-7 rounded-full bg-rose-500/10 hover:bg-rose-500/30 text-rose-400 hover:text-rose-200 flex items-center justify-center transition-colors cursor-pointer"
+            className="w-7 h-7 rounded-full bg-rose-500/15 hover:bg-rose-500/35 border border-rose-500/30 text-rose-300 hover:text-rose-100 flex items-center justify-center transition-all cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       </header>
 
-      {/* 2. Material 3 Segmented Pill Tabs */}
-      <div className="bg-[#0e131d] px-4 py-2 border-b border-white/[0.06] flex items-center justify-between">
-        <div className="flex items-center gap-1.5 p-1 bg-[#141b27] rounded-full border border-white/[0.06] text-xs shadow-inner">
+      {/* 2. Frosted Glass Segmented Pill Tabs */}
+      <div className="relative z-10 px-4 py-2 bg-slate-950/40 backdrop-blur-xl border-b border-white/[0.08] flex items-center justify-between">
+        <div className="flex items-center gap-1.5 p-1 glass-panel rounded-full text-xs">
           <button
             onClick={() => setActiveTab('automation')}
             className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer ${
               activeTab === 'automation'
-                ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm'
+                ? 'bg-gradient-to-r from-cyan-500/30 to-indigo-500/30 text-cyan-200 border border-cyan-400/50 shadow-[0_0_12px_rgba(34,211,238,0.25)]'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
             }`}
           >
-            <Zap className="w-3.5 h-3.5 text-sky-400" />
+            <Zap className="w-3.5 h-3.5 text-cyan-400" />
             <span>{t.tabAutomation}</span>
           </button>
 
@@ -517,11 +525,11 @@ export default function App() {
             onClick={() => setActiveTab('analysis')}
             className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer relative ${
               activeTab === 'analysis'
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-400/40 shadow-sm'
+                ? 'bg-gradient-to-r from-amber-500/30 to-rose-500/25 text-amber-200 border border-amber-400/50 shadow-[0_0_12px_rgba(251,191,36,0.25)]'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
             }`}
           >
-            <Swords className="w-3.5 h-3.5 text-amber-400" />
+            <Swords className="w-3.5 h-3.5 text-amber-300" />
             <span>{t.tabAnalysis}</span>
             {analysis && analysis.hasData && (
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse ml-0.5" />
@@ -532,11 +540,11 @@ export default function App() {
             onClick={() => setActiveTab('search')}
             className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer ${
               activeTab === 'search'
-                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-sm'
+                ? 'bg-gradient-to-r from-indigo-500/30 to-cyan-500/30 text-indigo-200 border border-indigo-400/50 shadow-[0_0_12px_rgba(129,140,248,0.25)]'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
             }`}
           >
-            <Search className="w-3.5 h-3.5 text-cyan-400" />
+            <Search className="w-3.5 h-3.5 text-indigo-300" />
             <span>{t.tabSearch}</span>
           </button>
         </div>
@@ -544,7 +552,7 @@ export default function App() {
         {/* Quick Action to Algorithm Weight Config */}
         <button
           onClick={() => openSettings('algoConfig')}
-          className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-amber-300/90 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
+          className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-amber-300/90 glass-pill hover:border-amber-400/40 px-3 py-1.5 rounded-full cursor-pointer"
         >
           <Sliders className="w-3 h-3 text-amber-400" />
           <span>算法权重: {config.algorithm?.customWeightsEnabled ? '已自定义' : '官方平衡'}</span>
@@ -552,16 +560,16 @@ export default function App() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
+      <div className="flex-1 overflow-y-auto px-4 py-3 relative z-10">
         <div className="max-w-5xl mx-auto w-full space-y-3.5">
         {/* Client Status Hero Card */}
-        <section className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-r from-[#172236] via-[#131a29] to-[#0f1420] p-4 shadow-xl backdrop-blur-md">
+        <section className="relative overflow-hidden rounded-2xl glass-panel p-4 shadow-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div
                   className={`w-3.5 h-3.5 rounded-full ${
-                    status.connected ? 'bg-emerald-400 shadow-[0_0_12px_#34d399]' : 'bg-rose-500 shadow-[0_0_12px_#f43f5e]'
+                    status.connected ? 'bg-emerald-400 shadow-[0_0_14px_#34d399]' : 'bg-rose-500 shadow-[0_0_14px_#f43f5e]'
                   }`}
                 />
                 {status.connected && (
@@ -573,7 +581,7 @@ export default function App() {
                   {status.connected ? (
                     <>
                       <span>{t.clientReady}</span>
-                      <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                      <span className="text-[10px] font-mono text-cyan-300 glass-pill px-2 py-0.5 rounded-md">
                         {t.port}: {status.port}
                       </span>
                     </>
@@ -588,7 +596,7 @@ export default function App() {
                   <div className="text-[11px] text-amber-200/90 font-medium mt-1 flex items-center gap-1.5">
                     <span>{t.summoner}:</span>
                     <span className="font-bold text-white">{status.summoner.displayName || status.summoner.gameName}</span>
-                    <span className="text-[10px] text-slate-400 bg-white/5 px-1.5 py-0.2 rounded border border-white/10 font-mono">
+                    <span className="text-[10px] text-slate-300 glass-pill px-1.5 py-0.2 rounded font-mono">
                       {t.level}{status.summoner.summonerLevel}
                     </span>
                   </div>
@@ -601,16 +609,16 @@ export default function App() {
                 {status.phase === 'Lobby' && (
                   <button
                     onClick={() => WailsBridge.startMatchmaking()}
-                    className="px-3 py-1.5 text-xs font-bold rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black flex items-center gap-1.5 transition-all shadow-md shadow-amber-500/20 cursor-pointer"
+                    className="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-lg shadow-amber-500/25 cursor-pointer active:scale-95"
                   >
-                    <Play className="w-3.5 h-3.5 fill-black" />
+                    <Play className="w-3.5 h-3.5 fill-slate-950" />
                     <span>{t.findMatch}</span>
                   </button>
                 )}
                 {status.phase === 'Matchmaking' && (
                   <button
                     onClick={() => WailsBridge.stopMatchmaking()}
-                    className="px-3 py-1.5 text-xs font-bold rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                    className="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer active:scale-95"
                   >
                     <Square className="w-3.5 h-3.5 fill-rose-400" />
                     <span>{t.cancelMatch}</span>
@@ -619,14 +627,14 @@ export default function App() {
                 {status.phase === 'ReadyCheck' && (
                   <button
                     onClick={() => WailsBridge.acceptMatch()}
-                    className="px-3 py-1.5 text-xs font-bold rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-black flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/30 animate-pulse cursor-pointer"
+                    className="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 flex items-center gap-1.5 transition-all shadow-lg shadow-emerald-500/30 animate-pulse cursor-pointer active:scale-95"
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>{t.acceptNow}</span>
                   </button>
                 )}
                 <div
-                  className={`text-[11px] font-bold px-3 py-1 rounded-full border ${phaseInfo.color} flex items-center gap-1.5`}
+                  className={`text-[11px] font-bold px-3 py-1 rounded-full border glass-pill ${phaseInfo.color} flex items-center gap-1.5`}
                 >
                   <Activity className="w-3 h-3" />
                   <span>{phaseInfo.text}</span>
@@ -636,27 +644,27 @@ export default function App() {
           </div>
         </section>
 
-        {/* TAB 1: Automation Controls */}
+        {/* TAB 1: Automation & Capabilities Controls */}
         {activeTab === 'automation' && (
           <>
             <section className="space-y-3">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-sky-400/90 px-0.5 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-sky-400" />
+              <div className="text-[11px] font-bold uppercase tracking-wider text-cyan-400/90 px-0.5 flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-cyan-400" />
                 <span>{t.coreAutomation}</span>
               </div>
 
               {/* Toggle 1: Auto Accept */}
-              <div className="rounded-2xl border border-white/[0.06] bg-[#141b28] hover:border-sky-500/30 p-3.5 transition-all shadow-sm">
+              <div className="glass-card rounded-2xl p-3.5 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-400/25 text-cyan-400 flex items-center justify-center shrink-0">
                       <CheckCircle2 className="w-4 h-4" />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white flex items-center gap-2">
                         <span>{t.autoAcceptTitle}</span>
                         {config.autoAccept && (
-                          <span className="text-[10px] px-2 py-0.2 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
                             {t.enabledBadge}
                           </span>
                         )}
@@ -670,7 +678,7 @@ export default function App() {
                   <button
                     onClick={() => updateConfig({ autoAccept: !config.autoAccept })}
                     className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      config.autoAccept ? 'bg-sky-500' : 'bg-slate-700'
+                      config.autoAccept ? 'bg-cyan-500 shadow-[0_0_12px_rgba(6,182,212,0.4)]' : 'bg-slate-700/60'
                     }`}
                   >
                     <span
@@ -683,13 +691,13 @@ export default function App() {
 
                 {/* Accept Delay Slider */}
                 {config.autoAccept && (
-                  <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                  <div className="mt-3 pt-3 border-t border-white/[0.08]">
                     <div className="flex items-center justify-between text-[11px] mb-2">
                       <span className="text-slate-400 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-sky-400" />
+                        <Clock className="w-3.5 h-3.5 text-cyan-400" />
                         {t.humanDelay}
                       </span>
-                      <span className="font-mono font-bold text-sky-400">
+                      <span className="font-mono font-bold text-cyan-300">
                         {config.acceptDelayMs} ms
                       </span>
                     </div>
@@ -700,7 +708,7 @@ export default function App() {
                       step="50"
                       value={config.acceptDelayMs}
                       onChange={(e) => updateConfig({ acceptDelayMs: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-sky-400"
+                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
                     />
                     <div className="flex justify-between text-[10px] text-slate-500 mt-1.5">
                       <button
@@ -727,17 +735,17 @@ export default function App() {
               </div>
 
               {/* Toggle 2: Auto Matchmaking with Member Selector */}
-              <div className="rounded-2xl border border-white/[0.06] bg-[#141b28] hover:border-amber-500/30 p-3.5 transition-all shadow-sm">
+              <div className="glass-card rounded-2xl p-3.5 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-400/25 text-amber-300 flex items-center justify-center shrink-0">
                       <Users className="w-4 h-4" />
                     </div>
                     <div>
                       <div className="text-xs font-bold text-white flex items-center gap-2">
                         <span>{t.autoQueueTitle}</span>
                         {config.autoQueue && (
-                          <span className="text-[10px] px-2 py-0.2 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
                             {t.enabledBadge}
                           </span>
                         )}
@@ -751,7 +759,7 @@ export default function App() {
                   <button
                     onClick={() => updateConfig({ autoQueue: !config.autoQueue })}
                     className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      config.autoQueue ? 'bg-amber-500' : 'bg-slate-700'
+                      config.autoQueue ? 'bg-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.4)]' : 'bg-slate-700/60'
                     }`}
                   >
                     <span
@@ -764,13 +772,13 @@ export default function App() {
 
                 {/* Target Members Selector */}
                 {config.autoQueue && (
-                  <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                  <div className="mt-3 pt-3 border-t border-white/[0.08]">
                     <div className="flex items-center justify-between text-[11px] mb-2">
                       <span className="text-slate-400 flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5 text-amber-400" />
                         {t.targetMembers}
                       </span>
-                      <span className="font-mono font-bold text-amber-400">
+                      <span className="font-mono font-bold text-amber-300">
                         {config.targetMembers === 0
                           ? t.targetMembersAny
                           : t.targetMembersWait.replace('{count}', String(config.targetMembers))}
@@ -790,7 +798,7 @@ export default function App() {
                           onClick={() => updateConfig({ targetMembers: item.val })}
                           className={`py-1.5 rounded-xl border text-center transition-all cursor-pointer font-medium ${
                             config.targetMembers === item.val
-                              ? 'bg-amber-500/20 border-amber-400 text-amber-200 font-bold shadow-sm'
+                              ? 'bg-amber-500/25 border-amber-400 text-amber-200 font-bold shadow-sm'
                               : 'bg-black/30 border-white/5 text-slate-400 hover:text-slate-200 hover:border-white/15'
                           }`}
                         >
@@ -803,16 +811,16 @@ export default function App() {
               </div>
 
               {/* Toggle 3: Auto Play Again & Skip Stats */}
-              <div className="rounded-2xl border border-white/[0.06] bg-[#141b28] hover:border-cyan-500/30 p-3.5 transition-all shadow-sm flex items-center justify-between">
+              <div className="glass-card rounded-2xl p-3.5 transition-all flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-400/25 text-indigo-300 flex items-center justify-center shrink-0">
                     <RotateCcw className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="text-xs font-bold text-white flex items-center gap-2">
                       <span>{t.autoPlayAgainTitle}</span>
                       {config.autoPlayAgain && (
-                        <span className="text-[10px] px-2 py-0.2 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
                           {t.enabledBadge}
                         </span>
                       )}
@@ -826,7 +834,7 @@ export default function App() {
                 <button
                   onClick={() => updateConfig({ autoPlayAgain: !config.autoPlayAgain })}
                   className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    config.autoPlayAgain ? 'bg-cyan-500' : 'bg-slate-700'
+                    config.autoPlayAgain ? 'bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.4)]' : 'bg-slate-700/60'
                   }`}
                 >
                   <span
@@ -836,28 +844,224 @@ export default function App() {
                   />
                 </button>
               </div>
+
+              {/* Capability 4: Death Video Entertainment Capability (Moved Out of Settings!) */}
+              <div className="glass-card rounded-2xl p-3.5 transition-all">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500/20 to-purple-500/20 border border-rose-400/30 text-rose-300 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(251,113,133,0.25)]">
+                      <Film className="w-4 h-4 text-rose-300" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-2">
+                        <span>{t.deathVideoCardTitle}</span>
+                        {config.deathVideo?.enabled ? (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold shadow-sm flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                            {t.enabledBadge} · {config.deathVideo.source === 'local' ? t.deathSourceLocal : t.deathSourceDouyin}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10 font-medium">
+                            未开启
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        {t.deathVideoCardDesc}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      updateConfig({
+                        deathVideo: { ...config.deathVideo, enabled: !config.deathVideo?.enabled },
+                      })
+                    }
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      config.deathVideo?.enabled ? 'bg-gradient-to-r from-rose-500 to-purple-600 shadow-[0_0_12px_rgba(244,63,94,0.4)]' : 'bg-slate-700/60'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        config.deathVideo?.enabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Expanded Controls when Death Video is Enabled */}
+                {config.deathVideo?.enabled && (
+                  <div className="mt-3 pt-3 border-t border-white/[0.08] space-y-2.5">
+                    {/* Source Radio Pills */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <span className="text-slate-400 font-medium flex items-center gap-1.5">
+                        <Tv className="w-3.5 h-3.5 text-rose-400" />
+                        <span>{t.deathSourceLabel}</span>
+                      </span>
+                      <div className="flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-white/10">
+                        <button
+                          onClick={() =>
+                            updateConfig({ deathVideo: { ...config.deathVideo, source: 'local' } })
+                          }
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            config.deathVideo?.source === 'local'
+                              ? 'bg-amber-500/25 border border-amber-400/50 text-amber-300 shadow-sm'
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          <FolderOpen className="w-3.5 h-3.5" />
+                          <span>{t.deathSourceLocal}</span>
+                        </button>
+                        <button
+                          onClick={() =>
+                            updateConfig({ deathVideo: { ...config.deathVideo, source: 'douyin' } })
+                          }
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                            config.deathVideo?.source === 'douyin'
+                              ? 'bg-cyan-500/25 border border-cyan-400/50 text-cyan-300 shadow-sm'
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          <Globe className="w-3.5 h-3.5" />
+                          <span>{t.deathSourceDouyin}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* If Local Source: Directory Picker */}
+                    {config.deathVideo?.source === 'local' && (
+                      <div className="flex items-center gap-2 bg-black/30 p-2 rounded-xl border border-white/10">
+                        <input
+                          type="text"
+                          readOnly
+                          value={config.deathVideo.localFolder || ''}
+                          placeholder={t.deathFolderPlaceholder}
+                          className="flex-1 bg-transparent border-0 text-xs text-slate-200 px-1 font-mono truncate focus:outline-none"
+                        />
+                        <button
+                          onClick={async () => {
+                            const folder = await WailsBridge.selectDirectory();
+                            if (folder) {
+                              updateConfig({ deathVideo: { ...config.deathVideo, localFolder: folder } });
+                            }
+                          }}
+                          className="px-3 py-1 text-xs font-bold rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
+                        >
+                          <FolderOpen className="w-3.5 h-3.5" />
+                          <span>{t.deathSelectFolder}</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Volume Slider & Auto-close Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
+                      <div className="flex items-center justify-between gap-2 bg-black/25 px-3 py-1.5 rounded-xl border border-white/5">
+                        <span className="text-[11px] text-slate-400 flex items-center gap-1.5 shrink-0">
+                          <Volume2 className="w-3.5 h-3.5 text-rose-400" />
+                          <span>{t.deathVolumeLabel}:</span>
+                        </span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={config.deathVideo?.volume ?? 40}
+                          onChange={(e) =>
+                            updateConfig({ deathVideo: { ...config.deathVideo, volume: Number(e.target.value) } })
+                          }
+                          className="w-24 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-400"
+                        />
+                        <span className="font-mono text-xs font-bold text-rose-300 w-8 text-right">
+                          {config.deathVideo?.volume ?? 40}%
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-between bg-black/25 px-3 py-1.5 rounded-xl border border-white/5">
+                        <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>{t.deathAutoCloseLabel}</span>
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={config.deathVideo?.autoCloseOnRespawn ?? true}
+                          onChange={(e) =>
+                            updateConfig({ deathVideo: { ...config.deathVideo, autoCloseOnRespawn: e.target.checked } })
+                          }
+                          className="w-4 h-4 rounded accent-rose-500 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Direct Test Buttons */}
+                    <div className="flex items-center gap-2 pt-0.5">
+                      <button
+                        onClick={() => WailsBridge.triggerTestDeath()}
+                        className="flex-1 py-1.5 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
+                      >
+                        <Play className="w-3.5 h-3.5" />
+                        <span>{t.deathTestSimulateDeath}</span>
+                      </button>
+                      <button
+                        onClick={() => WailsBridge.triggerTestRespawn()}
+                        className="flex-1 py-1.5 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>{t.deathTestSimulateRespawn}</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Capability 5: In-Game Mini Bar HUD Capsule */}
+              <div className="glass-card rounded-2xl p-3.5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-400/25 text-cyan-300 flex items-center justify-center shrink-0">
+                    <Tv className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-white flex items-center gap-2">
+                      <span>{t.miniModeToggleTitle}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-400/30 font-bold">
+                        380 × 52 px
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      {t.miniModeToggleDesc}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleToggleMiniMode(true)}
+                  className="py-1.5 px-3.5 rounded-xl bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 text-cyan-200 border border-cyan-400/40 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-sm"
+                >
+                  <Tv className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{t.enterMiniModeBtn}</span>
+                </button>
+              </div>
             </section>
 
             {/* Real-time Activity Terminal / Logs */}
             <section className="space-y-2 pt-1">
               <div className="flex items-center justify-between px-0.5">
                 <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <Sliders className="w-3.5 h-3.5 text-sky-400" />
+                  <Sliders className="w-3.5 h-3.5 text-cyan-400" />
                   <span>{t.activityLogs}</span>
                   <span className="text-[10px] text-slate-500 font-mono">({logs.length})</span>
                 </div>
                 <button
                   onClick={() => WailsBridge.clearLogs()}
-                  className="text-[10px] text-slate-400 hover:text-rose-400 flex items-center gap-1 transition-colors px-2 py-0.5 rounded-full hover:bg-white/5 cursor-pointer"
+                  className="text-[10px] text-slate-400 hover:text-rose-400 flex items-center gap-1 transition-colors px-2 py-0.5 rounded-full glass-pill cursor-pointer"
                 >
                   <Trash2 className="w-3 h-3" />
                   {t.clearLogs}
                 </button>
               </div>
 
-              <div className="h-44 rounded-2xl border border-white/[0.06] bg-[#0c111a] p-3 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5 shadow-inner">
+              <div className="h-44 rounded-2xl glass-panel p-3 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5 shadow-inner">
                 {logs.length === 0 ? (
-                  <div className="h-full flex items-center justify-center text-slate-600 text-xs italic">
+                  <div className="h-full flex items-center justify-center text-slate-500 text-xs italic">
                     {t.noLogs}
                   </div>
                 ) : (
@@ -877,8 +1081,8 @@ export default function App() {
                       badgeColor = 'bg-rose-500/15 text-rose-400 border-rose-500/30';
                     }
                     if (log.level === 'info') {
-                      color = 'text-sky-300';
-                      badgeColor = 'bg-sky-500/15 text-sky-400 border-sky-500/30';
+                      color = 'text-cyan-300';
+                      badgeColor = 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30';
                     }
 
                     return (
@@ -913,22 +1117,22 @@ export default function App() {
               <button
                 onClick={handleRefreshAnalysis}
                 disabled={isRefreshingAnalysis}
-                className="text-xs text-sky-400 hover:text-sky-300 flex items-center gap-1.5 transition-all px-2.5 py-1 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 cursor-pointer font-medium active:scale-95 shadow-sm"
+                className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 transition-all px-2.5 py-1 rounded-xl glass-pill cursor-pointer font-medium active:scale-95 shadow-sm"
               >
                 <RefreshCw className={`w-3 h-3 ${isRefreshingAnalysis ? 'animate-spin' : ''}`} />
                 <span>{t.reAnalyze}</span>
               </button>
             </div>
 
-            {/* Team filter chips (Material 3 Filter Chips) */}
+            {/* Team filter chips (Frosted Glass Filter Chips) */}
             {analysis && analysis.hasData && (
               <div className="flex items-center gap-1.5 text-xs">
                 <button
                   onClick={() => setTeamFilter('all')}
                   className={`px-3 py-1 rounded-full border transition-all cursor-pointer font-medium ${
                     teamFilter === 'all'
-                      ? 'bg-sky-500/20 border-sky-400/60 text-sky-200 shadow-sm'
-                      : 'bg-[#141b28] border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                      ? 'bg-cyan-500/25 border-cyan-400/60 text-cyan-200 shadow-[0_0_10px_rgba(34,211,238,0.25)]'
+                      : 'glass-pill text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   {t.filterAll} ({analysis.blueTeam.length + analysis.redTeam.length})
@@ -937,8 +1141,8 @@ export default function App() {
                   onClick={() => setTeamFilter('blue')}
                   className={`px-3 py-1 rounded-full border transition-all cursor-pointer font-medium ${
                     teamFilter === 'blue'
-                      ? 'bg-sky-500/25 border-sky-400 text-sky-200 shadow-sm'
-                      : 'bg-[#141b28] border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                      ? 'bg-cyan-500/25 border-cyan-400 text-cyan-200 shadow-[0_0_10px_rgba(34,211,238,0.25)]'
+                      : 'glass-pill text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   {t.filterAlly} ({analysis.blueTeam.length})
@@ -948,8 +1152,8 @@ export default function App() {
                     onClick={() => setTeamFilter('red')}
                     className={`px-3 py-1 rounded-full border transition-all cursor-pointer font-medium ${
                       teamFilter === 'red'
-                        ? 'bg-rose-500/25 border-rose-400 text-rose-200 shadow-sm'
-                        : 'bg-[#141b28] border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+                        ? 'bg-rose-500/25 border-rose-400 text-rose-200 shadow-[0_0_10px_rgba(251,113,133,0.25)]'
+                        : 'glass-pill text-slate-400 hover:text-slate-200'
                     }`}
                   >
                     {t.filterEnemy} ({analysis.redTeam.length})
@@ -958,9 +1162,9 @@ export default function App() {
               </div>
             )}
 
-            {/* Horse Report Console (Material 3 Elevated Card) */}
+            {/* Horse Report Console (Vibrancy Glass Card) */}
             {analysis && analysis.hasData && (
-              <div className="rounded-2xl border border-amber-500/25 bg-[#141b28] p-3.5 space-y-2.5 shadow-lg backdrop-blur">
+              <div className="rounded-2xl glass-card border border-amber-500/25 p-3.5 space-y-2.5 shadow-xl backdrop-blur">
                 <div className="flex items-center justify-between text-xs">
                   <div className="font-bold text-amber-300 flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-amber-400" />
@@ -979,9 +1183,9 @@ export default function App() {
                     <button
                       onClick={handleCopyReport}
                       title="复制后，进入游戏内按 Enter -> Ctrl+V 即可秒发"
-                      className="px-3 py-1 text-xs rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-slate-200 border border-white/[0.1] flex items-center gap-1.5 transition-all cursor-pointer font-medium active:scale-95"
+                      className="px-3 py-1 text-xs rounded-xl glass-pill text-slate-200 flex items-center gap-1.5 transition-all cursor-pointer font-medium active:scale-95"
                     >
-                      {copiedReport ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-sky-400" />}
+                      {copiedReport ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-cyan-400" />}
                       <span>{copiedReport ? t.copied : t.sendInGame}</span>
                     </button>
                   </div>
@@ -992,7 +1196,7 @@ export default function App() {
                     value={reportText}
                     onChange={(e) => setReportText(e.target.value)}
                     rows={2}
-                    className="w-full bg-[#0b0f17]/70 border border-white/[0.1] focus:border-amber-400/60 rounded-xl p-2.5 text-xs font-mono text-slate-200 focus:outline-none resize-none leading-relaxed transition-colors shadow-inner"
+                    className="w-full bg-black/40 border border-white/[0.1] focus:border-amber-400/60 rounded-xl p-2.5 text-xs font-mono text-slate-200 focus:outline-none resize-none leading-relaxed transition-colors shadow-inner"
                     placeholder={t.reportPlaceholder}
                   />
                 </div>
@@ -1012,8 +1216,8 @@ export default function App() {
 
             {/* Analysis Content */}
             {!analysis || !analysis.hasData ? (
-              <div className="rounded-2xl border border-white/[0.08] bg-[#141b28]/60 p-8 text-center space-y-2.5 backdrop-blur">
-                <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center mx-auto text-sky-400 shadow-inner">
+              <div className="rounded-2xl glass-panel p-8 text-center space-y-2.5">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-400/25 flex items-center justify-center mx-auto text-cyan-400 shadow-inner">
                   <Swords className="w-6 h-6" />
                 </div>
                 <div className="text-sm font-semibold text-slate-100">
@@ -1025,9 +1229,9 @@ export default function App() {
                 {status.connected && (
                   <button
                     onClick={handleRefreshAnalysis}
-                    className="mt-2 px-3.5 py-1.5 text-xs font-medium rounded-xl bg-sky-500/15 border border-sky-500/30 text-sky-300 hover:bg-sky-500/25 transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
+                    className="mt-2 px-3.5 py-1.5 text-xs font-medium rounded-xl bg-cyan-500/15 border border-cyan-400/30 text-cyan-200 hover:bg-cyan-500/25 transition-all inline-flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
                   >
-                    <RefreshCw className="w-3.5 h-3.5 text-sky-400" />
+                    <RefreshCw className="w-3.5 h-3.5 text-cyan-400" />
                     <span>{t.tryDetect}</span>
                   </button>
                 )}
@@ -1038,8 +1242,8 @@ export default function App() {
                 {(teamFilter === 'all' || teamFilter === 'blue') && (
                   <div className="space-y-2.5">
                     {teamFilter === 'all' && analysis.redTeam.length > 0 && (
-                      <div className="text-xs font-bold text-sky-300 px-0.5 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.6)]"></span>
+                      <div className="text-xs font-bold text-cyan-300 px-0.5 flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.7)]"></span>
                         <span>{t.filterAlly} ({analysis.blueTeam.length})</span>
                       </div>
                     )}
@@ -1056,7 +1260,7 @@ export default function App() {
                   <div className="space-y-2.5">
                     {teamFilter === 'all' && analysis.redTeam.length > 0 && (
                       <div className="text-xs font-bold text-rose-300 px-0.5 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.6)]"></span>
+                        <span className="w-2 h-2 rounded-full bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.7)]"></span>
                         <span>{t.filterEnemy} ({analysis.redTeam.length})</span>
                       </div>
                     )}
@@ -1082,8 +1286,8 @@ export default function App() {
         </div>
       </div>
 
-      {/* Footer (Material Design 3 Surface Bar) */}
-      <footer className="h-7 px-3 bg-[#0c111a] border-t border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
+      {/* Footer (macOS Vibrancy Frosted Glass Bar) */}
+      <footer className="h-7 px-3 glass-panel border-t border-white/[0.08] flex items-center justify-between text-[11px] text-slate-400 relative z-10">
         <div className="flex items-center gap-1.5">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
           <span className="text-[10px] text-slate-400 font-medium">{t.backgroundActive}</span>
@@ -1091,7 +1295,7 @@ export default function App() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => openSettings('updates')}
-            className="text-slate-400 hover:text-sky-300 transition-colors flex items-center gap-1 cursor-pointer font-medium"
+            className="text-slate-400 hover:text-cyan-300 transition-colors flex items-center gap-1 cursor-pointer font-medium"
             title={updateInfo?.hasUpdate ? t.hasNewVersionDot : t.settingsModalTitle}
           >
             <Settings className="w-3 h-3" />
@@ -1150,37 +1354,37 @@ export default function App() {
   );
 }
 
-// Single Player Horse Card Component (Material Design 3 Surface Container)
+// Single Player Horse Card Component (macOS Vibrancy Frosted Glass)
 function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof translations.zh }) {
   const tier = player.horseTier;
 
-  // 6-Tier Visual Theme Configuration with Material 3 Tonal Badges
-  let badgeBg = 'bg-sky-500/15 border-sky-400/30 text-sky-300';
+  // 6-Tier Visual Theme Configuration with Vibrancy Tonal Badges
+  let badgeBg = 'bg-cyan-500/15 border-cyan-400/40 text-cyan-300';
   let tierIcon = '🛡️';
   let tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'A 中等 · 中流砥柱';
 
   if (tier === 's_plus') {
-    badgeBg = 'bg-gradient-to-r from-amber-500/25 via-fuchsia-500/20 to-amber-500/25 border-amber-400/60 text-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.25)] animate-pulse';
+    badgeBg = 'bg-gradient-to-r from-amber-400/30 via-fuchsia-500/25 to-indigo-500/30 border-amber-400/70 text-amber-200 shadow-[0_0_14px_rgba(251,191,36,0.35)] animate-pulse';
     tierIcon = '👑';
     tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'S+ 特等 · 降维通天代';
   } else if (tier === 's' || tier === 'top') {
-    badgeBg = 'bg-emerald-500/20 border-emerald-400/40 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.2)]';
+    badgeBg = 'bg-emerald-500/20 border-emerald-400/50 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.25)]';
     tierIcon = '⚔️';
     tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'S 上等 · 全场掌舵者';
   } else if (tier === 'a' || tier === 'mid') {
-    badgeBg = 'bg-sky-500/15 border-sky-400/30 text-sky-300';
+    badgeBg = 'bg-cyan-500/20 border-cyan-400/50 text-cyan-200 shadow-[0_0_8px_rgba(34,211,238,0.2)]';
     tierIcon = '🛡️';
     tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'A 中等 · 中流砥柱';
   } else if (tier === 'b') {
-    badgeBg = 'bg-amber-500/15 border-amber-400/30 text-amber-300';
+    badgeBg = 'bg-amber-500/15 border-amber-400/35 text-amber-300';
     tierIcon = '⚠️';
     tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'B 次等 · 状态摇摆者';
   } else if (tier === 'c' || tier === 'bottom') {
-    badgeBg = 'bg-orange-500/20 border-orange-400/40 text-orange-300 shadow-[0_0_8px_rgba(249,115,22,0.2)]';
+    badgeBg = 'bg-orange-500/20 border-orange-400/45 text-orange-300 shadow-[0_0_8px_rgba(249,115,22,0.2)]';
     tierIcon = '🚨';
     tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'C 下等 · 红温突破口';
   } else if (tier === 'd') {
-    badgeBg = 'bg-rose-500/20 border-rose-500/50 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.25)]';
+    badgeBg = 'bg-rose-500/25 border-rose-500/60 text-rose-300 shadow-[0_0_14px_rgba(244,63,94,0.3)]';
     tierIcon = '🐮';
     tierDisplay = player.horseRank ? `${player.horseRank} · ${player.horseName}` : 'D 劣等 · 下水道纯牛马';
   }
@@ -1200,10 +1404,10 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
 
   return (
     <div
-      className={`rounded-2xl border p-3 transition-all duration-200 shadow-sm backdrop-blur ${
+      className={`rounded-2xl glass-card p-3 transition-all duration-200 ${
         player.team === 'blue'
-          ? 'border-sky-500/25 bg-[#131a29]/90 hover:border-sky-400/45 hover:shadow-[0_4px_16px_rgba(56,189,248,0.12)]'
-          : 'border-rose-500/25 bg-[#20121a]/90 hover:border-rose-400/45 hover:shadow-[0_4px_16px_rgba(244,63,94,0.12)]'
+          ? 'border-cyan-500/30 hover:border-cyan-400/50 hover:shadow-[0_8px_24px_rgba(34,211,238,0.18)]'
+          : 'border-rose-500/30 hover:border-rose-400/50 hover:shadow-[0_8px_24px_rgba(251,113,133,0.18)]'
       }`}
     >
       {/* Header: Name, Rank, 6-Tier Rating Badge */}
@@ -1211,7 +1415,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
         <div className="flex items-center gap-1.5 overflow-hidden">
           <span
             className={`text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider ${
-              player.team === 'blue' ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+              player.team === 'blue' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
             }`}
           >
             {player.team === 'blue' ? t.allyBadge : t.enemyBadge}
@@ -1237,7 +1441,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
               t.unknownPlayer
             )}
           </span>
-          <span className="text-[10px] text-slate-400 font-mono truncate max-w-[90px] px-1.5 py-0.5 rounded bg-white/[0.04]">
+          <span className="text-[10px] text-slate-300 font-mono truncate max-w-[90px] px-1.5 py-0.5 rounded glass-pill">
             {player.rankTier}
           </span>
         </div>
@@ -1255,7 +1459,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
       </div>
 
       {/* Row 1: 近N场胜率 & KDA & 参团贡献 */}
-      <div className="grid grid-cols-3 gap-1.5 bg-[#0b0f17]/60 rounded-xl p-2 text-[11px] mb-1.5 border border-white/[0.06]">
+      <div className="grid grid-cols-3 gap-1.5 bg-black/40 rounded-xl p-2 text-[11px] mb-1.5 border border-white/[0.06]">
         <div>
           <div className="text-[10px] text-slate-400">
             {t.recentWr.replace('{count}', String(player.totalGames || 20))}
@@ -1279,7 +1483,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
         </div>
         <div>
           <div className="text-[10px] text-slate-400">{t.avgKp}</div>
-          <div className="font-mono font-bold text-sky-400 text-xs mt-0.5">
+          <div className="font-mono font-bold text-cyan-300 text-xs mt-0.5">
             {avgKpNum.toFixed(1)}
             <span className="text-[9px] font-normal text-slate-400 ml-1">
               ({t.kdaRatio} {kdaNum.toFixed(1)})
@@ -1289,7 +1493,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
       </div>
 
       {/* Row 2: 核心战术占比排 (输出占比 & 承伤占比 & 守护者出装) */}
-      <div className="grid grid-cols-3 gap-1.5 bg-[#0b0f17]/40 rounded-lg px-2 py-1.5 text-[10px] mb-2 border border-white/[0.04] font-mono">
+      <div className="grid grid-cols-3 gap-1.5 bg-black/25 rounded-lg px-2 py-1.5 text-[10px] mb-2 border border-white/[0.04] font-mono">
         <div className="flex items-center gap-1">
           <span className="text-slate-400">💥输出:</span>
           <span className="font-bold text-amber-300">{avgDmgK}k</span>
@@ -1297,7 +1501,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
         </div>
         <div className="flex items-center gap-1">
           <span className="text-slate-400">🛡️承伤:</span>
-          <span className="font-bold text-sky-300">{avgTankK}k</span>
+          <span className="font-bold text-cyan-300">{avgTankK}k</span>
           <span className="text-[9px] text-slate-500">({tankShare}%)</span>
         </div>
         <div className="flex items-center gap-1 truncate">
@@ -1316,7 +1520,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
             player.topChampions.map((c, i) => (
               <span
                 key={i}
-                className="px-2 py-0.5 rounded-md bg-white/[0.05] border border-white/[0.06] text-slate-300 truncate max-w-[95px] font-medium"
+                className="px-2 py-0.5 rounded-md glass-pill text-slate-300 truncate max-w-[95px] font-medium"
               >
                 {c.championName} ({c.games}把 {(c.winRate ?? 0).toFixed(0)}%)
               </span>
@@ -1336,7 +1540,7 @@ function PlayerHorseCard({ player, t }: { player: PlayerAnalysis; t: typeof tran
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-[0_0_6px_rgba(251,191,36,0.2)]'
                     : tagItem.includes('⚠️')
                     ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
-                    : 'bg-sky-500/15 text-sky-300 border-sky-500/30'
+                    : 'bg-cyan-500/15 text-cyan-300 border-cyan-400/30'
                 }`}
               >
                 {tagItem}

@@ -15,7 +15,7 @@ export const translations = {
     langToggleTitle: 'Switch to English',
 
     // Tabs
-    tabAutomation: '自动化控制',
+    tabAutomation: '能力与自动化',
     tabAnalysis: '对局马匹分析',
     tabSearch: '战力单查',
     tabAlgorithm: '算法原理解读',
@@ -40,8 +40,8 @@ export const translations = {
     phasePostGame: '对局结算中',
     phaseIdle: '客户端在线 (待机)',
 
-    // Automation Settings
-    coreAutomation: '核心自动化设置',
+    // Automation & Capabilities
+    coreAutomation: '核心能力与自动化组件',
     autoAcceptTitle: '自动接受对局 (ReadyCheck)',
     enabledBadge: '开启中',
     autoAcceptDesc: '检测到对局匹配完成时自动点击“接受”按钮',
@@ -64,6 +64,24 @@ export const translations = {
 
     autoPlayAgainTitle: '自动跳过荣誉 & 再来一局返回房间',
     autoPlayAgainDesc: '赛后自动跳过荣誉点赞，点击【再来一局】将车队全员带回组队房间',
+
+    // Death Video Capability
+    deathVideoCardTitle: '局内阵亡解压视频 (死亡感知)',
+    deathVideoCardDesc: '官方2999端口秒级感知英雄阵亡，自动画中画弹出解压视频，复活感知0毫秒秒关',
+    deathSourceLabel: '播放模式:',
+    deathSourceLocal: '本地自定义视频',
+    deathSourceDouyin: '抖音推荐在线流',
+    deathTestSimulateDeath: '模拟阵亡弹出',
+    deathTestSimulateRespawn: '模拟复活关闭',
+    deathSelectFolder: '选择文件夹',
+    deathFolderPlaceholder: '选择包含 mp4 / webm 的本地视频目录...',
+    deathVolumeLabel: '音量',
+    deathAutoCloseLabel: '复活自动关闭',
+
+    // Mini Mode
+    miniModeToggleTitle: '局内超窄悬浮胶囊 HUD',
+    miniModeToggleDesc: '一键折叠为 380x52px 极简毛玻璃胶囊，悬浮在游戏边角绝不遮挡视野',
+    enterMiniModeBtn: '进入胶囊模式',
 
     // Logs
     activityLogs: '实时运行日志',
@@ -255,7 +273,7 @@ export const translations = {
     langToggleTitle: '切换为中文',
 
     // Tabs
-    tabAutomation: 'Automation',
+    tabAutomation: 'Capabilities',
     tabAnalysis: 'Horse Radar',
     tabSearch: 'Player Lookup',
     tabAlgorithm: 'Algorithm Guide',
@@ -281,7 +299,7 @@ export const translations = {
     phaseIdle: 'Client Online (Idle)',
 
     // Automation Settings
-    coreAutomation: 'Core Automation Settings',
+    coreAutomation: 'Core Capabilities & Automations',
     autoAcceptTitle: 'Auto Accept Match (ReadyCheck)',
     enabledBadge: 'ACTIVE',
     autoAcceptDesc: 'Automatically clicks Accept as soon as a match is found',
@@ -304,6 +322,24 @@ export const translations = {
 
     autoPlayAgainTitle: 'Auto Skip Honor & Play Again',
     autoPlayAgainDesc: 'Automatically skips honor animation and clicks Play Again to return party to lobby',
+
+    // Death Video Capability
+    deathVideoCardTitle: 'In-game Death Video Player',
+    deathVideoCardDesc: 'Detects in-game death via port 2999, auto pops up video PiP, closes instantly on respawn',
+    deathSourceLabel: 'Playback Mode:',
+    deathSourceLocal: 'Local Video Folder',
+    deathSourceDouyin: 'Douyin Online Stream',
+    deathTestSimulateDeath: 'Simulate Death',
+    deathTestSimulateRespawn: 'Simulate Respawn',
+    deathSelectFolder: 'Browse Folder',
+    deathFolderPlaceholder: 'Select folder containing mp4 / webm...',
+    deathVolumeLabel: 'Volume',
+    deathAutoCloseLabel: 'Auto Close on Respawn',
+
+    // Mini Mode
+    miniModeToggleTitle: 'In-game Compact Mini Bar HUD',
+    miniModeToggleDesc: 'Collapse into a 380x52px sleek frosted glass capsule floating over game',
+    enterMiniModeBtn: 'Enter Mini Capsule',
 
     // Logs
     activityLogs: 'Live Activity Logs',
