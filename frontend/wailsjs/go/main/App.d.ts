@@ -27,6 +27,8 @@ export function GetStatus():Promise<service.ServiceStatus>;
 
 export function HideWindow():Promise<void>;
 
+export function IsWindowMaximized():Promise<boolean>;
+
 export function MinimizeWindow():Promise<void>;
 
 export function OpenBrowser(arg1:string):Promise<void>;
@@ -44,3 +46,5 @@ export function ShowWindow():Promise<void>;
 export function StartMatchmaking():Promise<void>;
 
 export function StopMatchmaking():Promise<void>;
+
+export function ToggleMaximizeWindow():Promise<void>;

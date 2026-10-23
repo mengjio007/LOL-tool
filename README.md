@@ -1,7 +1,7 @@
-# LOL-tool (英雄联盟智能助手 v1.0.4)
+# LOL-tool (英雄联盟智能助手 v1.0.5)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-v1.0.4-gold?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Version-v1.0.5-gold?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Language-Go%201.25%20%7C%20React%2019-blue?style=for-the-badge" alt="Tech Stack">
   <img src="https://img.shields.io/badge/GUI-Wails%20v2-emerald?style=for-the-badge" alt="Wails">
   <img src="https://img.shields.io/badge/Package%20Size-~4.0MB%20(UPX)-purple?style=for-the-badge" alt="Size">
@@ -152,9 +152,9 @@
 ### 方式一：直接运行成品 (推荐)
 - **国内直连用户 (推荐)**：[**前往 GitCode 发行版下载**](https://gitcode.com/mengjio007/lol-tool/releases)（电信/联通/移动满速，无需代理）。
 - **海外或 GitHub 用户**：[**前往 GitHub Releases 官方下载**](https://github.com/mengjio007/LOL-tool/releases/latest)。
-1. 下载最新版的可执行文件 `lol-helper-v1.0.4.exe`（单文件仅 ~3.89 MB，免安装解压即用）。
+1. 下载最新版的可执行文件 `lol-helper-v1.0.5.exe`（单文件仅 ~4.0 MB，免安装解压即用）。
 2. 打开英雄联盟客户端（先后启动顺序无所谓，助手会自动侦测连接）。
-3. 双击运行 `lol-helper-v1.0.4.exe` 即可享受全自动静默守护。
+3. 双击运行 `lol-helper-v1.0.5.exe` 即可享受全自动静默守护。
 
 ---
 

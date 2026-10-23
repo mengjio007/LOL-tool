@@ -165,7 +165,7 @@ export function PlayerSearchView({
   const theme = result ? getTierTheme(result.horseTier) : null;
 
   return (
-    <div className="space-y-3.5 text-[#f0e6d2] pb-6">
+    <div className="space-y-3.5 text-[#f0e6d2] pb-6 max-w-4xl mx-auto w-full">
       {/* 1. Search Box Card */}
       <section className="relative overflow-hidden rounded-xl border border-[#c89b3c]/40 bg-gradient-to-br from-[#0a1428] via-[#091428] to-[#010a13] p-4 shadow-xl">
         <div className="flex items-start justify-between gap-3">
@@ -370,7 +370,7 @@ export function PlayerSearchView({
             <div className="rounded-lg bg-black/40 border border-white/5 p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">全队伤害占比</div>
               <div className="text-sm font-bold text-rose-300 font-mono">
-                {result.damageShare ? result.damageShare.toFixed(1) : '20.0'}%
+                {result.damageShare !== undefined ? result.damageShare.toFixed(1) : '20.0'}%
               </div>
               <div className="text-[10px] text-slate-400 font-sans">
                 均线: 20% · 场均 {result.avgDamage ? (result.avgDamage / 1000).toFixed(1) : 0}k
@@ -381,10 +381,14 @@ export function PlayerSearchView({
             <div className="rounded-lg bg-black/40 border border-white/5 p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">全队承伤占比</div>
               <div className="text-sm font-bold text-cyan-300 font-mono">
-                {result.damageTakenShare ? result.damageTakenShare.toFixed(1) : '20.0'}%
+                {result.damageTakenShare !== undefined ? result.damageTakenShare.toFixed(1) : '20.0'}%
               </div>
-              <div className="text-[10px] text-slate-400 font-sans">
-                号角率: {result.guardianRatio ? result.guardianRatio.toFixed(0) : 0}%
+              <div
+                className="text-[10px] text-slate-400 font-sans"
+                title={result.guardianRatio && result.guardianRatio > 0 ? `守护者装备出装率: ${result.guardianRatio.toFixed(0)}%` : undefined}
+              >
+                均线: 20% · 场均 {result.avgDamageTaken ? (result.avgDamageTaken / 1000).toFixed(1) : 0}k
+                {result.guardianRatio && result.guardianRatio >= 10 ? ` · 号角 ${result.guardianRatio.toFixed(0)}%` : ''}
               </div>
             </div>
           </div>

@@ -282,16 +282,28 @@ export function SettingsModal({
           {/* TAB 3: Changelog */}
           {activeTab === 'changelog' && (
             <div className="space-y-3 text-xs">
-              {/* v1.0.4 */}
+              {/* v1.0.5 */}
               <div className="rounded-xl border border-[#c89b3c]/40 bg-[#091428] p-3.5 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-[#f0e6d2]">v1.0.4 稳定版</span>
+                  <span className="font-bold text-sm text-[#f0e6d2]">v1.0.5 稳定版</span>
                   <span className="text-[10px] font-mono text-[#c89b3c] bg-[#c89b3c]/15 px-1.5 py-0.5 rounded border border-[#c89b3c]/30">当前版本</span>
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-slate-300 text-[11px] leading-relaxed">
-                  <li><strong className="text-cyan-300">战力单查上线</strong>：新增召唤师战力独立穿透查询页面，支持任意游戏昵称/Riot ID，或一键“查我自己”。</li>
-                  <li><strong className="text-amber-300">交互架构重构</strong>：将设置、软件更新、算法解读与联系方式聚合为独立设置中心，主界面专注对局核心操作。</li>
-                  <li><strong className="text-emerald-300">开发者交流渠道</strong>：正式公开开发者联系邮箱（Google Mail）与 GitHub 互动窗口。</li>
+                  <li><strong className="text-cyan-300">窗口最大化与自适应还原</strong>：顶部新增原生窗口还原/最大化按钮，支持全屏大屏响应式自适应排版。</li>
+                  <li><strong className="text-emerald-300">精准战力占比重构</strong>：修复伤害占比与承伤占比误显示 100% 的统计缺陷，接入全局对局战报与限流并发。</li>
+                  <li><strong className="text-amber-300">更新交互体验升级</strong>：检查更新浮窗提升至最高层级，增加防频控节流保护与直观反馈。</li>
+                </ul>
+              </div>
+
+              {/* v1.0.4 */}
+              <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm text-slate-200">v1.0.4</span>
+                  <span className="text-[10px] font-mono text-slate-500">2026-10-22</span>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-slate-400 text-[11px] leading-relaxed">
+                  <li>战力单查上线：新增召唤师战力独立穿透查询页面，支持任意游戏昵称/Riot ID，或一键“查我自己”。</li>
+                  <li>交互架构重构：将设置、软件更新、算法解读与联系方式聚合为独立设置中心，主界面专注对局核心操作。</li>
                 </ul>
               </div>
 

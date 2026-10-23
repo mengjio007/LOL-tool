@@ -76,6 +76,19 @@ func (a *App) MinimizeWindow() {
 	}
 }
 
+func (a *App) ToggleMaximizeWindow() {
+	if a.ctx != nil {
+		wailsRuntime.WindowToggleMaximise(a.ctx)
+	}
+}
+
+func (a *App) IsWindowMaximized() bool {
+	if a.ctx != nil {
+		return wailsRuntime.WindowIsMaximised(a.ctx)
+	}
+	return false
+}
+
 func (a *App) HideWindow() {
 	if a.ctx != nil {
 		wailsRuntime.WindowHide(a.ctx)

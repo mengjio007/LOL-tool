@@ -119,6 +119,8 @@ declare global {
           GetLogs: () => Promise<LogEntry[]>;
           ClearLogs: () => Promise<void>;
           MinimizeWindow: () => Promise<void>;
+          ToggleMaximizeWindow: () => Promise<void>;
+          IsWindowMaximized: () => Promise<boolean>;
           CloseApp: () => Promise<void>;
           SetAlwaysOnTop: (onTop: boolean) => Promise<void>;
           StartMatchmaking: () => Promise<void>;
@@ -138,6 +140,8 @@ declare global {
       EventsOn: (eventName: string, callback: (...args: any[]) => void) => () => void;
       EventsOff: (eventName: string) => void;
       WindowMinimise: () => void;
+      WindowToggleMaximise: () => void;
+      WindowIsMaximised: () => Promise<boolean>;
       Quit: () => void;
     };
   }
@@ -197,6 +201,23 @@ export const WailsBridge = {
     } else if (window.runtime?.WindowMinimise) {
       window.runtime.WindowMinimise();
     }
+  },
+
+  async toggleMaximize(): Promise<void> {
+    if (window.go?.main?.App?.ToggleMaximizeWindow) {
+      await window.go.main.App.ToggleMaximizeWindow();
+    } else if (window.runtime?.WindowToggleMaximise) {
+      window.runtime.WindowToggleMaximise();
+    }
+  },
+
+  async isMaximized(): Promise<boolean> {
+    if (window.go?.main?.App?.IsWindowMaximized) {
+      return await window.go.main.App.IsWindowMaximized();
+    } else if (window.runtime?.WindowIsMaximised) {
+      return await window.runtime.WindowIsMaximised();
+    }
+    return false;
   },
 
   async close(): Promise<void> {

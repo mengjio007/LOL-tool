@@ -46,6 +46,10 @@ export function HideWindow() {
   return window['go']['main']['App']['HideWindow']();
 }
 
+export function IsWindowMaximized() {
+  return window['go']['main']['App']['IsWindowMaximized']();
+}
+
 export function MinimizeWindow() {
   return window['go']['main']['App']['MinimizeWindow']();
 }
@@ -80,4 +84,8 @@ export function StartMatchmaking() {
 
 export function StopMatchmaking() {
   return window['go']['main']['App']['StopMatchmaking']();
+}
+
+export function ToggleMaximizeWindow() {
+  return window['go']['main']['App']['ToggleMaximizeWindow']();
 }

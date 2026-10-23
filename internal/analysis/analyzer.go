@@ -74,17 +74,96 @@ type MatchAnalysisResult struct {
 	LastUpdated string           `json:"lastUpdated"`
 }
 
+type GameTeamTotals struct {
+	TeamDamage      map[int]int
+	TeamDamageTaken map[int]int
+	TeamHeal        map[int]int
+	TeamPlayerCount map[int]int
+}
+
 type Analyzer struct {
 	client       *lcu.Client
 	championsMu  sync.RWMutex
 	championDict map[int]string
+	gamesMu      sync.RWMutex
+	gameStats    map[int64]*GameTeamTotals
+	fetchSem     chan struct{} // 全局并发限流槽位，保护本地客户端不被高并发连接打崩
 }
 
 func NewAnalyzer(client *lcu.Client) *Analyzer {
 	return &Analyzer{
 		client:       client,
 		championDict: make(map[int]string),
+		gameStats:    make(map[int64]*GameTeamTotals),
+		fetchSem:     make(chan struct{}, 8), // 最多同时 8 个请求打向 LCU
 	}
+}
+
+func (a *Analyzer) getGameTeamTotals(gameID int64) *GameTeamTotals {
+	if a == nil || a.client == nil || gameID == 0 {
+		return nil
+	}
+	a.gamesMu.RLock()
+	cached, ok := a.gameStats[gameID]
+	a.gamesMu.RUnlock()
+	if ok {
+		return cached
+	}
+
+	// 全局限流控制：进入并发限制管道
+	if a.fetchSem != nil {
+		a.fetchSem <- struct{}{}
+		defer func() { <-a.fetchSem }()
+	}
+
+	// 获取锁后二次检查缓存，避免并发重复抓取相同对局
+	a.gamesMu.RLock()
+	cached, ok = a.gameStats[gameID]
+	a.gamesMu.RUnlock()
+	if ok {
+		return cached
+	}
+
+	status, body, err := a.client.Request(http.MethodGet, fmt.Sprintf("/lol-match-history/v1/games/%d", gameID), nil)
+	if err != nil || status != http.StatusOK {
+		return nil
+	}
+
+	var game struct {
+		Participants []struct {
+			TeamID int `json:"teamId"`
+			Stats  struct {
+				TotalDamageDealtToChampions int `json:"totalDamageDealtToChampions"`
+				TotalDamageTaken            int `json:"totalDamageTaken"`
+				TotalHeal                   int `json:"totalHeal"`
+			} `json:"stats"`
+		} `json:"participants"`
+	}
+	if err := json.Unmarshal(body, &game); err != nil || len(game.Participants) == 0 {
+		return nil
+	}
+
+	totals := &GameTeamTotals{
+		TeamDamage:      make(map[int]int),
+		TeamDamageTaken: make(map[int]int),
+		TeamHeal:        make(map[int]int),
+		TeamPlayerCount: make(map[int]int),
+	}
+	for _, p := range game.Participants {
+		totals.TeamDamage[p.TeamID] += p.Stats.TotalDamageDealtToChampions
+		totals.TeamDamageTaken[p.TeamID] += p.Stats.TotalDamageTaken
+		totals.TeamHeal[p.TeamID] += p.Stats.TotalHeal
+		totals.TeamPlayerCount[p.TeamID]++
+	}
+
+	a.gamesMu.Lock()
+	if len(a.gameStats) > 500 {
+		a.gameStats = make(map[int64]*GameTeamTotals)
+	}
+	a.gameStats[gameID] = totals
+	a.gamesMu.Unlock()
+
+	return totals
 }
 
 // LoadChampions caches champion ID to Chinese name mapping
@@ -319,6 +398,7 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 	var matchData struct {
 		Games struct {
 			Games []struct {
+				GameID       int64  `json:"gameId"`
 				GameMode     string `json:"gameMode"`
 				GameDuration int    `json:"gameDuration"`
 				Participants []struct {
@@ -371,6 +451,31 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 	}
 
 	games := matchData.Games.Games
+
+	// Concurrently prefetch full game stats for uncached matches
+	var uncachedIDs []int64
+	for _, g := range games {
+		if g.GameID > 0 {
+			a.gamesMu.RLock()
+			_, ok := a.gameStats[g.GameID]
+			a.gamesMu.RUnlock()
+			if !ok {
+				uncachedIDs = append(uncachedIDs, g.GameID)
+			}
+		}
+	}
+	if len(uncachedIDs) > 0 {
+		var wg sync.WaitGroup
+		for _, gid := range uncachedIDs {
+			wg.Add(1)
+			go func(id int64) {
+				defer wg.Done()
+				a.getGameTeamTotals(id)
+			}(gid)
+		}
+		wg.Wait()
+	}
+
 	totalKills, totalDeaths, totalAssists := 0, 0, 0
 	totalDmg, totalTank, totalMitigated, totalHeal, totalTurretDmg, totalCC := 0, 0, 0, 0, 0, 0
 	pentaCount, quadraCount, tripleCount, fbCount := 0, 0, 0, 0
@@ -408,7 +513,7 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 			targetPartID = 1
 		}
 
-		// Find target team ID and calculate team totals
+		// Find target team ID
 		targetTeamID := 100
 		for idx, p := range g.Participants {
 			pID := p.ParticipantID
@@ -426,20 +531,12 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 		}
 
 		teamDmg, teamTank, teamHeal := 0, 0, 0
-		for idx, p := range g.Participants {
-			pTeam := p.TeamID
-			if pTeam == 0 {
-				if idx < 5 {
-					pTeam = 100
-				} else {
-					pTeam = 200
-				}
-			}
-			if pTeam == targetTeamID {
-				teamDmg += p.Stats.TotalDamageDealtToChampions
-				teamTank += p.Stats.TotalDamageTaken
-				teamHeal += p.Stats.TotalHeal
-			}
+		playerCount := 0
+		if totals := a.getGameTeamTotals(g.GameID); totals != nil {
+			teamDmg = totals.TeamDamage[targetTeamID]
+			teamTank = totals.TeamDamageTaken[targetTeamID]
+			teamHeal = totals.TeamHeal[targetTeamID]
+			playerCount = totals.TeamPlayerCount[targetTeamID]
 		}
 
 		for idx, p := range g.Participants {
@@ -488,10 +585,12 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 					fbCount++
 				}
 
-				// Calculate team shares
-				if teamDmg > 0 {
+				// Calculate team shares from full game details
+				if teamDmg > 0 && playerCount > 1 {
 					dmgShareSum += (float64(p.Stats.TotalDamageDealtToChampions) / float64(teamDmg)) * 100.0
-					tankShareSum += (float64(p.Stats.TotalDamageTaken) / float64(teamTank)) * 100.0
+					if teamTank > 0 {
+						tankShareSum += (float64(p.Stats.TotalDamageTaken) / float64(teamTank)) * 100.0
+					}
 					if teamHeal > 0 {
 						healShareSum += (float64(p.Stats.TotalHeal) / float64(teamHeal)) * 100.0
 					}
