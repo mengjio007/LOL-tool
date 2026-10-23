@@ -278,20 +278,85 @@ const (
 	wmClose       = 0x0010      // WM_CLOSE 消息
 )
 
-// pinProcessWindowsTopmost 寻找属于该目标进程或包含抖音标题的可见窗口并强行置顶 (浮现在英雄联盟等所有窗口最上层)
+// getProcessTreePIDs 使用 Win32 Toolhelp 快照枚举 rootPID 及其所有派生的子进程 PID
+func getProcessTreePIDs(rootPID uint32) []uint32 {
+	if rootPID == 0 {
+		return nil
+	}
+	snapshot, err := syscall.CreateToolhelp32Snapshot(syscall.TH32CS_SNAPPROCESS, 0)
+	if err != nil {
+		return []uint32{rootPID}
+	}
+	defer syscall.CloseHandle(snapshot)
+
+	var entry syscall.ProcessEntry32
+	entry.Size = uint32(unsafe.Sizeof(entry))
+
+	parentMap := make(map[uint32][]uint32)
+	if err := syscall.Process32First(snapshot, &entry); err == nil {
+		for {
+			parentMap[entry.ParentProcessID] = append(parentMap[entry.ParentProcessID], entry.ProcessID)
+			if err := syscall.Process32Next(snapshot, &entry); err != nil {
+				break
+			}
+		}
+	}
+
+	pids := []uint32{rootPID}
+	queue := []uint32{rootPID}
+	visited := map[uint32]bool{rootPID: true}
+
+	for len(queue) > 0 {
+		curr := queue[0]
+		queue = queue[1:]
+		for _, child := range parentMap[curr] {
+			if !visited[child] {
+				visited[child] = true
+				pids = append(pids, child)
+				queue = append(queue, child)
+			}
+		}
+	}
+	return pids
+}
+
+// killProcessTreePIDs 使用纯 Win32 API 静默结束进程，绝不调用 taskkill 或 powershell，0ms 响应且绝无控制台黑框弹出
+func killProcessTreePIDs(pids []uint32) {
+	const PROCESS_TERMINATE = 0x0001
+	for _, pid := range pids {
+		if pid <= 4 { // 保护系统关键进程
+			continue
+		}
+		h, err := syscall.OpenProcess(PROCESS_TERMINATE, false, pid)
+		if err == nil && h != 0 {
+			_ = syscall.TerminateProcess(h, 0)
+			_ = syscall.CloseHandle(h)
+		}
+	}
+}
+
+// pinProcessWindowsTopmost 寻找属于该目标进程或其子进程、或包含视频站标题的可见窗口并强行置顶 (浮现在英雄联盟等所有窗口最上层)
 func pinProcessWindowsTopmost(targetPID int) {
+	targetPIDs := getProcessTreePIDs(uint32(targetPID))
+	pidSet := make(map[uint32]bool)
+	for _, p := range targetPIDs {
+		pidSet[p] = true
+	}
+
 	cb := syscall.NewCallback(func(hwnd uintptr, lParam uintptr) uintptr {
 		var pid uint32
 		procGetWindowThreadProcessId.Call(hwnd, uintptr(unsafe.Pointer(&pid)))
 
-		isTarget := int(pid) == targetPID
+		isTarget := pidSet[pid]
 		if !isTarget {
 			length, _, _ := procGetWindowTextLengthW.Call(hwnd)
 			if length > 0 {
 				buf := make([]uint16, length+1)
 				procGetWindowTextW.Call(hwnd, uintptr(unsafe.Pointer(&buf[0])), length+1)
 				title := syscall.UTF16ToString(buf)
-				if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") {
+				if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") ||
+					strings.Contains(title, "哔哩哔哩") || strings.Contains(title, "bilibili") ||
+					strings.Contains(title, "爱奇艺") || strings.Contains(title, "iqiyi") {
 					isTarget = true
 				}
 			}
@@ -405,7 +470,10 @@ func (a *App) OpenWebVideoWindow(platformKey string) error {
 		fmt.Sprintf("--user-data-dir=%s", profileDir),
 		fmt.Sprintf("--window-size=%d,%d", platform.WindowWidth, platform.WindowHeight),
 		"--disable-notifications",
-		"--disable-features=Translate",
+		"--disable-background-mode",
+		"--disable-features=Translate,msStartupBoost",
+		"--no-first-run",
+		"--no-default-browser-check",
 		"--disable-blink-features=AutomationControlled",
 	)
 
@@ -448,41 +516,65 @@ func (a *App) OpenDouyinWindow() error {
 	return a.OpenWebVideoWindow("douyin")
 }
 
-// CloseWebVideoWindow 阵亡复活或用户关闭时毫秒级瞬闭小窗并保存登录会话
+// CloseWebVideoWindow 阵亡复活或用户关闭时毫秒级瞬闭小窗，纯 Win32 API 零黑框实现
 func (a *App) CloseWebVideoWindow() error {
 	a.douyinMutex.Lock()
 	defer a.douyinMutex.Unlock()
 
-	// 1. 如果有持有的直接句柄，杀掉进程树
+	var targetPIDs []uint32
 	if a.douyinCmd != nil && a.douyinCmd.Process != nil {
-		pid := a.douyinCmd.Process.Pid
-		_ = exec.Command("taskkill", "/F", "/T", "/PID", fmt.Sprintf("%d", pid)).Run()
-		_ = a.douyinCmd.Process.Kill()
+		rootPID := uint32(a.douyinCmd.Process.Pid)
+		targetPIDs = getProcessTreePIDs(rootPID)
 		a.douyinCmd = nil
 	}
 
-	// 2. 枚举所有带视频站标题的窗口，通过 Win32 API 发送 WM_CLOSE 让窗口以 0ms 瞬间关闭
+	pidSet := make(map[uint32]bool)
+	for _, p := range targetPIDs {
+		pidSet[p] = true
+	}
+
+	// 1. 枚举所有带视频站标题或属于目标进程树的窗口，通过 Win32 PostMessage 发送 WM_CLOSE 毫秒级关闭
+	// 这样 Edge/Chrome 会正常将 session、cookies 和进度安全写盘入库
 	cb := syscall.NewCallback(func(hwnd uintptr, lParam uintptr) uintptr {
-		length, _, _ := procGetWindowTextLengthW.Call(hwnd)
-		if length > 0 {
-			buf := make([]uint16, length+1)
-			procGetWindowTextW.Call(hwnd, uintptr(unsafe.Pointer(&buf[0])), length+1)
-			title := syscall.UTF16ToString(buf)
-			if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") ||
-				strings.Contains(title, "哔哩哔哩") || strings.Contains(title, "bilibili") ||
-				strings.Contains(title, "爱奇艺") || strings.Contains(title, "iqiyi") {
-				procPostMessageW.Call(hwnd, wmClose, 0, 0)
+		var pid uint32
+		procGetWindowThreadProcessId.Call(hwnd, uintptr(unsafe.Pointer(&pid)))
+
+		isTarget := pidSet[pid]
+		if !isTarget {
+			length, _, _ := procGetWindowTextLengthW.Call(hwnd)
+			if length > 0 {
+				buf := make([]uint16, length+1)
+				procGetWindowTextW.Call(hwnd, uintptr(unsafe.Pointer(&buf[0])), length+1)
+				title := syscall.UTF16ToString(buf)
+				if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") ||
+					strings.Contains(title, "哔哩哔哩") || strings.Contains(title, "bilibili") ||
+					strings.Contains(title, "爱奇艺") || strings.Contains(title, "iqiyi") {
+					isTarget = true
+					if pid > 4 && !pidSet[pid] {
+						pidSet[pid] = true
+						targetPIDs = append(targetPIDs, pid)
+					}
+				}
 			}
+		}
+
+		if isTarget {
+			procPostMessageW.Call(hwnd, wmClose, 0, 0)
 		}
 		return 1
 	})
 	procEnumWindows.Call(cb, 0)
 
-	// 3. 异步查杀所有携带 lol-helper 各平台用户目录参数的孤儿 Chromium 进程，确保 100% 不留任何后台进程
-	go func() {
-		killCmd := `Get-CimInstance Win32_Process -Filter "Name = 'msedge.exe' or Name = 'chrome.exe'" | Where-Object { $_.CommandLine -like "*lol-helper*" -and $_.CommandLine -like "*profile*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`
-		_ = exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", killCmd).Run()
-	}()
+	// 2. 给予浏览器 350ms 充分保存登录态写盘后，使用纯 Win32 API 静默清理可能残留的孤儿进程
+	// 绝不调用 taskkill 或 powershell，彻底杜绝黑色控制台窗口闪烁
+	if len(targetPIDs) > 0 {
+		pidsToClean := make([]uint32, len(targetPIDs))
+		copy(pidsToClean, targetPIDs)
+		go func() {
+			time.Sleep(350 * time.Millisecond)
+			killProcessTreePIDs(pidsToClean)
+		}()
+	}
 
 	return nil
 }
