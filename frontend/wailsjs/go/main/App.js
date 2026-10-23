@@ -18,6 +18,10 @@ export function CloseApp() {
   return window['go']['main']['App']['CloseApp']();
 }
 
+export function CloseDouyinWindow() {
+  return window['go']['main']['App']['CloseDouyinWindow']();
+}
+
 export function DownloadAndApplyUpdate(arg1) {
   return window['go']['main']['App']['DownloadAndApplyUpdate'](arg1);
 }
@@ -60,6 +64,10 @@ export function MinimizeWindow() {
 
 export function OpenBrowser(arg1) {
   return window['go']['main']['App']['OpenBrowser'](arg1);
+}
+
+export function OpenDouyinWindow() {
+  return window['go']['main']['App']['OpenDouyinWindow']();
 }
 
 export function SaveConfig(arg1) {

@@ -15,11 +15,6 @@ import {
   CheckCircle2,
   Globe,
   Sliders,
-  Tv,
-  FolderOpen,
-  Play,
-  RotateCcw,
-  Volume2,
   Flame,
   Swords,
   Shield,
@@ -28,13 +23,13 @@ import {
   TrendingUp,
   Award,
 } from 'lucide-react';
-import type { Config, UpdateInfo, AlgorithmConfig, DeathVideoConfig } from '../services/wailsBridge';
+import type { Config, UpdateInfo, AlgorithmConfig } from '../services/wailsBridge';
 import { WailsBridge, defaultAlgorithmConfig } from '../services/wailsBridge';
 import type { translations } from '../i18n/translations';
 import { AlgorithmGuideView } from './AlgorithmGuideView';
 import appLogo from '../assets/appicon.png';
 
-export type SettingsTab = 'algoConfig' | 'deathVideo' | 'updates' | 'algorithm' | 'changelog' | 'contact';
+export type SettingsTab = 'algoConfig' | 'updates' | 'algorithm' | 'changelog' | 'contact';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -83,23 +78,9 @@ export function SettingsModal({
   };
 
   const algo = config.algorithm || defaultAlgorithmConfig;
-  const deathVideo = config.deathVideo || {
-    enabled: true,
-    source: 'local',
-    localFolder: '',
-    volume: 40,
-    autoCloseOnRespawn: true,
-    showCountdown: true,
-  };
-
   const updateAlgoField = (field: keyof AlgorithmConfig, value: any) => {
     const updated = { ...algo, [field]: value };
     onUpdateConfig({ algorithm: updated });
-  };
-
-  const updateDeathField = (field: keyof DeathVideoConfig, value: any) => {
-    const updated = { ...deathVideo, [field]: value };
-    onUpdateConfig({ deathVideo: updated });
   };
 
   // Preset Profiles for Scoring Algorithm
@@ -171,15 +152,6 @@ export function SettingsModal({
     }
   };
 
-  const handlePickFolder = async () => {
-    try {
-      const folder = await WailsBridge.selectDirectory();
-      if (folder) {
-        updateDeathField('localFolder', folder);
-      }
-    } catch {}
-  };
-
   // Calculate total weights & percentage normalization
   const totalWeight =
     algo.damageWeight +
@@ -238,19 +210,6 @@ export function SettingsModal({
           >
             <Sliders className="w-3.5 h-3.5" />
             <span>算法权重配置</span>
-          </button>
-
-          {/* Tab: Death Video */}
-          <button
-            onClick={() => setActiveTab('deathVideo')}
-            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap cursor-pointer ${
-              activeTab === 'deathVideo'
-                ? 'border-rose-400 text-rose-300 font-bold'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Tv className="w-3.5 h-3.5" />
-            <span>死亡视频娱乐</span>
           </button>
 
           {/* Tab: Updates */}
@@ -598,154 +557,7 @@ export function SettingsModal({
             </div>
           )}
 
-          {/* TAB 2: Death Video Overlay Settings */}
-          {activeTab === 'deathVideo' && (
-            <div className="space-y-4 text-xs">
-              {/* Enable Death Video Switch */}
-              <div className="rounded-xl border border-rose-500/40 bg-gradient-to-r from-rose-950/40 to-[#0a1424] p-3.5 flex items-center justify-between">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-rose-200">开启死亡视频娱乐弹窗</span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                      官方2999端口感知
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-300">
-                    游戏内英雄阵亡时自动弹出独立画中画小窗播放视频，复活秒关瞬闭。
-                  </p>
-                </div>
-                <button
-                  onClick={() => updateDeathField('enabled', !deathVideo.enabled)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                    deathVideo.enabled ? 'bg-rose-500' : 'bg-slate-700'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ease-in-out ${
-                      deathVideo.enabled ? 'translate-x-5' : 'translate-x-0'
-                    }`}
-                  />
-                </button>
-              </div>
-
-              {/* Video Source Radio */}
-              <div className="space-y-2 bg-black/30 p-3.5 rounded-xl border border-white/10">
-                <div className="font-bold text-slate-200 text-xs">视频播放源选择:</div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <button
-                    onClick={() => updateDeathField('source', 'local')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      deathVideo.source === 'local'
-                        ? 'border-amber-400 bg-amber-500/15 shadow-md'
-                        : 'border-white/10 bg-black/20 hover:border-white/20'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 font-bold text-amber-300 text-xs">
-                      <FolderOpen className="w-4 h-4" />
-                      <span>本地自定义视频 (推荐)</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                      0毫秒秒开，零卡顿无广告。死后随机抽取文件夹中的一段视频播放。
-                    </p>
-                  </button>
-
-                  <button
-                    onClick={() => updateDeathField('source', 'douyin')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                      deathVideo.source === 'douyin'
-                        ? 'border-cyan-400 bg-cyan-500/15 shadow-md'
-                        : 'border-white/10 bg-black/20 hover:border-white/20'
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 font-bold text-cyan-300 text-xs">
-                      <Globe className="w-4 h-4" />
-                      <span>抖音精选在线短视频</span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                      内置微型浏览器直连抖音精选流，支持滚轮顺滑上下切视频。
-                    </p>
-                  </button>
-                </div>
-
-                {/* Local Folder Path Input */}
-                {deathVideo.source === 'local' && (
-                  <div className="space-y-1.5 pt-2">
-                    <div className="text-[11px] text-slate-300">本地视频文件夹路径:</div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        readOnly
-                        value={deathVideo.localFolder || ''}
-                        placeholder="点击右侧按钮选择包含 .mp4/.webm 的文件夹..."
-                        className="flex-1 bg-black/50 border border-white/15 rounded-lg px-3 py-1.5 text-xs text-slate-200 truncate select-all"
-                      />
-                      <button
-                        onClick={handlePickFolder}
-                        className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#c89b3c] to-[#a87f28] text-black font-bold text-xs flex items-center gap-1 shrink-0 cursor-pointer shadow hover:scale-[1.02] transition-transform"
-                      >
-                        <FolderOpen className="w-3.5 h-3.5" />
-                        <span>浏览文件夹</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Volume Slider & Countdown Settings */}
-              <div className="space-y-3 bg-black/30 p-3.5 rounded-xl border border-white/10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <Volume2 className="w-4 h-4 text-emerald-400" />
-                    <span>默认音量控制:</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={deathVideo.volume ?? 40}
-                      onChange={(e) => updateDeathField('volume', Number(e.target.value))}
-                      className="w-28 accent-[#c89b3c] cursor-pointer h-1.5"
-                    />
-                    <span className="font-mono text-xs w-8 text-right">{deathVideo.volume ?? 40}%</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between pt-1 border-t border-white/5">
-                  <span className="text-slate-300">复活自动秒关静音</span>
-                  <input
-                    type="checkbox"
-                    checked={deathVideo.autoCloseOnRespawn}
-                    onChange={(e) => updateDeathField('autoCloseOnRespawn', e.target.checked)}
-                    className="accent-[#c89b3c] cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              {/* Local Interactive Testing Buttons */}
-              <div className="rounded-xl border border-white/10 bg-black/40 p-3.5 space-y-2">
-                <div className="font-bold text-xs text-slate-300">效果就绪测试:</div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => WailsBridge.triggerTestDeath(15)}
-                    className="flex-1 py-2 px-3 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <Play className="w-3.5 h-3.5" />
-                    <span>立即测试死亡弹窗 (15s)</span>
-                  </button>
-                  <button
-                    onClick={() => WailsBridge.triggerTestRespawn()}
-                    className="py-2 px-3 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>测试复活秒关</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: Updates */}
+          {/* TAB 2: Updates */}
           {activeTab === 'updates' && (
             <div className="space-y-4 text-xs">
               <div className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-3">

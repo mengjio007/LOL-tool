@@ -2,6 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"sync"
 	"time"
 	"lol/internal/analysis"
 	"lol/internal/config"
@@ -14,8 +19,10 @@ import (
 
 // App struct
 type App struct {
-	ctx     context.Context
-	manager *service.Manager
+	ctx         context.Context
+	manager     *service.Manager
+	douyinCmd   *exec.Cmd
+	douyinMutex sync.Mutex
 }
 
 // NewApp creates a new App application struct
@@ -38,6 +45,7 @@ func (a *App) startup(ctx context.Context) {
 
 // shutdown is called when the app stops
 func (a *App) shutdown(ctx context.Context) {
+	_ = a.CloseDouyinWindow()
 	if a.manager != nil {
 		a.manager.Stop()
 	}
@@ -239,6 +247,67 @@ func (a *App) TriggerTestRespawn() {
 	if a.ctx != nil {
 		wailsRuntime.EventsEmit(a.ctx, "live:player_respawned", true)
 	}
+}
+
+// OpenDouyinWindow 唤起系统级极简画中画小窗播放抖音推荐流 (无边框app模式，彻底绕过iframe的X-Frame-Options封禁)
+func (a *App) OpenDouyinWindow() error {
+	a.douyinMutex.Lock()
+	defer a.douyinMutex.Unlock()
+
+	// 若已存在打开的窗口，无需重复唤起
+	if a.douyinCmd != nil && a.douyinCmd.Process != nil {
+		return nil
+	}
+
+	edgePath := `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
+	if _, err := os.Stat(edgePath); os.IsNotExist(err) {
+		edgePath = `C:\Program Files\Microsoft\Edge\Application\msedge.exe`
+	}
+	if _, err := os.Stat(edgePath); os.IsNotExist(err) {
+		edgePath = `C:\Program Files\Google\Chrome\Application\chrome.exe`
+	}
+	if _, err := os.Stat(edgePath); os.IsNotExist(err) {
+		edgePath = `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`
+	}
+
+	profileDir := filepath.Join(os.TempDir(), "lol_helper_douyin_profile")
+	_ = os.MkdirAll(profileDir, 0755)
+
+	cmd := exec.Command(edgePath,
+		"--app=https://www.douyin.com/?recommend=1",
+		fmt.Sprintf("--user-data-dir=%s", profileDir),
+		"--window-size=440,760",
+		"--disable-notifications",
+		"--disable-features=Translate",
+	)
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	a.douyinCmd = cmd
+
+	go func() {
+		_ = cmd.Wait()
+		a.douyinMutex.Lock()
+		a.douyinCmd = nil
+		a.douyinMutex.Unlock()
+	}()
+
+	return nil
+}
+
+// CloseDouyinWindow 阵亡复活或用户关闭时毫秒级瞬闭抖音小窗
+func (a *App) CloseDouyinWindow() error {
+	a.douyinMutex.Lock()
+	defer a.douyinMutex.Unlock()
+
+	if a.douyinCmd != nil && a.douyinCmd.Process != nil {
+		pid := a.douyinCmd.Process.Pid
+		_ = exec.Command("taskkill", "/F", "/T", "/PID", fmt.Sprintf("%d", pid)).Run()
+		_ = a.douyinCmd.Process.Kill()
+		a.douyinCmd = nil
+	}
+	return nil
 }
 
 

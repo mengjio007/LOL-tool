@@ -86,6 +86,16 @@ export function DeathVideoOverlay({
     loadNextVideo();
   }, [config.source, config.localFolder]);
 
+  // Douyin native browser capsule lifecycle
+  useEffect(() => {
+    if (config.source === 'douyin') {
+      WailsBridge.openDouyinWindow();
+    }
+    return () => {
+      WailsBridge.closeDouyinWindow();
+    };
+  }, [config.source]);
+
   // Handle video element volume
   useEffect(() => {
     if (videoRef.current) {
@@ -100,6 +110,7 @@ export function DeathVideoOverlay({
       videoRef.current.currentTime = 0;
       videoRef.current.muted = true;
     }
+    WailsBridge.closeDouyinWindow();
     onClose();
   };
 
@@ -211,17 +222,41 @@ export function DeathVideoOverlay({
               </div>
             )
           ) : (
-            /* Douyin Web Embed */
-            <div className="w-full h-full relative bg-black">
-              <iframe
-                key={videoUrl || 'douyin'}
-                src="https://www.douyin.com/?recommend=1"
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              />
-              <div className="absolute top-2 left-2 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] text-slate-200 border border-white/10 flex items-center gap-1.5 shadow-md">
-                <Globe className="w-3.5 h-3.5 text-cyan-400" />
-                <span>抖音推荐流 (滚轮切视频)</span>
+            /* Douyin Native Browser Capsule Display */
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-slate-950 via-[#070b14] to-slate-950 space-y-4">
+              <div className="relative">
+                <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300 shadow-[0_0_24px_rgba(34,211,238,0.35)] animate-pulse">
+                  <Globe className="w-8 h-8" />
+                </div>
+                <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-cyan-500"></span>
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="text-sm font-bold text-white flex items-center justify-center gap-1.5">
+                  <span>抖音推荐流小窗正在独立播放</span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-[280px]">
+                  已在桌面弹出微型独立播放窗，支持鼠标滚轮切视频；英雄复活时将毫秒级自动关闭。
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => WailsBridge.openDouyinWindow()}
+                  className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500/30 to-indigo-500/30 hover:from-cyan-500/40 hover:to-indigo-500/40 border border-cyan-400/50 text-cyan-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-all"
+                >
+                  <RotateCw className="w-3.5 h-3.5" />
+                  <span>重新唤起小窗</span>
+                </button>
+                <button
+                  onClick={() => WailsBridge.closeDouyinWindow()}
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 text-xs font-medium cursor-pointer transition-colors"
+                >
+                  关闭小窗
+                </button>
               </div>
             </div>
           )}

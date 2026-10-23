@@ -133,11 +133,17 @@ export default function App() {
     const unsubDeath = WailsBridge.onPlayerDied((info) => {
       if (config.deathVideo?.enabled) {
         setDeathInfo(info);
+        if (config.deathVideo.source === 'douyin') {
+          WailsBridge.openDouyinWindow();
+        }
       }
     });
 
     const unsubRespawn = WailsBridge.onPlayerRespawned(() => {
       setDeathInfo(null);
+      if (config.deathVideo?.autoCloseOnRespawn) {
+        WailsBridge.closeDouyinWindow();
+      }
     });
 
     const unsubTick = WailsBridge.onLiveTick((info) => {
@@ -1092,29 +1098,39 @@ export default function App() {
                 </div>
               )}
 
-              {/* Douyin Stream Embedded Interactive Preview */}
+              {/* Douyin Stream Dedicated Capsule Preview */}
               {config.deathVideo?.source === 'douyin' && (
-                <div className="space-y-2 pt-1">
-                  <div className="flex items-center justify-between text-[11px] text-slate-300">
-                    <span>抖音推荐流在线预览 (https://www.douyin.com/?recommend=1):</span>
-                    <button
-                      onClick={() => {
-                        const iframe = document.getElementById('douyin-preview-frame') as HTMLIFrameElement;
-                        if (iframe) iframe.src = 'https://www.douyin.com/?recommend=1';
-                      }}
-                      className="text-xs text-cyan-300 hover:text-cyan-200 flex items-center gap-1 cursor-pointer"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      <span>刷新播放流</span>
-                    </button>
-                  </div>
-                  <div className="relative w-full h-80 rounded-xl overflow-hidden border border-white/10 bg-black shadow-inner">
-                    <iframe
-                      id="douyin-preview-frame"
-                      src="https://www.douyin.com/?recommend=1"
-                      className="w-full h-full border-0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    />
+                <div className="space-y-2.5 pt-1">
+                  <div className="bg-black/30 p-4 rounded-xl border border-cyan-400/20 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-cyan-400" />
+                        <span className="text-xs font-bold text-white">系统极简微型画中画小窗直连</span>
+                      </div>
+                      <span className="text-[10px] text-cyan-300 font-mono bg-cyan-950/60 border border-cyan-400/30 px-2 py-0.5 rounded-full">
+                        440 × 760 App-Mode
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      由于抖音官方严格的安全跨域机制（X-Frame-Options: DENY），任何普通网页内嵌 iframe 均会被官方拦截报“拒绝连接”。本助手已接入底层独立微型浏览器胶囊（无边框、无地址栏），阵亡时自动小窗弹出，滚轮顺滑刷视频，复活毫秒级自动关闭。
+                    </p>
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        onClick={() => WailsBridge.openDouyinWindow()}
+                        className="py-2 px-4 rounded-xl bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 border border-cyan-400/40 text-cyan-200 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
+                      >
+                        <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>立即弹出抖音小窗口测试 (体验流畅刷视频)</span>
+                      </button>
+                      <button
+                        onClick={() => WailsBridge.closeDouyinWindow()}
+                        className="py-2 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-medium text-xs transition-colors cursor-pointer"
+                      >
+                        关闭小窗
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1178,14 +1194,22 @@ export default function App() {
 
               <div className="flex items-center gap-2.5">
                 <button
-                  onClick={() => WailsBridge.triggerTestDeath()}
+                  onClick={() => {
+                    WailsBridge.triggerTestDeath();
+                    if (config.deathVideo?.enabled && config.deathVideo?.source === 'douyin') {
+                      WailsBridge.openDouyinWindow();
+                    }
+                  }}
                   className="flex-1 py-2 px-4 rounded-xl bg-gradient-to-r from-rose-500/20 to-purple-500/20 hover:from-rose-500/30 hover:to-purple-500/30 border border-rose-500/40 text-rose-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
                 >
                   <Play className="w-4 h-4" />
                   <span>{t.deathTestSimulateDeath}</span>
                 </button>
                 <button
-                  onClick={() => WailsBridge.triggerTestRespawn()}
+                  onClick={() => {
+                    WailsBridge.triggerTestRespawn();
+                    WailsBridge.closeDouyinWindow();
+                  }}
                   className="flex-1 py-2 px-4 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/40 text-emerald-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
                 >
                   <RotateCcw className="w-4 h-4" />

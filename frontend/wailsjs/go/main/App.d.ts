@@ -13,6 +13,8 @@ export function ClearLogs():Promise<void>;
 
 export function CloseApp():Promise<void>;
 
+export function CloseDouyinWindow():Promise<void>;
+
 export function DownloadAndApplyUpdate(arg1:string):Promise<void>;
 
 export function GenerateHorseReport():Promise<string>;
@@ -34,6 +36,8 @@ export function IsWindowMaximized():Promise<boolean>;
 export function MinimizeWindow():Promise<void>;
 
 export function OpenBrowser(arg1:string):Promise<void>;
+
+export function OpenDouyinWindow():Promise<void>;
 
 export function SaveConfig(arg1:config.Config):Promise<void>;
 

@@ -193,6 +193,8 @@ declare global {
           SetMiniMode: (enable: boolean) => Promise<void>;
           TriggerTestDeath: (durationSec: number) => Promise<void>;
           TriggerTestRespawn: () => Promise<void>;
+          OpenDouyinWindow: () => Promise<void>;
+          CloseDouyinWindow: () => Promise<void>;
         };
       };
     };
@@ -396,6 +398,18 @@ export const WailsBridge = {
       await window.go.main.App.OpenBrowser(url);
     } else {
       window.open(url, '_blank');
+    }
+  },
+
+  async openDouyinWindow(): Promise<void> {
+    if (window.go?.main?.App?.OpenDouyinWindow) {
+      await window.go.main.App.OpenDouyinWindow();
+    }
+  },
+
+  async closeDouyinWindow(): Promise<void> {
+    if (window.go?.main?.App?.CloseDouyinWindow) {
+      await window.go.main.App.CloseDouyinWindow();
     }
   },
 
