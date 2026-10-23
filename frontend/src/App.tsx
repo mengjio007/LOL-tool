@@ -1108,12 +1108,12 @@ export default function App() {
                         <span className="text-xs font-bold text-white">系统极简微型画中画小窗直连</span>
                       </div>
                       <span className="text-[10px] text-cyan-300 font-mono bg-cyan-950/60 border border-cyan-400/30 px-2 py-0.5 rounded-full">
-                        440 × 760 App-Mode
+                        620 × 880 游戏最上层全局置顶 (Topmost)
                       </span>
                     </div>
 
                     <p className="text-xs text-slate-300 leading-relaxed">
-                      由于抖音官方严格的安全跨域机制（X-Frame-Options: DENY），任何普通网页内嵌 iframe 均会被官方拦截报“拒绝连接”。本助手已接入底层独立微型浏览器胶囊（无边框、无地址栏），阵亡时自动小窗弹出，滚轮顺滑刷视频，复活毫秒级自动关闭。
+                      已默认直达抖音推荐流（recommend=1），窗口扩大至 620×880，任何弹窗/提示的“关闭”与“稍后再说”均清晰可点。采用 Win32 底层全局最顶层置顶机制（HWND_TOPMOST），在无边框对局中绝不会被 LOL 游戏遮挡，复活毫秒级自动关闭。
                     </p>
 
                     <div className="flex items-center gap-2 pt-1">

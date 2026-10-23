@@ -6,8 +6,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
+	"syscall"
 	"time"
+	"unsafe"
 	"lol/internal/analysis"
 	"lol/internal/config"
 	"lol/internal/livegame"
@@ -249,7 +252,60 @@ func (a *App) TriggerTestRespawn() {
 	}
 }
 
-// OpenDouyinWindow 唤起系统级极简画中画小窗播放抖音推荐流 (无边框app模式，彻底绕过iframe的X-Frame-Options封禁)
+var (
+	modUser32                   = syscall.NewLazyDLL("user32.dll")
+	procEnumWindows             = modUser32.NewProc("EnumWindows")
+	procGetWindowThreadProcessId = modUser32.NewProc("GetWindowThreadProcessId")
+	procSetWindowPos            = modUser32.NewProc("SetWindowPos")
+	procIsWindowVisible         = modUser32.NewProc("IsWindowVisible")
+	procGetWindowTextLengthW    = modUser32.NewProc("GetWindowTextLengthW")
+	procGetWindowTextW          = modUser32.NewProc("GetWindowTextW")
+)
+
+const (
+	hwndTopmost   = ^uintptr(0) // -1: HWND_TOPMOST (全局最上层置顶)
+	swpNoMove     = 0x0002
+	swpNoSize     = 0x0001
+	swpShowWindow = 0x0040
+)
+
+// pinProcessWindowsTopmost 寻找属于该目标进程或包含抖音标题的可见窗口并强行置顶 (浮现在英雄联盟等所有窗口最上层)
+func pinProcessWindowsTopmost(targetPID int) {
+	cb := syscall.NewCallback(func(hwnd uintptr, lParam uintptr) uintptr {
+		var pid uint32
+		procGetWindowThreadProcessId.Call(hwnd, uintptr(unsafe.Pointer(&pid)))
+
+		isTarget := int(pid) == targetPID
+		if !isTarget {
+			length, _, _ := procGetWindowTextLengthW.Call(hwnd)
+			if length > 0 {
+				buf := make([]uint16, length+1)
+				procGetWindowTextW.Call(hwnd, uintptr(unsafe.Pointer(&buf[0])), length+1)
+				title := syscall.UTF16ToString(buf)
+				if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") {
+					isTarget = true
+				}
+			}
+		}
+
+		if isTarget {
+			isVisible, _, _ := procIsWindowVisible.Call(hwnd)
+			if isVisible != 0 {
+				// 强行设为 HWND_TOPMOST
+				procSetWindowPos.Call(
+					hwnd,
+					hwndTopmost,
+					0, 0, 0, 0,
+					swpNoMove|swpNoSize|swpShowWindow,
+				)
+			}
+		}
+		return 1 // 继续遍历
+	})
+	procEnumWindows.Call(cb, 0)
+}
+
+// OpenDouyinWindow 唤起系统级极简画中画小窗播放抖音推荐流 (无边框app模式，彻底绕过iframe的X-Frame-Options封禁，尺寸620x880，置顶于游戏最上层)
 func (a *App) OpenDouyinWindow() error {
 	a.douyinMutex.Lock()
 	defer a.douyinMutex.Unlock()
@@ -270,13 +326,19 @@ func (a *App) OpenDouyinWindow() error {
 		edgePath = `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`
 	}
 
-	profileDir := filepath.Join(os.TempDir(), "lol_helper_douyin_profile")
+	// 使用持久化用户目录保留登录会话与关闭弹窗后的状态，避免每次重复弹出登录引导
+	appData := os.Getenv("APPDATA")
+	if appData == "" {
+		appData = os.TempDir()
+	}
+	profileDir := filepath.Join(appData, "lol-helper", "douyin_profile")
 	_ = os.MkdirAll(profileDir, 0755)
 
+	// 宽度调至 620×880，确保抖音弹出的登录/提示卡片完整展示，右上角关闭按钮不被遮挡可自由操作
 	cmd := exec.Command(edgePath,
 		"--app=https://www.douyin.com/?recommend=1",
 		fmt.Sprintf("--user-data-dir=%s", profileDir),
-		"--window-size=440,760",
+		"--window-size=620,880",
 		"--disable-notifications",
 		"--disable-features=Translate",
 	)
@@ -285,6 +347,20 @@ func (a *App) OpenDouyinWindow() error {
 		return err
 	}
 	a.douyinCmd = cmd
+
+	// 启动后台轮询置顶 (Edge 启动后可能需要200~600ms完成HWND创建，持续轮询确保窗口在游戏最顶层)
+	go func(pid int) {
+		for i := 0; i < 15; i++ {
+			time.Sleep(200 * time.Millisecond)
+			a.douyinMutex.Lock()
+			running := (a.douyinCmd != nil && a.douyinCmd.Process != nil && a.douyinCmd.Process.Pid == pid)
+			a.douyinMutex.Unlock()
+			if !running {
+				break
+			}
+			pinProcessWindowsTopmost(pid)
+		}
+	}(cmd.Process.Pid)
 
 	go func() {
 		_ = cmd.Wait()
