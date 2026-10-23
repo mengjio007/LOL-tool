@@ -4,7 +4,7 @@ export const translations = {
   zh: {
     // Header
     appTitle: 'LOL 智能助手',
-    version: 'v1.0.5',
+    version: 'v2.0.0',
     alwaysOnTop: '窗口置顶',
     unpin: '取消置顶',
     minimize: '最小化',
@@ -129,7 +129,7 @@ export const translations = {
 
     // Footer
     backgroundActive: '后台静默监控已启用',
-    footerBrand: 'LOL 智能助手 v1.0.5 · 静默无打扰',
+    footerBrand: 'LOL 智能助手 v2.0.0 · 极简轻量·静默守护',
 
     // Updates
     checkUpdate: '检查更新',
@@ -244,7 +244,7 @@ export const translations = {
   en: {
     // Header
     appTitle: 'LOL Smart Assistant',
-    version: 'v1.0.5',
+    version: 'v2.0.0',
     alwaysOnTop: 'Always on Top',
     unpin: 'Unpin',
     minimize: 'Minimize',
@@ -369,7 +369,7 @@ export const translations = {
 
     // Footer
     backgroundActive: 'Background monitoring active',
-    footerBrand: 'LOL Smart Assistant v1.0.5 · Non-intrusive',
+    footerBrand: 'LOL Smart Assistant v2.0.0 · Lightweight & Non-intrusive',
 
     // Updates
     checkUpdate: 'Check for Updates',

@@ -112,40 +112,40 @@ export function PlayerSearchView({
     switch (tier) {
       case 's_plus':
         return {
-          border: 'border-amber-400/80',
-          bg: 'bg-gradient-to-br from-[#1c120c] via-[#091428] to-[#120824]',
-          badge: 'bg-gradient-to-r from-amber-400 via-rose-500 to-indigo-500 text-white',
+          border: 'border-amber-400/70',
+          bg: 'bg-[#181528]/95',
+          badge: 'bg-gradient-to-r from-amber-500 via-fuchsia-500 to-indigo-500 text-white',
           glow: 'bg-amber-400/20',
           textColor: 'text-amber-300',
         };
       case 's':
         return {
-          border: 'border-amber-400/60',
-          bg: 'bg-[#091428]',
+          border: 'border-emerald-400/60',
+          bg: 'bg-[#121c24]/95',
+          badge: 'bg-emerald-500/20 border border-emerald-400/50 text-emerald-300',
+          glow: 'bg-emerald-500/15',
+          textColor: 'text-emerald-300',
+        };
+      case 'a':
+        return {
+          border: 'border-sky-500/50',
+          bg: 'bg-[#141b28]/95',
+          badge: 'bg-sky-500/20 border border-sky-400/50 text-sky-300',
+          glow: 'bg-sky-500/15',
+          textColor: 'text-sky-300',
+        };
+      case 'b':
+        return {
+          border: 'border-amber-400/40',
+          bg: 'bg-[#181920]/95',
           badge: 'bg-amber-500/20 border border-amber-400/40 text-amber-300',
           glow: 'bg-amber-500/15',
           textColor: 'text-amber-300',
         };
-      case 'a':
-        return {
-          border: 'border-emerald-500/50',
-          bg: 'bg-[#091428]',
-          badge: 'bg-emerald-500/20 border border-emerald-400/40 text-emerald-300',
-          glow: 'bg-emerald-500/15',
-          textColor: 'text-emerald-300',
-        };
-      case 'b':
-        return {
-          border: 'border-cyan-500/50',
-          bg: 'bg-[#091428]',
-          badge: 'bg-cyan-500/20 border border-cyan-400/40 text-cyan-300',
-          glow: 'bg-cyan-500/15',
-          textColor: 'text-cyan-300',
-        };
       case 'c':
         return {
           border: 'border-orange-500/50',
-          bg: 'bg-[#091428]',
+          bg: 'bg-[#1e161c]/95',
           badge: 'bg-orange-500/20 border border-orange-400/40 text-orange-300',
           glow: 'bg-orange-500/15',
           textColor: 'text-orange-300',
@@ -153,8 +153,8 @@ export function PlayerSearchView({
       case 'd':
       default:
         return {
-          border: 'border-rose-600/60',
-          bg: 'bg-rose-950/20',
+          border: 'border-rose-500/60',
+          bg: 'bg-[#221218]/95',
           badge: 'bg-rose-500/25 border border-rose-500/50 text-rose-300',
           glow: 'bg-rose-500/20',
           textColor: 'text-rose-300',
@@ -165,26 +165,26 @@ export function PlayerSearchView({
   const theme = result ? getTierTheme(result.horseTier) : null;
 
   return (
-    <div className="space-y-3.5 text-[#f0e6d2] pb-6 max-w-4xl mx-auto w-full">
+    <div className="space-y-3.5 text-slate-100 pb-6 max-w-4xl mx-auto w-full">
       {/* 1. Search Box Card */}
-      <section className="relative overflow-hidden rounded-xl border border-[#c89b3c]/40 bg-gradient-to-br from-[#0a1428] via-[#091428] to-[#010a13] p-4 shadow-xl">
+      <section className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141b28] p-4 shadow-xl backdrop-blur">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-sm font-bold text-[#f0e6d2] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#c89b3c]" />
+            <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-sky-400" />
               <span>{t.searchTabTitle}</span>
             </h2>
-            <p className="text-xs text-slate-300 leading-relaxed mt-1">
+            <p className="text-xs text-slate-400 leading-relaxed mt-1">
               {t.searchTabDesc}
             </p>
           </div>
 
           <button
             onClick={onViewAlgorithm}
-            className="text-[10px] text-[#c89b3c] hover:text-[#f0e6d2] flex items-center gap-1 bg-[#c89b3c]/15 hover:bg-[#c89b3c]/25 px-2 py-1 rounded border border-[#c89b3c]/30 transition-colors shrink-0 cursor-pointer"
+            className="text-xs text-sky-300 hover:text-white flex items-center gap-1.5 bg-sky-500/10 hover:bg-sky-500/20 px-2.5 py-1 rounded-xl border border-sky-500/30 transition-all shrink-0 cursor-pointer font-medium active:scale-95"
             title={t.viewAlgorithmHelp}
           >
-            <BookOpen className="w-3 h-3" />
+            <BookOpen className="w-3.5 h-3.5" />
             <span>{t.tabAlgorithm}</span>
           </button>
         </div>
@@ -192,7 +192,7 @@ export function PlayerSearchView({
         {/* Input Bar */}
         <div className="mt-3.5 flex items-center gap-2">
           <div className="relative flex-1">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={query}
@@ -200,7 +200,7 @@ export function PlayerSearchView({
               onKeyDown={handleKeyDown}
               placeholder={t.searchPlaceholder}
               disabled={isLoading}
-              className="w-full pl-9 pr-8 py-2 rounded-lg bg-black/60 border border-white/15 focus:border-[#c89b3c] focus:outline-none text-xs text-[#f0e6d2] placeholder:text-slate-500 font-sans transition-colors"
+              className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#0b0f17]/70 border border-white/[0.1] focus:border-sky-400 focus:outline-none text-xs text-slate-100 placeholder:text-slate-500 font-sans transition-colors shadow-inner"
             />
             {query && (
               <button
@@ -215,7 +215,7 @@ export function PlayerSearchView({
           <button
             onClick={() => handleSearch()}
             disabled={isLoading}
-            className="py-2 px-3.5 rounded-lg bg-gradient-to-r from-[#c89b3c] to-[#a87f28] hover:from-[#d8ab4c] hover:to-[#b88f38] text-black font-semibold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#c89b3c]/20 transition-all shrink-0 cursor-pointer disabled:opacity-50"
+            className="py-2 px-4 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-500/20 transition-all shrink-0 cursor-pointer disabled:opacity-50 active:scale-95"
           >
             {isLoading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -228,7 +228,7 @@ export function PlayerSearchView({
           <button
             onClick={handleSearchSelf}
             disabled={isLoading || !clientConnected}
-            className="py-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-cyan-300 border border-cyan-500/30 text-xs flex items-center justify-center gap-1 transition-colors shrink-0 cursor-pointer disabled:opacity-40"
+            className="py-2 px-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-sky-300 border border-white/[0.08] text-xs flex items-center justify-center gap-1.5 transition-colors shrink-0 cursor-pointer disabled:opacity-40 font-medium active:scale-95"
             title={t.searchSelfBtn}
           >
             <User className="w-3.5 h-3.5" />
@@ -238,7 +238,7 @@ export function PlayerSearchView({
 
         {/* Client Offline Notice */}
         {!clientConnected && (
-          <div className="mt-3 rounded-lg bg-amber-500/10 border border-amber-500/25 p-2.5 text-[11px] text-amber-300 leading-relaxed flex items-start gap-2">
+          <div className="mt-3 rounded-xl bg-amber-500/10 border border-amber-500/25 p-2.5 text-xs text-amber-300 leading-relaxed flex items-start gap-2">
             <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <span>{t.clientRequiredWarning}</span>
           </div>
@@ -246,22 +246,22 @@ export function PlayerSearchView({
 
         {/* Recent Searches */}
         {recentSearches.length > 0 && (
-          <div className="mt-3 flex items-center gap-1.5 flex-wrap text-[11px]">
-            <span className="text-slate-400 flex items-center gap-1 shrink-0">
+          <div className="mt-3 flex items-center gap-1.5 flex-wrap text-xs">
+            <span className="text-slate-400 flex items-center gap-1 shrink-0 text-[11px]">
               <History className="w-3 h-3 text-slate-400" />
               {t.searchRecent}
             </span>
             {recentSearches.map((name) => (
               <div
                 key={name}
-                className="group flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 transition-colors"
+                className="group flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-slate-300 transition-colors text-[11px]"
               >
                 <button
                   onClick={() => {
                     setQuery(name);
                     handleSearch(name);
                   }}
-                  className="hover:text-[#c89b3c] cursor-pointer"
+                  className="hover:text-sky-300 cursor-pointer font-medium"
                 >
                   {name}
                 </button>
@@ -280,7 +280,7 @@ export function PlayerSearchView({
 
       {/* Error Message Alert */}
       {errorMsg && (
-        <div className="rounded-xl border border-rose-500/40 bg-rose-950/20 p-3 text-xs text-rose-300 flex items-center gap-2">
+        <div className="rounded-2xl border border-rose-500/40 bg-rose-950/30 p-3 text-xs text-rose-300 flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
           <span>{errorMsg}</span>
         </div>
@@ -288,7 +288,7 @@ export function PlayerSearchView({
 
       {/* 2. Search Result Showcase */}
       {result && theme && (
-        <section className={`relative overflow-hidden rounded-xl border ${theme.border} ${theme.bg} p-4 shadow-2xl space-y-4`}>
+        <section className={`relative overflow-hidden rounded-2xl border ${theme.border} ${theme.bg} p-4 shadow-2xl space-y-4 backdrop-blur`}>
           {/* Background Ambient Glow */}
           <div className={`absolute -top-16 -right-16 w-44 h-44 ${theme.glow} rounded-full blur-3xl pointer-events-none`} />
 
@@ -317,8 +317,8 @@ export function PlayerSearchView({
               </div>
 
               <div className="flex items-center gap-2 text-xs pt-1">
-                <span className="text-base font-bold text-[#f0e6d2]">{result.summonerName}</span>
-                <span className="text-slate-400 font-mono text-[11px] bg-black/40 px-1.5 py-0.5 rounded border border-white/5">
+                <span className="text-base font-bold text-slate-100">{result.summonerName}</span>
+                <span className="text-slate-400 font-mono text-[11px] bg-white/[0.05] px-2 py-0.5 rounded border border-white/[0.08]">
                   {result.rankTier || '段位未知'}
                 </span>
               </div>
@@ -327,7 +327,7 @@ export function PlayerSearchView({
             {/* Score Bubble */}
             <div className="text-right shrink-0">
               <div className="text-[10px] text-slate-400 font-medium">综合战力评分</div>
-              <div className="text-2xl font-black font-mono text-[#c89b3c] flex items-baseline justify-end gap-0.5">
+              <div className="text-2xl font-black font-mono text-sky-400 flex items-baseline justify-end gap-0.5">
                 <span>{result.score || 500}</span>
                 <span className="text-xs font-normal text-slate-400">分</span>
               </div>
@@ -336,8 +336,8 @@ export function PlayerSearchView({
 
           {/* Tactical Tag / Highlights */}
           {result.horseTag && (
-            <div className="rounded-lg bg-black/40 border border-white/10 p-2 text-xs text-slate-200 flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#c89b3c] shrink-0" />
+            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.08] p-2.5 text-xs text-slate-200 flex items-center gap-2">
+              <Award className="w-4 h-4 text-amber-400 shrink-0" />
               <span>{result.horseTag}</span>
             </div>
           )}
@@ -345,9 +345,9 @@ export function PlayerSearchView({
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
             {/* Win rate */}
-            <div className="rounded-lg bg-black/40 border border-white/5 p-2.5 space-y-0.5">
+            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.06] p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">近期战绩</div>
-              <div className="text-sm font-bold text-[#f0e6d2] font-mono">
+              <div className="text-sm font-bold text-slate-100 font-mono">
                 {result.winRate.toFixed(1)}%
               </div>
               <div className="text-[10px] text-slate-400 font-sans">
@@ -356,7 +356,7 @@ export function PlayerSearchView({
             </div>
 
             {/* KDA */}
-            <div className="rounded-lg bg-black/40 border border-white/5 p-2.5 space-y-0.5">
+            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.06] p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">场均 KDA</div>
               <div className="text-sm font-bold text-amber-300 font-mono">
                 {result.kda.toFixed(2)}
@@ -367,7 +367,7 @@ export function PlayerSearchView({
             </div>
 
             {/* Damage Share */}
-            <div className="rounded-lg bg-black/40 border border-white/5 p-2.5 space-y-0.5">
+            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.06] p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">全队伤害占比</div>
               <div className="text-sm font-bold text-rose-300 font-mono">
                 {result.damageShare !== undefined ? result.damageShare.toFixed(1) : '20.0'}%
@@ -378,9 +378,9 @@ export function PlayerSearchView({
             </div>
 
             {/* Damage Taken Share */}
-            <div className="rounded-lg bg-black/40 border border-white/5 p-2.5 space-y-0.5">
+            <div className="rounded-xl bg-[#0b0f17]/50 border border-white/[0.06] p-2.5 space-y-0.5">
               <div className="text-[10px] text-slate-400">全队承伤占比</div>
-              <div className="text-sm font-bold text-cyan-300 font-mono">
+              <div className="text-sm font-bold text-sky-300 font-mono">
                 {result.damageTakenShare !== undefined ? result.damageTakenShare.toFixed(1) : '20.0'}%
               </div>
               <div
@@ -416,7 +416,7 @@ export function PlayerSearchView({
               result.tags.map((tg, i) => (
                 <span
                   key={i}
-                  className="text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-slate-300 font-sans"
+                  className="text-[10px] px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.08] text-slate-300 font-sans"
                 >
                   {tg}
                 </span>
@@ -425,21 +425,21 @@ export function PlayerSearchView({
 
           {/* Top Champions */}
           {result.topChampions && result.topChampions.length > 0 && (
-            <div className="rounded-lg bg-black/30 border border-white/5 p-3 space-y-2">
-              <div className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-[#0ac8b9]" />
+            <div className="rounded-xl bg-[#0b0f17]/40 border border-white/[0.06] p-3 space-y-2">
+              <div className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-sky-400" />
                 <span>近期常用英雄</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {result.topChampions.map((c) => (
                   <div
                     key={c.championId}
-                    className="flex items-center justify-between p-2 rounded bg-black/40 border border-white/5 text-[11px]"
+                    className="flex items-center justify-between p-2 rounded-lg bg-[#0b0f17]/60 border border-white/[0.05] text-xs"
                   >
                     <span className="font-medium text-slate-200 truncate">{c.championName}</span>
                     <div className="text-right shrink-0">
-                      <span className="font-mono text-cyan-300 font-bold">{c.winRate.toFixed(0)}%</span>
-                      <span className="text-[10px] text-slate-500 ml-1">({c.games}局)</span>
+                      <span className="font-mono text-sky-400 font-bold">{c.winRate.toFixed(0)}%</span>
+                      <span className="text-[10px] text-slate-400 ml-1">({c.games}局)</span>
                     </div>
                   </div>
                 ))}
@@ -451,12 +451,12 @@ export function PlayerSearchView({
 
       {/* Empty State / Search Guide */}
       {!result && !isLoading && !errorMsg && (
-        <div className="rounded-xl border border-white/5 bg-[#091428]/40 p-8 text-center space-y-2">
-          <div className="w-10 h-10 rounded-full bg-[#c89b3c]/10 border border-[#c89b3c]/20 flex items-center justify-center text-[#c89b3c] mx-auto">
-            <Search className="w-5 h-5" />
+        <div className="rounded-2xl border border-white/[0.08] bg-[#141b28]/60 p-8 text-center space-y-2.5 backdrop-blur">
+          <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 mx-auto shadow-inner">
+            <Search className="w-6 h-6" />
           </div>
-          <h3 className="text-xs font-bold text-slate-300">{t.searchTabTitle}</h3>
-          <p className="text-[11px] text-slate-400 max-w-sm mx-auto leading-relaxed">
+          <h3 className="text-sm font-bold text-slate-200">{t.searchTabTitle}</h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
             {t.searchEmptyHint}
           </p>
         </div>
