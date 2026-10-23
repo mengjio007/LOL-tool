@@ -82,6 +82,7 @@ var (
 		DeathVideo:     DefaultDeathVideo,
 	}
 	cfgMu      sync.RWMutex
+	saveMu     sync.Mutex
 	currentCfg Config
 	configPath string
 )
@@ -104,10 +105,14 @@ func Get() Config {
 }
 
 func Update(newCfg Config) error {
+	saveMu.Lock()
+	defer saveMu.Unlock()
+
 	cfgMu.Lock()
 	currentCfg = newCfg
 	cfgMu.Unlock()
-	return Save()
+
+	return saveLocked()
 }
 
 func Load() error {
@@ -125,8 +130,8 @@ func Load() error {
 		return err
 	}
 
-	// 补全缺失的 2.0 模块默认值
-	if loaded.Algorithm.DamageWeight == 0 && loaded.Algorithm.WinRateWeight == 0 {
+	// 补全缺失的 2.0 模块默认值 (仅当全部为0的未初始化状态)
+	if loaded.Algorithm.DamageWeight == 0 && loaded.Algorithm.WinRateWeight == 0 && loaded.Algorithm.TankWeight == 0 && loaded.Algorithm.KdaWeight == 0 {
 		loaded.Algorithm = DefaultAlgorithm
 	}
 	if loaded.DeathVideo.Source == "" {
@@ -138,6 +143,12 @@ func Load() error {
 }
 
 func Save() error {
+	saveMu.Lock()
+	defer saveMu.Unlock()
+	return saveLocked()
+}
+
+func saveLocked() error {
 	cfgMu.RLock()
 	data, err := json.MarshalIndent(currentCfg, "", "  ")
 	cfgMu.RUnlock()

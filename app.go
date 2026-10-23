@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -39,7 +40,15 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	updater.CleanupOldFiles()
-	if _, err := db.InitDB(); err != nil {
+	if s, err := db.InitDB(); err == nil {
+		// 双轨容灾加载：优先检测 SQLite 中持久化存储的算法与应用设置
+		if val, err := s.GetSetting("app_config"); err == nil && val != "" {
+			var dbCfg config.Config
+			if err := json.Unmarshal([]byte(val), &dbCfg); err == nil {
+				_ = config.Update(dbCfg)
+			}
+		}
+	} else {
 		println("SQLite Init Error:", err.Error())
 	}
 	a.manager = service.NewManager(func(eventName string, data ...interface{}) {
@@ -66,7 +75,14 @@ func (a *App) GetConfig() config.Config {
 }
 
 func (a *App) SaveConfig(cfg config.Config) error {
-	return config.Update(cfg)
+	err := config.Update(cfg)
+	// 双轨容灾保存：实时持久化到 SQLite 数据库 (%APPDATA%\lol-helper\app_data.db)
+	if store := db.GetStore(); store != nil {
+		if data, err := json.Marshal(cfg); err == nil {
+			_ = store.SaveSetting("app_config", string(data))
+		}
+	}
+	return err
 }
 
 func (a *App) GetStatus() service.ServiceStatus {

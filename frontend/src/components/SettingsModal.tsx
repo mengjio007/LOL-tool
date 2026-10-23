@@ -302,6 +302,18 @@ export function SettingsModal({
                 </button>
               </div>
 
+              {/* Local Storage Indicator Banner */}
+              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-emerald-300 text-[11px]">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  <span className="font-bold">所有算法调整均已实时本地持久化</span>
+                  <span className="text-slate-400 font-mono text-[10px] hidden sm:inline">(SQLite + config.json 双轨容灾)</span>
+                </div>
+                <span className="text-[10px] text-emerald-300 font-mono bg-emerald-900/50 px-2 py-0.5 rounded border border-emerald-400/30">
+                  下次启动自动加载 · 永久保存
+                </span>
+              </div>
+
               {/* Preset Profile Shortcuts */}
               <div className="space-y-1.5">
                 <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
