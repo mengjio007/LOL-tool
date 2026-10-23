@@ -212,16 +212,16 @@ export function DeathVideoOverlay({
             )
           ) : (
             /* Douyin Web Embed */
-            <div className="w-full h-full relative">
+            <div className="w-full h-full relative bg-black">
               <iframe
-                src="https://www.douyin.com/"
+                key={videoUrl || 'douyin'}
+                src="https://www.douyin.com/?recommend=1"
                 className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                sandbox="allow-same-origin allow-scripts allow-popups"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               />
-              <div className="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/60 backdrop-blur text-[10px] text-slate-300 border border-white/10 flex items-center gap-1">
-                <Globe className="w-3 h-3 text-[#0ac8b9]" />
-                <span>抖音精选在线流</span>
+              <div className="absolute top-2 left-2 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-[10px] text-slate-200 border border-white/10 flex items-center gap-1.5 shadow-md">
+                <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                <span>抖音推荐流 (滚轮切视频)</span>
               </div>
             </div>
           )}

@@ -66,7 +66,7 @@ export default function App() {
     localStorage.setItem('lol_helper_lang', nextLang);
   };
 
-  const [activeTab, setActiveTab] = useState<'automation' | 'analysis' | 'search'>('automation');
+  const [activeTab, setActiveTab] = useState<'automation' | 'video' | 'analysis' | 'search'>('automation');
   const [teamFilter, setTeamFilter] = useState<'all' | 'blue' | 'red'>('all');
   const [isRefreshingAnalysis, setIsRefreshingAnalysis] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -415,10 +415,10 @@ export default function App() {
       <div className="aurora-orb-indigo top-1/4 -right-20 w-96 h-96 opacity-60" />
       <div className="aurora-orb-rose -bottom-24 left-1/3 w-80 h-80 opacity-50" />
 
-      {/* 1. macOS Vibrancy Top App Bar */}
-      <header className="draggable relative z-10 h-12 px-4 glass-panel flex items-center justify-between border-b border-white/[0.08]">
+      {/* 1. High-Contrast macOS Vibrancy Header Bar */}
+      <header className="draggable shrink-0 h-12 px-4 bg-[#0d1320] flex items-center justify-between border-b border-white/[0.12] relative z-20 shadow-md">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400/20 via-indigo-500/20 to-cyan-400/10 border border-white/15 flex items-center justify-center p-1 shadow-sm overflow-hidden backdrop-blur-md">
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400/25 via-indigo-500/25 to-cyan-400/10 border border-white/20 flex items-center justify-center p-1 shadow-sm overflow-hidden backdrop-blur-md">
             <img src={appLogo} alt="Logo" className="w-full h-full object-cover rounded-lg" />
           </div>
           <span className="text-xs font-black tracking-wide text-white">
@@ -499,16 +499,17 @@ export default function App() {
           <button
             onClick={() => WailsBridge.close()}
             title={t.close}
-            className="w-7 h-7 rounded-full bg-rose-500/15 hover:bg-rose-500/35 border border-rose-500/30 text-rose-300 hover:text-rose-100 flex items-center justify-center transition-all cursor-pointer"
+            className="w-7 h-7 rounded-full bg-rose-500/20 hover:bg-rose-500/40 border border-rose-500/40 text-rose-300 hover:text-white flex items-center justify-center transition-all cursor-pointer"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
       </header>
 
-      {/* 2. Frosted Glass Segmented Pill Tabs */}
-      <div className="relative z-10 px-4 py-2 bg-slate-950/40 backdrop-blur-xl border-b border-white/[0.08] flex items-center justify-between">
+      {/* 2. Top-Level Segmented Tabs: 4 Capabilities in ONE ROW (一排) */}
+      <div className="shrink-0 px-4 py-2 bg-[#090e17] border-b border-white/[0.08] flex items-center justify-between relative z-10">
         <div className="flex items-center gap-1.5 p-1 glass-panel rounded-full text-xs">
+          {/* Tab 1: Automation */}
           <button
             onClick={() => setActiveTab('automation')}
             className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer ${
@@ -521,6 +522,23 @@ export default function App() {
             <span>{t.tabAutomation}</span>
           </button>
 
+          {/* Tab 2: Death Video Entertainment (和自动化一排!) */}
+          <button
+            onClick={() => setActiveTab('video')}
+            className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer relative ${
+              activeTab === 'video'
+                ? 'bg-gradient-to-r from-rose-500/30 to-purple-500/30 text-rose-200 border border-rose-400/50 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+            }`}
+          >
+            <Film className="w-3.5 h-3.5 text-rose-400" />
+            <span>{t.tabVideo}</span>
+            {config.deathVideo?.enabled && (
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse ml-0.5" />
+            )}
+          </button>
+
+          {/* Tab 3: Analysis */}
           <button
             onClick={() => setActiveTab('analysis')}
             className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer relative ${
@@ -536,6 +554,7 @@ export default function App() {
             )}
           </button>
 
+          {/* Tab 4: Search */}
           <button
             onClick={() => setActiveTab('search')}
             className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer ${
@@ -559,8 +578,8 @@ export default function App() {
         </button>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 relative z-10">
+      {/* Main Content Area (min-h-0 prevents flexbox vertical clipping) */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 relative z-10">
         <div className="max-w-5xl mx-auto w-full space-y-3.5">
         {/* Client Status Hero Card */}
         <section className="relative overflow-hidden rounded-2xl glass-panel p-4 shadow-xl">
@@ -845,175 +864,7 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Capability 4: Death Video Entertainment Capability (Moved Out of Settings!) */}
-              <div className="glass-card rounded-2xl p-3.5 transition-all">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500/20 to-purple-500/20 border border-rose-400/30 text-rose-300 flex items-center justify-center shrink-0 shadow-[0_0_12px_rgba(251,113,133,0.25)]">
-                      <Film className="w-4 h-4 text-rose-300" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold text-white flex items-center gap-2">
-                        <span>{t.deathVideoCardTitle}</span>
-                        {config.deathVideo?.enabled ? (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold shadow-sm flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
-                            {t.enabledBadge} · {config.deathVideo.source === 'local' ? t.deathSourceLocal : t.deathSourceDouyin}
-                          </span>
-                        ) : (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10 font-medium">
-                            未开启
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">
-                        {t.deathVideoCardDesc}
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() =>
-                      updateConfig({
-                        deathVideo: { ...config.deathVideo, enabled: !config.deathVideo?.enabled },
-                      })
-                    }
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      config.deathVideo?.enabled ? 'bg-gradient-to-r from-rose-500 to-purple-600 shadow-[0_0_12px_rgba(244,63,94,0.4)]' : 'bg-slate-700/60'
-                    }`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
-                        config.deathVideo?.enabled ? 'translate-x-5' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
-
-                {/* Expanded Controls when Death Video is Enabled */}
-                {config.deathVideo?.enabled && (
-                  <div className="mt-3 pt-3 border-t border-white/[0.08] space-y-2.5">
-                    {/* Source Radio Pills */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                      <span className="text-slate-400 font-medium flex items-center gap-1.5">
-                        <Tv className="w-3.5 h-3.5 text-rose-400" />
-                        <span>{t.deathSourceLabel}</span>
-                      </span>
-                      <div className="flex items-center gap-1.5 p-1 bg-black/40 rounded-xl border border-white/10">
-                        <button
-                          onClick={() =>
-                            updateConfig({ deathVideo: { ...config.deathVideo, source: 'local' } })
-                          }
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                            config.deathVideo?.source === 'local'
-                              ? 'bg-amber-500/25 border border-amber-400/50 text-amber-300 shadow-sm'
-                              : 'text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          <FolderOpen className="w-3.5 h-3.5" />
-                          <span>{t.deathSourceLocal}</span>
-                        </button>
-                        <button
-                          onClick={() =>
-                            updateConfig({ deathVideo: { ...config.deathVideo, source: 'douyin' } })
-                          }
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                            config.deathVideo?.source === 'douyin'
-                              ? 'bg-cyan-500/25 border border-cyan-400/50 text-cyan-300 shadow-sm'
-                              : 'text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          <Globe className="w-3.5 h-3.5" />
-                          <span>{t.deathSourceDouyin}</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* If Local Source: Directory Picker */}
-                    {config.deathVideo?.source === 'local' && (
-                      <div className="flex items-center gap-2 bg-black/30 p-2 rounded-xl border border-white/10">
-                        <input
-                          type="text"
-                          readOnly
-                          value={config.deathVideo.localFolder || ''}
-                          placeholder={t.deathFolderPlaceholder}
-                          className="flex-1 bg-transparent border-0 text-xs text-slate-200 px-1 font-mono truncate focus:outline-none"
-                        />
-                        <button
-                          onClick={async () => {
-                            const folder = await WailsBridge.selectDirectory();
-                            if (folder) {
-                              updateConfig({ deathVideo: { ...config.deathVideo, localFolder: folder } });
-                            }
-                          }}
-                          className="px-3 py-1 text-xs font-bold rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 flex items-center gap-1 cursor-pointer transition-colors active:scale-95"
-                        >
-                          <FolderOpen className="w-3.5 h-3.5" />
-                          <span>{t.deathSelectFolder}</span>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Volume Slider & Auto-close Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-0.5">
-                      <div className="flex items-center justify-between gap-2 bg-black/25 px-3 py-1.5 rounded-xl border border-white/5">
-                        <span className="text-[11px] text-slate-400 flex items-center gap-1.5 shrink-0">
-                          <Volume2 className="w-3.5 h-3.5 text-rose-400" />
-                          <span>{t.deathVolumeLabel}:</span>
-                        </span>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={config.deathVideo?.volume ?? 40}
-                          onChange={(e) =>
-                            updateConfig({ deathVideo: { ...config.deathVideo, volume: Number(e.target.value) } })
-                          }
-                          className="w-24 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-400"
-                        />
-                        <span className="font-mono text-xs font-bold text-rose-300 w-8 text-right">
-                          {config.deathVideo?.volume ?? 40}%
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between bg-black/25 px-3 py-1.5 rounded-xl border border-white/5">
-                        <span className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>{t.deathAutoCloseLabel}</span>
-                        </span>
-                        <input
-                          type="checkbox"
-                          checked={config.deathVideo?.autoCloseOnRespawn ?? true}
-                          onChange={(e) =>
-                            updateConfig({ deathVideo: { ...config.deathVideo, autoCloseOnRespawn: e.target.checked } })
-                          }
-                          className="w-4 h-4 rounded accent-rose-500 cursor-pointer"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Direct Test Buttons */}
-                    <div className="flex items-center gap-2 pt-0.5">
-                      <button
-                        onClick={() => WailsBridge.triggerTestDeath()}
-                        className="flex-1 py-1.5 px-3 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
-                      >
-                        <Play className="w-3.5 h-3.5" />
-                        <span>{t.deathTestSimulateDeath}</span>
-                      </button>
-                      <button
-                        onClick={() => WailsBridge.triggerTestRespawn()}
-                        className="flex-1 py-1.5 px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer active:scale-95"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>{t.deathTestSimulateRespawn}</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Capability 5: In-Game Mini Bar HUD Capsule */}
+              {/* Capability 4: In-Game Mini Bar HUD Capsule */}
               <div className="glass-card rounded-2xl p-3.5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-400/25 text-cyan-300 flex items-center justify-center shrink-0">
@@ -1102,7 +953,243 @@ export default function App() {
           </>
         )}
 
-        {/* TAB 2: Match & Horse Analysis */}
+        {/* TAB 2: Death Video Entertainment Capability (Dedicated View) */}
+        {activeTab === 'video' && (
+          <div className="space-y-3.5">
+            {/* 1. Hero Master Card */}
+            <div className="glass-card rounded-2xl p-4 transition-all">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500/25 to-purple-500/25 border border-rose-400/40 text-rose-300 flex items-center justify-center shrink-0 shadow-[0_0_14px_rgba(244,63,94,0.3)]">
+                    <Film className="w-5 h-5 text-rose-300" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-white flex items-center gap-2">
+                      <span>{t.deathVideoCardTitle}</span>
+                      {config.deathVideo?.enabled ? (
+                        <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-bold shadow-sm flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse" />
+                          <span>已启用 · {config.deathVideo.source === 'local' ? t.deathSourceLocal : t.deathSourceDouyin}</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10 font-medium">
+                          未开启
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs text-slate-400 mt-1 leading-relaxed">
+                      {t.deathVideoCardDesc}
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() =>
+                    updateConfig({
+                      deathVideo: { ...config.deathVideo, enabled: !config.deathVideo?.enabled },
+                    })
+                  }
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    config.deathVideo?.enabled ? 'bg-gradient-to-r from-rose-500 to-purple-600 shadow-[0_0_12px_rgba(244,63,94,0.4)]' : 'bg-slate-700/60'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                      config.deathVideo?.enabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Playback Source Configuration */}
+            <div className="glass-card rounded-2xl p-4 space-y-3">
+              <div className="text-xs font-bold text-slate-200 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Tv className="w-4 h-4 text-cyan-400" />
+                  <span>{t.deathSourceLabel}</span>
+                </span>
+                <span className="text-[11px] text-slate-400 font-normal">
+                  选择对局内阵亡时优先唤起的内容形态
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button
+                  onClick={() =>
+                    updateConfig({ deathVideo: { ...config.deathVideo, source: 'local' } })
+                  }
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    config.deathVideo?.source === 'local'
+                      ? 'border-amber-400/60 bg-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
+                      : 'border-white/10 bg-black/30 hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 font-bold text-amber-300 text-xs">
+                    <FolderOpen className="w-4 h-4" />
+                    <span>{t.deathSourceLocal}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                    0ms 秒开无任何卡顿与广告，阵亡时随机抽取本地文件夹的一段视频切片播放。
+                  </p>
+                </button>
+
+                <button
+                  onClick={() =>
+                    updateConfig({ deathVideo: { ...config.deathVideo, source: 'douyin' } })
+                  }
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    config.deathVideo?.source === 'douyin'
+                      ? 'border-cyan-400/60 bg-cyan-500/20 shadow-[0_0_12px_rgba(34,211,238,0.25)]'
+                      : 'border-white/10 bg-black/30 hover:border-white/20'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 font-bold text-cyan-300 text-xs">
+                    <Globe className="w-4 h-4" />
+                    <span>{t.deathSourceDouyin}</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                    连接抖音推荐流 (recommend=1)，微型画中画直接刷，支持滚轮切视频。
+                  </p>
+                </button>
+              </div>
+
+              {/* Local Folder Selector */}
+              {config.deathVideo?.source === 'local' && (
+                <div className="space-y-1.5 pt-1">
+                  <div className="text-[11px] text-slate-300">本地视频文件夹路径:</div>
+                  <div className="flex items-center gap-2 bg-black/40 p-2 rounded-xl border border-white/10">
+                    <input
+                      type="text"
+                      readOnly
+                      value={config.deathVideo.localFolder || ''}
+                      placeholder={t.deathFolderPlaceholder}
+                      className="flex-1 bg-transparent border-0 text-xs text-slate-200 px-1 font-mono truncate focus:outline-none"
+                    />
+                    <button
+                      onClick={async () => {
+                        const folder = await WailsBridge.selectDirectory();
+                        if (folder) {
+                          updateConfig({ deathVideo: { ...config.deathVideo, localFolder: folder } });
+                        }
+                      }}
+                      className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/40 flex items-center gap-1.5 cursor-pointer transition-colors active:scale-95"
+                    >
+                      <FolderOpen className="w-3.5 h-3.5" />
+                      <span>{t.deathSelectFolder}</span>
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-slate-400">
+                    💡 提示: 支持放有 .mp4 或 .webm 格式的任意文件夹（如搞笑切片、鬼畜短片等）。
+                  </p>
+                </div>
+              )}
+
+              {/* Douyin Stream Embedded Interactive Preview */}
+              {config.deathVideo?.source === 'douyin' && (
+                <div className="space-y-2 pt-1">
+                  <div className="flex items-center justify-between text-[11px] text-slate-300">
+                    <span>抖音推荐流在线预览 (https://www.douyin.com/?recommend=1):</span>
+                    <button
+                      onClick={() => {
+                        const iframe = document.getElementById('douyin-preview-frame') as HTMLIFrameElement;
+                        if (iframe) iframe.src = 'https://www.douyin.com/?recommend=1';
+                      }}
+                      className="text-xs text-cyan-300 hover:text-cyan-200 flex items-center gap-1 cursor-pointer"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>刷新播放流</span>
+                    </button>
+                  </div>
+                  <div className="relative w-full h-80 rounded-xl overflow-hidden border border-white/10 bg-black shadow-inner">
+                    <iframe
+                      id="douyin-preview-frame"
+                      src="https://www.douyin.com/?recommend=1"
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Audio & Auto-Close Options */}
+            <div className="glass-card rounded-2xl p-4 space-y-3">
+              <div className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                <Volume2 className="w-4 h-4 text-rose-400" />
+                <span>声音输出与复活策略</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex items-center justify-between gap-3 bg-black/30 p-2.5 rounded-xl border border-white/5">
+                  <span className="text-xs text-slate-300 flex items-center gap-1.5 shrink-0">
+                    <span>{t.deathVolumeLabel}:</span>
+                  </span>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={config.deathVideo?.volume ?? 40}
+                    onChange={(e) =>
+                      updateConfig({ deathVideo: { ...config.deathVideo, volume: Number(e.target.value) } })
+                    }
+                    className="flex-1 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-400"
+                  />
+                  <span className="font-mono text-xs font-bold text-rose-300 w-9 text-right">
+                    {config.deathVideo?.volume ?? 40}%
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between bg-black/30 p-2.5 rounded-xl border border-white/5">
+                  <span className="text-xs text-slate-300 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>{t.deathAutoCloseLabel}</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={config.deathVideo?.autoCloseOnRespawn ?? true}
+                    onChange={(e) =>
+                      updateConfig({ deathVideo: { ...config.deathVideo, autoCloseOnRespawn: e.target.checked } })
+                    }
+                    className="w-4 h-4 rounded accent-rose-500 cursor-pointer"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Instant Action Simulation Testing */}
+            <div className="glass-card rounded-2xl p-4 space-y-2.5">
+              <div className="text-xs font-bold text-slate-200 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Play className="w-4 h-4 text-emerald-400" />
+                  <span>实时模拟测试 (无需开一把游戏)</span>
+                </span>
+                <span className="text-[11px] text-slate-400 font-normal">
+                  验证画中画弹窗、音频与复活自动销毁
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  onClick={() => WailsBridge.triggerTestDeath()}
+                  className="flex-1 py-2 px-4 rounded-xl bg-gradient-to-r from-rose-500/20 to-purple-500/20 hover:from-rose-500/30 hover:to-purple-500/30 border border-rose-500/40 text-rose-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
+                >
+                  <Play className="w-4 h-4" />
+                  <span>{t.deathTestSimulateDeath}</span>
+                </button>
+                <button
+                  onClick={() => WailsBridge.triggerTestRespawn()}
+                  className="flex-1 py-2 px-4 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/40 text-emerald-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>{t.deathTestSimulateRespawn}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: Match & Horse Analysis */}
         {activeTab === 'analysis' && (
           <div className="space-y-3">
             {/* Header with info notice */}

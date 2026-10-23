@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"os"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -13,6 +14,9 @@ import (
 var assets embed.FS
 
 func main() {
+	// 允许 WebView2 加载外部网页 (如抖音推荐流 iframe)，禁用同源安全限制与 CSP 拦截
+	_ = os.Setenv("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--disable-web-security --disable-features=IsolateOrigins,site-per-process --allow-running-insecure-content")
+
 	app := NewApp()
 
 	err := wails.Run(&options.App{

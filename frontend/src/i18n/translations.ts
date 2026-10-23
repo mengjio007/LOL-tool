@@ -15,8 +15,9 @@ export const translations = {
     langToggleTitle: 'Switch to English',
 
     // Tabs
-    tabAutomation: '能力与自动化',
-    tabAnalysis: '对局马匹分析',
+    tabAutomation: '核心自动化',
+    tabVideo: '死亡视频播放',
+    tabAnalysis: '对局马匹雷达',
     tabSearch: '战力单查',
     tabAlgorithm: '算法原理解读',
     viewAlgorithmHelp: '点击查看 6 档战力与 5 大支柱算法解读',
@@ -273,7 +274,8 @@ export const translations = {
     langToggleTitle: '切换为中文',
 
     // Tabs
-    tabAutomation: 'Capabilities',
+    tabAutomation: 'Automation',
+    tabVideo: 'Death Video',
     tabAnalysis: 'Horse Radar',
     tabSearch: 'Player Lookup',
     tabAlgorithm: 'Algorithm Guide',
