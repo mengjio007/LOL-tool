@@ -229,6 +229,7 @@ export namespace config {
 	    startWithOS: boolean;
 	    minimizeToTray: boolean;
 	    alwaysOnTop: boolean;
+	    theme: string;
 	    algorithm: AlgorithmConfig;
 	    deathVideo: DeathVideoConfig;
 	
@@ -247,6 +248,7 @@ export namespace config {
 	        this.startWithOS = source["startWithOS"];
 	        this.minimizeToTray = source["minimizeToTray"];
 	        this.alwaysOnTop = source["alwaysOnTop"];
+	        this.theme = source["theme"];
 	        this.algorithm = this.convertValues(source["algorithm"], AlgorithmConfig);
 	        this.deathVideo = this.convertValues(source["deathVideo"], DeathVideoConfig);
 	    }
