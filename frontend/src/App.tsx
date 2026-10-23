@@ -1108,12 +1108,12 @@ export default function App() {
                         <span className="text-xs font-bold text-white">系统极简微型画中画小窗直连</span>
                       </div>
                       <span className="text-[10px] text-cyan-300 font-mono bg-cyan-950/60 border border-cyan-400/30 px-2 py-0.5 rounded-full">
-                        620 × 880 游戏最上层全局置顶 (Topmost)
+                        1080 × 820 宽屏全局最上层置顶 (Topmost)
                       </span>
                     </div>
 
                     <p className="text-xs text-slate-300 leading-relaxed">
-                      已默认直达抖音推荐流（recommend=1），窗口扩大至 620×880，任何弹窗/提示的“关闭”与“稍后再说”均清晰可点。采用 Win32 底层全局最顶层置顶机制（HWND_TOPMOST），在无边框对局中绝不会被 LOL 游戏遮挡，复活毫秒级自动关闭。
+                      已默认直达抖音推荐流（recommend=1），窗口横向大幅拉宽至 1080×820（完美适配抖音 PC 端 1080px 页面断点），登录弹窗整体及右上角关闭按钮完整展示、清晰可操作。采用 Win32 底层全局最高层级置顶机制（HWND_TOPMOST），在无边框对局中绝不会被 LOL 游戏遮挡，复活毫秒级自动关闭。
                     </p>
 
                     <div className="flex items-center gap-2 pt-1">

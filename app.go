@@ -334,13 +334,15 @@ func (a *App) OpenDouyinWindow() error {
 	profileDir := filepath.Join(appData, "lol-helper", "douyin_profile")
 	_ = os.MkdirAll(profileDir, 0755)
 
-	// 宽度调至 620×880，确保抖音弹出的登录/提示卡片完整展示，右上角关闭按钮不被遮挡可自由操作
+	// 窗口横向拉宽至 1080×820：
+	// 彻底匹配抖音 PC Web 端的 1080px 响应式断点，登录弹窗、右上角关闭按钮 (X) 与推荐视频流全部完整呈现，绝不横向截断
 	cmd := exec.Command(edgePath,
 		"--app=https://www.douyin.com/?recommend=1",
 		fmt.Sprintf("--user-data-dir=%s", profileDir),
-		"--window-size=620,880",
+		"--window-size=1080,820",
 		"--disable-notifications",
 		"--disable-features=Translate",
+		"--disable-blink-features=AutomationControlled",
 	)
 
 	if err := cmd.Start(); err != nil {
