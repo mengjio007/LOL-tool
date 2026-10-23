@@ -114,7 +114,8 @@ export default function App() {
   const [isSendingChat, setIsSendingChat] = useState(false);
   const [copiedReport, setCopiedReport] = useState(false);
   const [chatFeedback, setChatFeedback] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
-  const logsEndRef = useRef<HTMLDivElement>(null);
+  const logsContainerRef = useRef<HTMLDivElement>(null);
+  const mainContentRef = useRef<HTMLDivElement>(null);
 
   // Update & Settings State
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
@@ -328,12 +329,19 @@ export default function App() {
     };
   }, []);
 
-  // Auto-scroll logs
+  // Auto-scroll logs INSIDE the terminal container ONLY (never affects outer page/header)
   useEffect(() => {
-    if (activeTab === 'automation') {
-      logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (logsContainerRef.current) {
+      logsContainerRef.current.scrollTop = logsContainerRef.current.scrollHeight;
     }
-  }, [logs, activeTab]);
+  }, [logs]);
+
+  // Always reset scroll to top on tab switch so user is never stuck in the middle
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTop = 0;
+    }
+  }, [activeTab]);
 
   // Update Config Helper
   const updateConfig = async (patch: Partial<Config>) => {
@@ -409,7 +417,7 @@ export default function App() {
   }
 
   return (
-    <div className="relative flex flex-col h-screen select-none bg-[#070a13] text-[#f1f5f9] border border-white/[0.1] rounded-2xl overflow-hidden shadow-2xl">
+    <div className="relative flex flex-col w-full h-full select-none bg-[#070a13] text-[#f1f5f9] border border-white/[0.1] rounded-2xl overflow-hidden shadow-2xl">
       {/* macOS Vibrancy Ambient Background Auroras */}
       <div className="aurora-orb-cyan -top-24 -left-24 w-80 h-80 opacity-70" />
       <div className="aurora-orb-indigo top-1/4 -right-20 w-96 h-96 opacity-60" />
@@ -579,7 +587,7 @@ export default function App() {
       </div>
 
       {/* Main Content Area (min-h-0 prevents flexbox vertical clipping) */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 relative z-10">
+      <div ref={mainContentRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-3 relative z-10">
         <div className="max-w-5xl mx-auto w-full space-y-3.5">
         {/* Client Status Hero Card */}
         <section className="relative overflow-hidden rounded-2xl glass-panel p-4 shadow-xl">
@@ -910,7 +918,7 @@ export default function App() {
                 </button>
               </div>
 
-              <div className="h-44 rounded-2xl glass-panel p-3 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5 shadow-inner">
+              <div ref={logsContainerRef} className="h-44 rounded-2xl glass-panel p-3 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5 shadow-inner">
                 {logs.length === 0 ? (
                   <div className="h-full flex items-center justify-center text-slate-500 text-xs italic">
                     {t.noLogs}
@@ -947,7 +955,6 @@ export default function App() {
                     );
                   })
                 )}
-                <div ref={logsEndRef} />
               </div>
             </section>
           </>
