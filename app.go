@@ -260,6 +260,7 @@ var (
 	procIsWindowVisible         = modUser32.NewProc("IsWindowVisible")
 	procGetWindowTextLengthW    = modUser32.NewProc("GetWindowTextLengthW")
 	procGetWindowTextW          = modUser32.NewProc("GetWindowTextW")
+	procPostMessageW            = modUser32.NewProc("PostMessageW")
 )
 
 const (
@@ -267,6 +268,7 @@ const (
 	swpNoMove     = 0x0002
 	swpNoSize     = 0x0001
 	swpShowWindow = 0x0040
+	wmClose       = 0x0010      // WM_CLOSE 消息
 )
 
 // pinProcessWindowsTopmost 寻找属于该目标进程或包含抖音标题的可见窗口并强行置顶 (浮现在英雄联盟等所有窗口最上层)
@@ -374,17 +376,40 @@ func (a *App) OpenDouyinWindow() error {
 	return nil
 }
 
-// CloseDouyinWindow 阵亡复活或用户关闭时毫秒级瞬闭抖音小窗
+// CloseDouyinWindow 阵亡复活或用户关闭时毫秒级瞬闭抖音小窗并保存登录会话
 func (a *App) CloseDouyinWindow() error {
 	a.douyinMutex.Lock()
 	defer a.douyinMutex.Unlock()
 
+	// 1. 如果有持有的直接句柄，杀掉进程树
 	if a.douyinCmd != nil && a.douyinCmd.Process != nil {
 		pid := a.douyinCmd.Process.Pid
 		_ = exec.Command("taskkill", "/F", "/T", "/PID", fmt.Sprintf("%d", pid)).Run()
 		_ = a.douyinCmd.Process.Kill()
 		a.douyinCmd = nil
 	}
+
+	// 2. 枚举所有带抖音标题的窗口，通过 Win32 API 发送 WM_CLOSE 让窗口以 0ms 瞬间关闭
+	cb := syscall.NewCallback(func(hwnd uintptr, lParam uintptr) uintptr {
+		length, _, _ := procGetWindowTextLengthW.Call(hwnd)
+		if length > 0 {
+			buf := make([]uint16, length+1)
+			procGetWindowTextW.Call(hwnd, uintptr(unsafe.Pointer(&buf[0])), length+1)
+			title := syscall.UTF16ToString(buf)
+			if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") {
+				procPostMessageW.Call(hwnd, wmClose, 0, 0)
+			}
+		}
+		return 1
+	})
+	procEnumWindows.Call(cb, 0)
+
+	// 3. 异步查杀所有携带 douyin_profile 参数的孤儿 Chromium 进程，确保 100% 不留任何后台进程
+	go func() {
+		killCmd := `Get-CimInstance Win32_Process -Filter "Name = 'msedge.exe' or Name = 'chrome.exe'" | Where-Object { $_.CommandLine -like "*douyin_profile*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`
+		_ = exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", killCmd).Run()
+	}()
+
 	return nil
 }
 
