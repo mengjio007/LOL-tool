@@ -22,6 +22,10 @@ export function CloseDouyinWindow() {
   return window['go']['main']['App']['CloseDouyinWindow']();
 }
 
+export function CloseWebVideoWindow() {
+  return window['go']['main']['App']['CloseWebVideoWindow']();
+}
+
 export function DownloadAndApplyUpdate(arg1) {
   return window['go']['main']['App']['DownloadAndApplyUpdate'](arg1);
 }
@@ -50,6 +54,14 @@ export function GetStatus() {
   return window['go']['main']['App']['GetStatus']();
 }
 
+export function GetVideoHistory() {
+  return window['go']['main']['App']['GetVideoHistory']();
+}
+
+export function GetVideoPlatforms() {
+  return window['go']['main']['App']['GetVideoPlatforms']();
+}
+
 export function HideWindow() {
   return window['go']['main']['App']['HideWindow']();
 }
@@ -70,6 +82,10 @@ export function OpenDouyinWindow() {
   return window['go']['main']['App']['OpenDouyinWindow']();
 }
 
+export function OpenWebVideoWindow(arg1) {
+  return window['go']['main']['App']['OpenWebVideoWindow'](arg1);
+}
+
 export function SaveConfig(arg1) {
   return window['go']['main']['App']['SaveConfig'](arg1);
 }
@@ -84,6 +100,10 @@ export function SelectDirectory() {
 
 export function SendChatMessage(arg1) {
   return window['go']['main']['App']['SendChatMessage'](arg1);
+}
+
+export function SetActiveVideoPlatform(arg1) {
+  return window['go']['main']['App']['SetActiveVideoPlatform'](arg1);
 }
 
 export function SetAlwaysOnTop(arg1) {
@@ -116,4 +136,8 @@ export function TriggerTestDeath(arg1) {
 
 export function TriggerTestRespawn() {
   return window['go']['main']['App']['TriggerTestRespawn']();
+}
+
+export function UpdateVideoPlatformConfig(arg1, arg2, arg3, arg4, arg5) {
+  return window['go']['main']['App']['UpdateVideoPlatformConfig'](arg1, arg2, arg3, arg4, arg5);
 }

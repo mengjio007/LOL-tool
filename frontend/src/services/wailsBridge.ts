@@ -12,6 +12,28 @@ export interface AlgorithmConfig {
   strictTiltPenalty: boolean; // 连败熔断降级 (默认 true)
 }
 
+export interface VideoPlatform {
+  id: number;
+  key: string;
+  name: string;
+  url: string;
+  windowWidth: number;
+  windowHeight: number;
+  profileDir: string;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface VideoHistory {
+  id: number;
+  platformKey: string;
+  triggerType: string;
+  championName: string;
+  durationSec: number;
+  createdAt: string;
+}
+
 export interface DeathVideoConfig {
   enabled: boolean;
   source: 'local' | 'douyin';
@@ -195,6 +217,12 @@ declare global {
           TriggerTestRespawn: () => Promise<void>;
           OpenDouyinWindow: () => Promise<void>;
           CloseDouyinWindow: () => Promise<void>;
+          GetVideoPlatforms: () => Promise<VideoPlatform[]>;
+          SetActiveVideoPlatform: (key: string) => Promise<void>;
+          UpdateVideoPlatformConfig: (key: string, name: string, url: string, width: number, height: number) => Promise<void>;
+          GetVideoHistory: () => Promise<VideoHistory[]>;
+          OpenWebVideoWindow: (platformKey: string) => Promise<void>;
+          CloseWebVideoWindow: () => Promise<void>;
         };
       };
     };
@@ -410,6 +438,48 @@ export const WailsBridge = {
   async closeDouyinWindow(): Promise<void> {
     if (window.go?.main?.App?.CloseDouyinWindow) {
       await window.go.main.App.CloseDouyinWindow();
+    }
+  },
+
+  async getVideoPlatforms(): Promise<VideoPlatform[]> {
+    if (window.go?.main?.App?.GetVideoPlatforms) {
+      return await window.go.main.App.GetVideoPlatforms();
+    }
+    return [];
+  },
+
+  async setActiveVideoPlatform(key: string): Promise<void> {
+    if (window.go?.main?.App?.SetActiveVideoPlatform) {
+      await window.go.main.App.SetActiveVideoPlatform(key);
+    }
+  },
+
+  async updateVideoPlatformConfig(key: string, name: string, url: string, width: number, height: number): Promise<void> {
+    if (window.go?.main?.App?.UpdateVideoPlatformConfig) {
+      await window.go.main.App.UpdateVideoPlatformConfig(key, name, url, width, height);
+    }
+  },
+
+  async getVideoHistory(): Promise<VideoHistory[]> {
+    if (window.go?.main?.App?.GetVideoHistory) {
+      return await window.go.main.App.GetVideoHistory();
+    }
+    return [];
+  },
+
+  async openWebVideoWindow(platformKey?: string): Promise<void> {
+    if (window.go?.main?.App?.OpenWebVideoWindow) {
+      await window.go.main.App.OpenWebVideoWindow(platformKey || '');
+    } else {
+      await this.openDouyinWindow();
+    }
+  },
+
+  async closeWebVideoWindow(): Promise<void> {
+    if (window.go?.main?.App?.CloseWebVideoWindow) {
+      await window.go.main.App.CloseWebVideoWindow();
+    } else {
+      await this.closeDouyinWindow();
     }
   },
 

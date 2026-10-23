@@ -49,7 +49,7 @@ import { PlayerSearchView } from './components/PlayerSearchView';
 import { SettingsModal, type SettingsTab } from './components/SettingsModal';
 import { InGameMiniBar } from './components/InGameMiniBar';
 import { DeathVideoOverlay } from './components/DeathVideoOverlay';
-import type { DeathInfo } from './services/wailsBridge';
+import type { DeathInfo, VideoPlatform } from './services/wailsBridge';
 import appLogo from './assets/appicon.png';
 
 export default function App() {
@@ -127,6 +127,28 @@ export default function App() {
   const [updateToast, setUpdateToast] = useState<{ type: 'info' | 'success' | 'warn'; msg: string } | null>(null);
   const [deathInfo, setDeathInfo] = useState<DeathInfo | null>(null);
   const [isMiniMode, setIsMiniMode] = useState(false);
+  const [platforms, setPlatforms] = useState<VideoPlatform[]>([]);
+  const [activePlatformKey, setActivePlatformKey] = useState<string>('douyin');
+
+  // Load platforms from SQLite on video tab visit
+  useEffect(() => {
+    if (activeTab === 'video') {
+      WailsBridge.getVideoPlatforms().then((list) => {
+        if (list && list.length > 0) {
+          setPlatforms(list);
+          const act = list.find((p) => p.isActive);
+          if (act) setActivePlatformKey(act.key);
+        }
+      });
+    }
+  }, [activeTab]);
+
+  const handleSelectWebPlatform = async (key: string) => {
+    setActivePlatformKey(key);
+    await WailsBridge.setActiveVideoPlatform(key);
+    const updated = await WailsBridge.getVideoPlatforms();
+    setPlatforms(updated);
+  };
 
   // 2.0 Live game death & respawn listeners
   useEffect(() => {
@@ -134,7 +156,7 @@ export default function App() {
       if (config.deathVideo?.enabled) {
         setDeathInfo(info);
         if (config.deathVideo.source === 'douyin') {
-          WailsBridge.openDouyinWindow();
+          WailsBridge.openWebVideoWindow();
         }
       }
     });
@@ -142,7 +164,7 @@ export default function App() {
     const unsubRespawn = WailsBridge.onPlayerRespawned(() => {
       setDeathInfo(null);
       if (config.deathVideo?.autoCloseOnRespawn) {
-        WailsBridge.closeDouyinWindow();
+        WailsBridge.closeWebVideoWindow();
       }
     });
 
@@ -1059,10 +1081,10 @@ export default function App() {
                 >
                   <div className="flex items-center gap-2 font-bold text-cyan-300 text-xs">
                     <Globe className="w-4 h-4" />
-                    <span>{t.deathSourceDouyin}</span>
+                    <span>在线视频流平台 (SQLite 独立会话隔离)</span>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
-                    连接抖音推荐流 (recommend=1)，微型画中画直接刷，支持滚轮切视频。
+                    支持抖音、哔哩哔哩 (B站)、爱奇艺及自定义流，各站点登录信息持久化独立隔离。
                   </p>
                 </button>
               </div>
@@ -1098,40 +1120,94 @@ export default function App() {
                 </div>
               )}
 
-              {/* Douyin Stream Dedicated Capsule Preview */}
+              {/* SQLite Multi-Platform Web Video Capsule Preview */}
               {config.deathVideo?.source === 'douyin' && (
-                <div className="space-y-2.5 pt-1">
-                  <div className="bg-black/30 p-4 rounded-xl border border-cyan-400/20 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-cyan-400" />
-                        <span className="text-xs font-bold text-white">系统极简微型画中画小窗直连</span>
-                      </div>
-                      <span className="text-[10px] text-cyan-300 font-mono bg-cyan-950/60 border border-cyan-400/30 px-2 py-0.5 rounded-full">
-                        1080 × 820 宽屏全局最上层置顶 (Topmost)
+                <div className="space-y-3 pt-1">
+                  {/* Platform Pills */}
+                  <div className="space-y-1.5">
+                    <div className="text-[11px] font-bold text-slate-300 flex items-center justify-between">
+                      <span>选择播放平台:</span>
+                      <span className="text-[10px] font-mono text-cyan-300/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-400/20">
+                        ⚡ SQLite 本地引擎 · 平台会话独立持久化
                       </span>
                     </div>
-
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      已默认直达抖音推荐流（recommend=1），窗口横向大幅拉宽至 1080×820（完美适配抖音 PC 端 1080px 页面断点），登录弹窗整体及右上角关闭按钮完整展示、清晰可操作。采用 Win32 底层全局最高层级置顶机制（HWND_TOPMOST），在无边框对局中绝不会被 LOL 游戏遮挡，复活毫秒级自动关闭。
-                    </p>
-
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        onClick={() => WailsBridge.openDouyinWindow()}
-                        className="py-2 px-4 rounded-xl bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 border border-cyan-400/40 text-cyan-200 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
-                      >
-                        <Globe className="w-3.5 h-3.5 text-cyan-400" />
-                        <span>立即弹出抖音小窗口测试 (体验流畅刷视频)</span>
-                      </button>
-                      <button
-                        onClick={() => WailsBridge.closeDouyinWindow()}
-                        className="py-2 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-medium text-xs transition-colors cursor-pointer"
-                      >
-                        关闭小窗
-                      </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {platforms.map((p) => {
+                        const isSelected = activePlatformKey === p.key;
+                        return (
+                          <button
+                            key={p.key}
+                            onClick={() => handleSelectWebPlatform(p.key)}
+                            className={`py-1.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-cyan-500/30 to-indigo-500/30 text-cyan-200 border border-cyan-400/50 shadow-[0_0_12px_rgba(34,211,238,0.25)]'
+                                : 'bg-black/30 text-slate-400 border border-white/10 hover:text-white hover:border-white/20'
+                            }`}
+                          >
+                            <span>{p.name}</span>
+                            {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
+
+                  {/* Active Platform Detail Card */}
+                  {(() => {
+                    const currentPlatform = platforms.find((p) => p.key === activePlatformKey) || {
+                      name: '抖音推荐流',
+                      url: 'https://www.douyin.com/?recommend=1',
+                      windowWidth: 1080,
+                      windowHeight: 820,
+                      profileDir: 'douyin_profile',
+                    };
+
+                    return (
+                      <div className="bg-black/30 p-4 rounded-xl border border-cyan-400/20 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-cyan-400" />
+                            <span className="text-xs font-bold text-white">{currentPlatform.name} · 极简画中画小窗</span>
+                          </div>
+                          <span className="text-[10px] text-cyan-300 font-mono bg-cyan-950/60 border border-cyan-400/30 px-2 py-0.5 rounded-full">
+                            {currentPlatform.windowWidth} × {currentPlatform.windowHeight} 置顶 (Topmost)
+                          </span>
+                        </div>
+
+                        <div className="space-y-1 font-mono text-[11px] text-slate-400 bg-black/40 p-2.5 rounded-lg border border-white/5">
+                          <div className="flex items-center gap-2 truncate">
+                            <span className="text-slate-500">直达URL:</span>
+                            <span className="text-slate-200 truncate">{currentPlatform.url}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-slate-500">数据目录:</span>
+                            <span className="text-emerald-300">%APPDATA%\lol-helper\{currentPlatform.profileDir}</span>
+                            <span className="text-[10px] text-emerald-400/80">(登录信息与浏览进度永久保存)</span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          采用 Win32 底层全局最高层级置顶机制（HWND_TOPMOST），在无边框对局中绝不会被 LOL 游戏遮挡。登录一次后凭证永久保存在该平台的专属 SQLite / Profile 隔离目录中，后续阵亡直接秒开继续刷，复活毫秒级自动关闭。
+                        </p>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <button
+                            onClick={() => WailsBridge.openWebVideoWindow(activePlatformKey)}
+                            className="py-2 px-4 rounded-xl bg-gradient-to-r from-cyan-500/20 to-indigo-500/20 hover:from-cyan-500/30 hover:to-indigo-500/30 border border-cyan-400/40 text-cyan-200 font-bold text-xs flex items-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
+                          >
+                            <Globe className="w-3.5 h-3.5 text-cyan-400" />
+                            <span>立即弹出 {currentPlatform.name} 测试 (体验流畅刷视频)</span>
+                          </button>
+                          <button
+                            onClick={() => WailsBridge.closeWebVideoWindow()}
+                            className="py-2 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-medium text-xs transition-colors cursor-pointer"
+                          >
+                            关闭小窗
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
@@ -1197,7 +1273,7 @@ export default function App() {
                   onClick={() => {
                     WailsBridge.triggerTestDeath();
                     if (config.deathVideo?.enabled && config.deathVideo?.source === 'douyin') {
-                      WailsBridge.openDouyinWindow();
+                      WailsBridge.openWebVideoWindow(activePlatformKey);
                     }
                   }}
                   className="flex-1 py-2 px-4 rounded-xl bg-gradient-to-r from-rose-500/20 to-purple-500/20 hover:from-rose-500/30 hover:to-purple-500/30 border border-rose-500/40 text-rose-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
@@ -1208,7 +1284,7 @@ export default function App() {
                 <button
                   onClick={() => {
                     WailsBridge.triggerTestRespawn();
-                    WailsBridge.closeDouyinWindow();
+                    WailsBridge.closeWebVideoWindow();
                   }}
                   className="flex-1 py-2 px-4 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/40 text-emerald-200 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95 shadow-sm"
                 >

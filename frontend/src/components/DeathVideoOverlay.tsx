@@ -86,13 +86,13 @@ export function DeathVideoOverlay({
     loadNextVideo();
   }, [config.source, config.localFolder]);
 
-  // Douyin native browser capsule lifecycle
+  // Web video native browser capsule lifecycle
   useEffect(() => {
     if (config.source === 'douyin') {
-      WailsBridge.openDouyinWindow();
+      WailsBridge.openWebVideoWindow();
     }
     return () => {
-      WailsBridge.closeDouyinWindow();
+      WailsBridge.closeWebVideoWindow();
     };
   }, [config.source]);
 
@@ -110,7 +110,7 @@ export function DeathVideoOverlay({
       videoRef.current.currentTime = 0;
       videoRef.current.muted = true;
     }
-    WailsBridge.closeDouyinWindow();
+    WailsBridge.closeWebVideoWindow();
     onClose();
   };
 
@@ -236,23 +236,23 @@ export function DeathVideoOverlay({
 
               <div className="space-y-1.5">
                 <div className="text-sm font-bold text-white flex items-center justify-center gap-1.5">
-                  <span>抖音推荐流小窗正在独立播放</span>
+                  <span>在线视频小窗正在独立播放</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed max-w-[280px]">
-                  已在桌面弹出微型独立播放窗，支持鼠标滚轮切视频；英雄复活时将毫秒级自动关闭。
+                  已在桌面弹出微型独立播放窗（SQLite 隔离保存登录态），英雄复活时将毫秒级自动关闭。
                 </p>
               </div>
 
               <div className="flex items-center gap-2 pt-1">
                 <button
-                  onClick={() => WailsBridge.openDouyinWindow()}
+                  onClick={() => WailsBridge.openWebVideoWindow()}
                   className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500/30 to-indigo-500/30 hover:from-cyan-500/40 hover:to-indigo-500/40 border border-cyan-400/50 text-cyan-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 transition-all"
                 >
                   <RotateCw className="w-3.5 h-3.5" />
                   <span>重新唤起小窗</span>
                 </button>
                 <button
-                  onClick={() => WailsBridge.closeDouyinWindow()}
+                  onClick={() => WailsBridge.closeWebVideoWindow()}
                   className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 text-xs font-medium cursor-pointer transition-colors"
                 >
                   关闭小窗

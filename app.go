@@ -13,6 +13,7 @@ import (
 	"unsafe"
 	"lol/internal/analysis"
 	"lol/internal/config"
+	"lol/internal/db"
 	"lol/internal/livegame"
 	"lol/internal/service"
 	"lol/internal/updater"
@@ -38,6 +39,9 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 	updater.CleanupOldFiles()
+	if _, err := db.InitDB(); err != nil {
+		println("SQLite Init Error:", err.Error())
+	}
 	a.manager = service.NewManager(func(eventName string, data ...interface{}) {
 		if a.ctx != nil {
 			wailsRuntime.EventsEmit(a.ctx, eventName, data...)
@@ -48,7 +52,10 @@ func (a *App) startup(ctx context.Context) {
 
 // shutdown is called when the app stops
 func (a *App) shutdown(ctx context.Context) {
-	_ = a.CloseDouyinWindow()
+	_ = a.CloseWebVideoWindow()
+	if store := db.GetStore(); store != nil {
+		_ = store.Close()
+	}
 	if a.manager != nil {
 		a.manager.Stop()
 	}
@@ -307,14 +314,71 @@ func pinProcessWindowsTopmost(targetPID int) {
 	procEnumWindows.Call(cb, 0)
 }
 
-// OpenDouyinWindow 唤起系统级极简画中画小窗播放抖音推荐流 (无边框app模式，彻底绕过iframe的X-Frame-Options封禁，尺寸620x880，置顶于游戏最上层)
-func (a *App) OpenDouyinWindow() error {
+// GetVideoPlatforms 从 SQLite 查询所有预置及自定义视频平台配置
+func (a *App) GetVideoPlatforms() ([]db.VideoPlatform, error) {
+	store := db.GetStore()
+	if store == nil {
+		return nil, fmt.Errorf("database not initialized")
+	}
+	return store.GetPlatforms()
+}
+
+// SetActiveVideoPlatform 设置当前死亡播放的激活视频源
+func (a *App) SetActiveVideoPlatform(key string) error {
+	store := db.GetStore()
+	if store == nil {
+		return fmt.Errorf("database not initialized")
+	}
+	return store.SetActivePlatform(key)
+}
+
+// UpdateVideoPlatformConfig 更新自定义视频平台的名称、URL、窗口大小
+func (a *App) UpdateVideoPlatformConfig(key, name, url string, width, height int) error {
+	store := db.GetStore()
+	if store == nil {
+		return fmt.Errorf("database not initialized")
+	}
+	return store.UpdatePlatformConfig(key, name, url, width, height)
+}
+
+// GetVideoHistory 查询播放历史日志
+func (a *App) GetVideoHistory() ([]db.VideoHistory, error) {
+	store := db.GetStore()
+	if store == nil {
+		return nil, fmt.Errorf("database not initialized")
+	}
+	return store.GetHistory(20)
+}
+
+// OpenWebVideoWindow 唤起系统级极简画中画小窗，支持抖音、B站、爱奇艺及自定义视频站 (各站点会话独立持久化，置顶于游戏最上层)
+func (a *App) OpenWebVideoWindow(platformKey string) error {
 	a.douyinMutex.Lock()
 	defer a.douyinMutex.Unlock()
 
 	// 若已存在打开的窗口，无需重复唤起
 	if a.douyinCmd != nil && a.douyinCmd.Process != nil {
 		return nil
+	}
+
+	store := db.GetStore()
+	var platform *db.VideoPlatform
+	var err error
+	if store != nil {
+		if platformKey != "" {
+			platform, err = store.GetPlatformByKey(platformKey)
+		} else {
+			platform, err = store.GetActivePlatform()
+		}
+	}
+	if err != nil || platform == nil {
+		platform = &db.VideoPlatform{
+			Key:          "douyin",
+			Name:         "抖音推荐流",
+			URL:          "https://www.douyin.com/?recommend=1",
+			WindowWidth:  1080,
+			WindowHeight: 820,
+			ProfileDir:   "douyin_profile",
+		}
 	}
 
 	edgePath := `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
@@ -328,20 +392,18 @@ func (a *App) OpenDouyinWindow() error {
 		edgePath = `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`
 	}
 
-	// 使用持久化用户目录保留登录会话与关闭弹窗后的状态，避免每次重复弹出登录引导
 	appData := os.Getenv("APPDATA")
 	if appData == "" {
 		appData = os.TempDir()
 	}
-	profileDir := filepath.Join(appData, "lol-helper", "douyin_profile")
+	// 每个平台独立隔离的用户目录，各网站登录信息独立持久化且永不冲突
+	profileDir := filepath.Join(appData, "lol-helper", platform.ProfileDir)
 	_ = os.MkdirAll(profileDir, 0755)
 
-	// 窗口横向拉宽至 1080×820：
-	// 彻底匹配抖音 PC Web 端的 1080px 响应式断点，登录弹窗、右上角关闭按钮 (X) 与推荐视频流全部完整呈现，绝不横向截断
 	cmd := exec.Command(edgePath,
-		"--app=https://www.douyin.com/?recommend=1",
+		fmt.Sprintf("--app=%s", platform.URL),
 		fmt.Sprintf("--user-data-dir=%s", profileDir),
-		"--window-size=1080,820",
+		fmt.Sprintf("--window-size=%d,%d", platform.WindowWidth, platform.WindowHeight),
 		"--disable-notifications",
 		"--disable-features=Translate",
 		"--disable-blink-features=AutomationControlled",
@@ -352,7 +414,12 @@ func (a *App) OpenDouyinWindow() error {
 	}
 	a.douyinCmd = cmd
 
-	// 启动后台轮询置顶 (Edge 启动后可能需要200~600ms完成HWND创建，持续轮询确保窗口在游戏最顶层)
+	// 记录到 SQLite 历史记录
+	if store != nil {
+		_ = store.RecordHistory(platform.Key, "launch", "Champion", 0)
+	}
+
+	// 启动后台轮询置顶 (Edge 启动后持续轮询确保窗口在游戏最顶层)
 	go func(pid int) {
 		for i := 0; i < 15; i++ {
 			time.Sleep(200 * time.Millisecond)
@@ -376,8 +443,13 @@ func (a *App) OpenDouyinWindow() error {
 	return nil
 }
 
-// CloseDouyinWindow 阵亡复活或用户关闭时毫秒级瞬闭抖音小窗并保存登录会话
-func (a *App) CloseDouyinWindow() error {
+// OpenDouyinWindow 兼容旧前端调用
+func (a *App) OpenDouyinWindow() error {
+	return a.OpenWebVideoWindow("douyin")
+}
+
+// CloseWebVideoWindow 阵亡复活或用户关闭时毫秒级瞬闭小窗并保存登录会话
+func (a *App) CloseWebVideoWindow() error {
 	a.douyinMutex.Lock()
 	defer a.douyinMutex.Unlock()
 
@@ -389,14 +461,16 @@ func (a *App) CloseDouyinWindow() error {
 		a.douyinCmd = nil
 	}
 
-	// 2. 枚举所有带抖音标题的窗口，通过 Win32 API 发送 WM_CLOSE 让窗口以 0ms 瞬间关闭
+	// 2. 枚举所有带视频站标题的窗口，通过 Win32 API 发送 WM_CLOSE 让窗口以 0ms 瞬间关闭
 	cb := syscall.NewCallback(func(hwnd uintptr, lParam uintptr) uintptr {
 		length, _, _ := procGetWindowTextLengthW.Call(hwnd)
 		if length > 0 {
 			buf := make([]uint16, length+1)
 			procGetWindowTextW.Call(hwnd, uintptr(unsafe.Pointer(&buf[0])), length+1)
 			title := syscall.UTF16ToString(buf)
-			if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") {
+			if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") ||
+				strings.Contains(title, "哔哩哔哩") || strings.Contains(title, "bilibili") ||
+				strings.Contains(title, "爱奇艺") || strings.Contains(title, "iqiyi") {
 				procPostMessageW.Call(hwnd, wmClose, 0, 0)
 			}
 		}
@@ -404,13 +478,18 @@ func (a *App) CloseDouyinWindow() error {
 	})
 	procEnumWindows.Call(cb, 0)
 
-	// 3. 异步查杀所有携带 douyin_profile 参数的孤儿 Chromium 进程，确保 100% 不留任何后台进程
+	// 3. 异步查杀所有携带 lol-helper 各平台用户目录参数的孤儿 Chromium 进程，确保 100% 不留任何后台进程
 	go func() {
-		killCmd := `Get-CimInstance Win32_Process -Filter "Name = 'msedge.exe' or Name = 'chrome.exe'" | Where-Object { $_.CommandLine -like "*douyin_profile*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`
+		killCmd := `Get-CimInstance Win32_Process -Filter "Name = 'msedge.exe' or Name = 'chrome.exe'" | Where-Object { $_.CommandLine -like "*lol-helper*" -and $_.CommandLine -like "*profile*" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }`
 		_ = exec.Command("powershell", "-NoProfile", "-NonInteractive", "-Command", killCmd).Run()
 	}()
 
 	return nil
+}
+
+// CloseDouyinWindow 兼容旧前端调用
+func (a *App) CloseDouyinWindow() error {
+	return a.CloseWebVideoWindow()
 }
 
 

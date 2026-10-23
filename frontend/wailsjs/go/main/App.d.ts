@@ -4,6 +4,7 @@ import {updater} from '../models';
 import {config} from '../models';
 import {service} from '../models';
 import {analysis} from '../models';
+import {db} from '../models';
 
 export function AcceptMatch():Promise<void>;
 
@@ -14,6 +15,8 @@ export function ClearLogs():Promise<void>;
 export function CloseApp():Promise<void>;
 
 export function CloseDouyinWindow():Promise<void>;
+
+export function CloseWebVideoWindow():Promise<void>;
 
 export function DownloadAndApplyUpdate(arg1:string):Promise<void>;
 
@@ -29,6 +32,10 @@ export function GetRandomVideoURL(arg1:string):Promise<string>;
 
 export function GetStatus():Promise<service.ServiceStatus>;
 
+export function GetVideoHistory():Promise<Array<db.VideoHistory>>;
+
+export function GetVideoPlatforms():Promise<Array<db.VideoPlatform>>;
+
 export function HideWindow():Promise<void>;
 
 export function IsWindowMaximized():Promise<boolean>;
@@ -39,6 +46,8 @@ export function OpenBrowser(arg1:string):Promise<void>;
 
 export function OpenDouyinWindow():Promise<void>;
 
+export function OpenWebVideoWindow(arg1:string):Promise<void>;
+
 export function SaveConfig(arg1:config.Config):Promise<void>;
 
 export function SearchPlayerAnalysis(arg1:string):Promise<analysis.PlayerAnalysis>;
@@ -46,6 +55,8 @@ export function SearchPlayerAnalysis(arg1:string):Promise<analysis.PlayerAnalysi
 export function SelectDirectory():Promise<string>;
 
 export function SendChatMessage(arg1:string):Promise<void>;
+
+export function SetActiveVideoPlatform(arg1:string):Promise<void>;
 
 export function SetAlwaysOnTop(arg1:boolean):Promise<void>;
 
@@ -62,3 +73,5 @@ export function ToggleMaximizeWindow():Promise<void>;
 export function TriggerTestDeath(arg1:number):Promise<void>;
 
 export function TriggerTestRespawn():Promise<void>;
+
+export function UpdateVideoPlatformConfig(arg1:string,arg2:string,arg3:string,arg4:number,arg5:number):Promise<void>;
