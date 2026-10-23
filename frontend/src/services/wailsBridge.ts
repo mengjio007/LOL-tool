@@ -53,7 +53,7 @@ export interface Config {
   startWithOS: boolean;
   minimizeToTray: boolean;
   alwaysOnTop: boolean;
-  theme?: 'hextech' | 'aurora' | 'arcane';
+  theme?: 'hextech' | 'aurora' | 'arcane' | 'crimson';
   algorithm: AlgorithmConfig;
   deathVideo: DeathVideoConfig;
 }

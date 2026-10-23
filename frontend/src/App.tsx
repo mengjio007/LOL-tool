@@ -139,22 +139,33 @@ export default function App() {
       id: 'hextech' as const,
       name: '官方黑金',
       sub: 'Hextech Gold',
-      desc: '英雄联盟官方经典海克斯夜蓝与符文纯金',
-      dots: ['#c89b3c', '#0ac8b9', '#060c18'],
+      desc: '海克斯深蓝与符文纯金高光，LOL官方原版典雅气质',
+      tag: '官方黑金',
+      dots: ['#c89b3c', '#0ac8b9', '#061022'],
     },
     {
       id: 'aurora' as const,
       name: '冷炭极光',
       sub: 'Aurora Frost',
-      desc: 'macOS 极简深灰与克制电竞冰蓝，低调护眼',
-      dots: ['#38bdf8', '#818cf8', '#07090e'],
+      desc: '苹果深空冷炭灰与电竞极光湛蓝，纯粹高级护眼不晃',
+      tag: '极简冷灰',
+      dots: ['#38bdf8', '#818cf8', '#0d1117'],
     },
     {
       id: 'arcane' as const,
       name: '双城赛博',
       sub: 'Arcane Zaun',
-      desc: '暗夜沥青底色与炼金荧光翡翠绿，高能电竞',
-      dots: ['#00ff9d', '#c084fc', '#050609'],
+      desc: '暗夜紫黑与炼金荧光翡翠绿撞色，极强电竞张力',
+      tag: '高能电竞',
+      dots: ['#00ff9d', '#c084fc', '#0d081a'],
+    },
+    {
+      id: 'crimson' as const,
+      name: '诺克萨斯',
+      sub: 'Noxus Crimson',
+      desc: '暗曜黑石与战神狂暴猩红，嗜血进攻型全红燃战',
+      tag: '狂暴战血',
+      dots: ['#ef4444', '#fbbf24', '#15080b'],
     },
   ];
 
@@ -496,16 +507,16 @@ export default function App() {
   }
 
   return (
-    <div className="relative flex flex-col w-full h-full select-none bg-[var(--vibrancy-bg,#060c18)] text-[#f1f5f9] border border-white/[0.1] rounded-2xl overflow-hidden shadow-2xl transition-colors duration-300">
-      {/* macOS Vibrancy Ambient Background Auroras */}
+    <div className="relative flex flex-col w-full h-full select-none bg-[var(--theme-bg)] text-[#f1f5f9] border border-[var(--theme-border)] rounded-2xl overflow-hidden shadow-2xl transition-colors duration-300">
+      {/* Ambient Background Glows */}
       <div className="aurora-orb-cyan -top-24 -left-24 w-80 h-80 opacity-70" />
       <div className="aurora-orb-indigo top-1/4 -right-20 w-96 h-96 opacity-60" />
       <div className="aurora-orb-rose -bottom-24 left-1/3 w-80 h-80 opacity-50" />
 
-      {/* 1. High-Contrast macOS Vibrancy Header Bar */}
-      <header className="draggable shrink-0 h-12 px-4 bg-[var(--vibrancy-surface,rgba(10,18,34,0.68))] backdrop-blur-xl flex items-center justify-between border-b border-white/[0.12] relative z-20 shadow-md">
+      {/* 1. Header Bar (Solid 100% Opaque, Theme-Branded) */}
+      <header className="draggable shrink-0 h-12 px-4 bg-[var(--theme-header-bg)] flex items-center justify-between border-b border-[var(--theme-border)] relative z-20 shadow-md transition-colors duration-300">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400/25 via-indigo-500/25 to-cyan-400/10 border border-white/20 flex items-center justify-center p-1 shadow-sm overflow-hidden backdrop-blur-md">
+          <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-[var(--theme-border)] flex items-center justify-center p-1 shadow-sm overflow-hidden">
             <img src={appLogo} alt="Logo" className="w-full h-full object-cover rounded-lg" />
           </div>
           <span className="text-xs font-black tracking-wide text-white">
@@ -514,9 +525,9 @@ export default function App() {
           <button
             onClick={() => openSettings('updates')}
             title={updateInfo?.hasUpdate ? t.hasNewVersionDot : '点击查看版本与更新'}
-            className="non-draggable relative flex items-center gap-1.5 text-[10px] px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400/20 via-cyan-400/20 to-indigo-400/20 text-amber-300 font-bold border border-amber-400/40 shadow-sm transition-all hover:scale-105 cursor-pointer backdrop-blur-md"
+            className="non-draggable relative flex items-center gap-1.5 text-[10px] px-2.5 py-0.5 rounded-full bg-[var(--theme-tab-pill-bg)] text-[var(--theme-primary)] font-bold border border-[var(--theme-border)] shadow-sm transition-all hover:scale-105 cursor-pointer"
           >
-            <Sparkles className="w-3 h-3 text-amber-300" />
+            <Sparkles className="w-3 h-3 text-[var(--theme-primary)]" />
             <span>v2.0.0 Pro</span>
             {updateInfo?.hasUpdate && (
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
@@ -529,16 +540,16 @@ export default function App() {
           <div className="relative" ref={themeMenuRef}>
             <button
               onClick={() => setShowThemeMenu((prev) => !prev)}
-              title="切换色彩风格 (官方黑金 / 冷炭极光 / 双城赛博)"
-              className="px-2.5 py-1 rounded-full text-[10px] font-bold glass-pill flex items-center gap-1.5 cursor-pointer text-amber-300 hover:text-amber-200 border-amber-400/30"
+              title="切换色彩风格 (官方黑金 / 冷炭极光 / 双城赛博 / 诺克萨斯)"
+              className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[var(--theme-tab-pill-bg)] flex items-center gap-1.5 cursor-pointer text-[var(--theme-primary)] hover:brightness-110 border border-[var(--theme-border-highlight)]/50 shadow-sm"
             >
-              <Palette className="w-3 h-3 text-amber-400" />
+              <Palette className="w-3 h-3 text-[var(--theme-primary)]" />
               <span>{currentTheme.name}</span>
               <div className="flex items-center -space-x-1 ml-0.5">
                 {currentTheme.dots.slice(0, 2).map((c, i) => (
                   <span
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full border border-black/40"
+                    className="w-2 h-2 rounded-full border border-black/60 shadow-sm"
                     style={{ backgroundColor: c }}
                   />
                 ))}
@@ -546,10 +557,10 @@ export default function App() {
             </button>
 
             {showThemeMenu && (
-              <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl glass-panel p-2 shadow-2xl z-50 border border-white/15 backdrop-blur-3xl space-y-1.5 animate-in fade-in zoom-in-95 duration-150">
-                <div className="px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-white/10 flex items-center justify-between">
+              <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-[var(--theme-dropdown-bg)] p-2 shadow-2xl z-50 border border-[var(--theme-border-highlight)]/40 space-y-1.5 animate-in fade-in zoom-in-95 duration-150 shadow-[0_12px_40px_rgba(0,0,0,0.85)]">
+                <div className="px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-[var(--theme-border)] flex items-center justify-between">
                   <span>选择色彩风格:</span>
-                  <span className="text-[9px] text-emerald-400 font-mono">实时秒切</span>
+                  <span className="text-[9px] text-[var(--theme-primary)] font-mono">秒级高亮实色</span>
                 </div>
                 {THEMES.map((th) => {
                   const isSelected = currentTheme.id === th.id;
@@ -560,9 +571,9 @@ export default function App() {
                         updateConfig({ theme: th.id });
                         setShowThemeMenu(false);
                       }}
-                      className={`w-full text-left p-2 rounded-xl transition-all flex items-start gap-2.5 cursor-pointer ${
+                      className={`w-full text-left p-2.5 rounded-xl transition-all flex items-start gap-2.5 cursor-pointer ${
                         isSelected
-                          ? 'bg-white/15 border border-white/20 shadow-md'
+                          ? 'bg-white/10 border border-[var(--theme-border-highlight)] shadow-md'
                           : 'hover:bg-white/5 border border-transparent text-slate-300'
                       }`}
                     >
@@ -579,15 +590,15 @@ export default function App() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                          <span className={`text-xs font-bold ${isSelected ? 'text-[var(--theme-primary)]' : 'text-slate-200'}`}>
                             {th.name}
                           </span>
-                          <span className="text-[9px] font-mono text-slate-400">{th.sub}</span>
+                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-black/40 text-slate-300 border border-white/5">{th.tag}</span>
                         </div>
-                        <p className="text-[10px] text-slate-400 leading-tight mt-0.5 line-clamp-1">{th.desc}</p>
+                        <p className="text-[10px] text-slate-400 leading-tight mt-1 line-clamp-1">{th.desc}</p>
                       </div>
                       {isSelected && (
-                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 self-center" />
+                        <Check className="w-4 h-4 text-[var(--theme-primary)] shrink-0 self-center" />
                       )}
                     </button>
                   );
@@ -664,64 +675,64 @@ export default function App() {
         </div>
       </header>
 
-      {/* 2. Top-Level Segmented Tabs: 4 Capabilities in ONE ROW (一排) */}
-      <div className="shrink-0 px-4 py-2 bg-black/30 backdrop-blur-md border-b border-white/[0.08] flex items-center justify-between relative z-10 transition-colors duration-300">
-        <div className="flex items-center gap-1.5 p-1 glass-panel rounded-full text-xs">
+      {/* 2. Top-Level Segmented Tabs: 4 Capabilities in ONE ROW (Solid 100% Opaque, Theme-Branded) */}
+      <div className="shrink-0 px-4 py-2.5 bg-[var(--theme-nav-bg)] border-b border-[var(--theme-border)] flex items-center justify-between relative z-10 shadow-sm transition-colors duration-300">
+        <div className="flex items-center gap-1.5 p-1 bg-[var(--theme-tab-pill-bg)] border border-[var(--theme-border)] rounded-full text-xs shadow-inner">
           {/* Tab 1: Automation */}
           <button
             onClick={() => setActiveTab('automation')}
-            className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer ${
               activeTab === 'automation'
-                ? 'bg-gradient-to-r from-cyan-500/30 to-indigo-500/30 text-cyan-200 border border-cyan-400/50 shadow-[0_0_12px_rgba(34,211,238,0.25)]'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+                ? 'nav-tab-active'
+                : 'nav-tab-inactive'
             }`}
           >
-            <Zap className="w-3.5 h-3.5 text-cyan-400" />
+            <Zap className={`w-3.5 h-3.5 ${activeTab === 'automation' ? '' : 'text-[var(--theme-primary)]'}`} />
             <span>{t.tabAutomation}</span>
           </button>
 
-          {/* Tab 2: Death Video Entertainment (和自动化一排!) */}
+          {/* Tab 2: Death Video Entertainment */}
           <button
             onClick={() => setActiveTab('video')}
-            className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer relative ${
+            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer relative ${
               activeTab === 'video'
-                ? 'bg-gradient-to-r from-rose-500/30 to-purple-500/30 text-rose-200 border border-rose-400/50 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+                ? 'nav-tab-active'
+                : 'nav-tab-inactive'
             }`}
           >
-            <Film className="w-3.5 h-3.5 text-rose-400" />
+            <Film className={`w-3.5 h-3.5 ${activeTab === 'video' ? '' : 'text-rose-400'}`} />
             <span>{t.tabVideo}</span>
             {config.deathVideo?.enabled && (
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse ml-0.5" />
+              <span className={`w-1.5 h-1.5 rounded-full ml-0.5 animate-pulse ${activeTab === 'video' ? 'bg-current' : 'bg-rose-400'}`} />
             )}
           </button>
 
           {/* Tab 3: Analysis */}
           <button
             onClick={() => setActiveTab('analysis')}
-            className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer relative ${
+            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer relative ${
               activeTab === 'analysis'
-                ? 'bg-gradient-to-r from-amber-500/30 to-rose-500/25 text-amber-200 border border-amber-400/50 shadow-[0_0_12px_rgba(251,191,36,0.25)]'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+                ? 'nav-tab-active'
+                : 'nav-tab-inactive'
             }`}
           >
-            <Swords className="w-3.5 h-3.5 text-amber-300" />
+            <Swords className={`w-3.5 h-3.5 ${activeTab === 'analysis' ? '' : 'text-amber-400'}`} />
             <span>{t.tabAnalysis}</span>
             {analysis && analysis.hasData && (
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse ml-0.5" />
+              <span className={`w-2 h-2 rounded-full ml-0.5 animate-pulse ${activeTab === 'analysis' ? 'bg-current' : 'bg-amber-400'}`} />
             )}
           </button>
 
           {/* Tab 4: Search */}
           <button
             onClick={() => setActiveTab('search')}
-            className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-full font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer ${
               activeTab === 'search'
-                ? 'bg-gradient-to-r from-indigo-500/30 to-cyan-500/30 text-indigo-200 border border-indigo-400/50 shadow-[0_0_12px_rgba(129,140,248,0.25)]'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'
+                ? 'nav-tab-active'
+                : 'nav-tab-inactive'
             }`}
           >
-            <Search className="w-3.5 h-3.5 text-indigo-300" />
+            <Search className={`w-3.5 h-3.5 ${activeTab === 'search' ? '' : 'text-indigo-400'}`} />
             <span>{t.tabSearch}</span>
           </button>
         </div>
@@ -729,9 +740,9 @@ export default function App() {
         {/* Quick Action to Algorithm Weight Config */}
         <button
           onClick={() => openSettings('algoConfig')}
-          className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-amber-300/90 glass-pill hover:border-amber-400/40 px-3 py-1.5 rounded-full cursor-pointer"
+          className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-3.5 py-1.5 rounded-full cursor-pointer bg-[var(--theme-tab-pill-bg)] border border-[var(--theme-border)] hover:border-[var(--theme-border-highlight)] text-[var(--theme-primary)] shadow-sm transition-all"
         >
-          <Sliders className="w-3 h-3 text-amber-400" />
+          <Sliders className="w-3 h-3" />
           <span>算法权重: {config.algorithm?.customWeightsEnabled ? '已自定义' : '官方平衡'}</span>
         </button>
       </div>
@@ -1602,8 +1613,8 @@ export default function App() {
         </div>
       </div>
 
-      {/* Footer (macOS Vibrancy Frosted Glass Bar) */}
-      <footer className="h-7 px-3 glass-panel border-t border-white/[0.08] flex items-center justify-between text-[11px] text-slate-400 relative z-10">
+      {/* Footer (Solid 100% Opaque, Theme-Branded) */}
+      <footer className="h-7 px-3 bg-[var(--theme-nav-bg)] border-t border-[var(--theme-border)] flex items-center justify-between text-[11px] text-slate-400 relative z-10 transition-colors duration-300">
         <div className="flex items-center gap-1.5">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
           <span className="text-[10px] text-slate-400 font-medium">{t.backgroundActive}</span>

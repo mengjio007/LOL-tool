@@ -1,77 +1,129 @@
 @import "tailwindcss";
 
 @layer base {
-  /* Default / Theme 1: 🏆 官方海克斯黑金 (Hextech Black & Gold) */
+  /* ========================================================
+     Theme 1: 🏆 官方海克斯黑金 (Hextech Black & Gold)
+     ======================================================== */
   :root,
   [data-theme="hextech"] {
-    --vibrancy-bg: #060c18;
-    --vibrancy-surface: rgba(10, 18, 34, 0.68);
-    --vibrancy-surface-hover: rgba(16, 28, 52, 0.82);
-    --vibrancy-surface-active: rgba(22, 38, 70, 0.9);
+    --theme-bg: #061022;
+    --theme-header-bg: #09162e;
+    --theme-nav-bg: #071224;
+    --theme-tab-pill-bg: #040a16;
+    --theme-card-bg: rgba(10, 22, 44, 0.78);
+    --theme-card-hover: rgba(15, 32, 64, 0.9);
+    --theme-dropdown-bg: #0b1730;
 
     /* Riot Hextech Colors */
-    --vibrancy-primary: #c89b3c;        /* 符文纯金 */
-    --vibrancy-primary-glow: rgba(200, 155, 60, 0.28);
-    --vibrancy-secondary: #0ac8b9;      /* 海克斯魔法冰蓝 */
-    --vibrancy-accent-gold: #f0e6d2;    /* 香槟亮金 */
-    --vibrancy-coral: #fb7185;          /* 战斗猩红 */
-    --vibrancy-emerald: #0ac8b9;        /* 魔法青绿 */
+    --theme-primary: #c89b3c;           /* 符文纯金 */
+    --theme-primary-hover: #e5c158;
+    --theme-secondary: #0ac8b9;         /* 海克斯魔法冰蓝 */
+    --theme-border: rgba(200, 155, 60, 0.32);
+    --theme-border-highlight: #c89b3c;
+    --theme-inner-glow: inset 0 1px 0 0 rgba(200, 155, 60, 0.25);
 
-    --vibrancy-rim: rgba(200, 155, 60, 0.22);
-    --vibrancy-rim-bright: rgba(200, 155, 60, 0.45);
-    --vibrancy-inner-glow: inset 0 1px 0 0 rgba(200, 155, 60, 0.2);
+    /* Solid Opaque Active Tab Button */
+    --theme-tab-active-bg: linear-gradient(135deg, #e5c158 0%, #c89b3c 50%, #9a7320 100%);
+    --theme-tab-active-text: #040810;
+    --theme-tab-active-shadow: 0 0 18px rgba(200, 155, 60, 0.55);
 
-    --orb-color-1: rgba(200, 155, 60, 0.16);
-    --orb-color-2: rgba(10, 200, 185, 0.15);
-    --orb-color-3: rgba(24, 52, 98, 0.25);
+    /* Ambient Glow Orbs */
+    --orb-color-1: rgba(200, 155, 60, 0.25);
+    --orb-color-2: rgba(10, 200, 185, 0.22);
+    --orb-color-3: rgba(16, 42, 86, 0.45);
   }
 
-  /* Theme 2: 🌌 深空冷炭极光 (Minimalist Aurora Frost) */
+  /* ========================================================
+     Theme 2: 🌌 冷炭极光 (Aurora Frost - macOS 暗黑深空灰)
+     ======================================================== */
   [data-theme="aurora"] {
-    --vibrancy-bg: #07090e;
-    --vibrancy-surface: rgba(14, 17, 25, 0.65);
-    --vibrancy-surface-hover: rgba(22, 27, 40, 0.78);
-    --vibrancy-surface-active: rgba(30, 37, 55, 0.88);
+    --theme-bg: #0d1117;
+    --theme-header-bg: #151c27;
+    --theme-nav-bg: #111620;
+    --theme-tab-pill-bg: #090c13;
+    --theme-card-bg: rgba(19, 27, 40, 0.78);
+    --theme-card-hover: rgba(26, 37, 56, 0.9);
+    --theme-dropdown-bg: #131924;
 
-    /* Frost Aurora Accents */
-    --vibrancy-primary: #38bdf8;        /* 极简电竞冰蓝 */
-    --vibrancy-primary-glow: rgba(56, 189, 248, 0.24);
-    --vibrancy-secondary: #818cf8;      /* 极光紫 */
-    --vibrancy-accent-gold: #fde047;    /* 亮星金 */
-    --vibrancy-coral: #fb7185;          /* 珊瑚红 */
-    --vibrancy-emerald: #34d399;        /* 极光薄荷绿 */
+    /* Frost Aurora Colors */
+    --theme-primary: #38bdf8;           /* 极简电竞冰蓝 */
+    --theme-primary-hover: #7dd3fc;
+    --theme-secondary: #818cf8;         /* 极光紫 */
+    --theme-border: rgba(56, 189, 248, 0.3);
+    --theme-border-highlight: #38bdf8;
+    --theme-inner-glow: inset 0 1px 0 0 rgba(56, 189, 248, 0.2);
 
-    --vibrancy-rim: rgba(255, 255, 255, 0.12);
-    --vibrancy-rim-bright: rgba(255, 255, 255, 0.25);
-    --vibrancy-inner-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+    /* Solid Opaque Active Tab Button */
+    --theme-tab-active-bg: linear-gradient(135deg, #38bdf8 0%, #0284c7 50%, #2563eb 100%);
+    --theme-tab-active-text: #ffffff;
+    --theme-tab-active-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
 
-    --orb-color-1: rgba(56, 189, 248, 0.16);
-    --orb-color-2: rgba(129, 140, 248, 0.14);
-    --orb-color-3: rgba(251, 113, 133, 0.1);
+    /* Ambient Glow Orbs */
+    --orb-color-1: rgba(56, 189, 248, 0.24);
+    --orb-color-2: rgba(129, 140, 248, 0.2);
+    --orb-color-3: rgba(14, 165, 233, 0.2);
   }
 
-  /* Theme 3: ⚡ 双城之战赛博 (Arcane Zaun Cyberpunk) */
+  /* ========================================================
+     Theme 3: ⚡ 双城赛博 (Arcane Zaun - 炼金荧光与微光紫)
+     ======================================================== */
   [data-theme="arcane"] {
-    --vibrancy-bg: #050609;
-    --vibrancy-surface: rgba(12, 14, 22, 0.72);
-    --vibrancy-surface-hover: rgba(20, 22, 34, 0.85);
-    --vibrancy-surface-active: rgba(28, 30, 48, 0.92);
+    --theme-bg: #0d081a;
+    --theme-header-bg: #160e2c;
+    --theme-nav-bg: #120a23;
+    --theme-tab-pill-bg: #090513;
+    --theme-card-bg: rgba(22, 14, 42, 0.8);
+    --theme-card-hover: rgba(32, 20, 60, 0.92);
+    --theme-dropdown-bg: #150d2a;
 
     /* Chemtech & Shimmer Accents */
-    --vibrancy-primary: #00ff9d;        /* 炼金荧光翡翠绿 */
-    --vibrancy-primary-glow: rgba(0, 255, 157, 0.3);
-    --vibrancy-secondary: #c084fc;      /* 微光电光紫 */
-    --vibrancy-accent-gold: #fbbf24;    /* 暴击金 */
-    --vibrancy-coral: #f43f5e;          /* 炼金猩红 */
-    --vibrancy-emerald: #00ff9d;        /* 荧光绿 */
+    --theme-primary: #00ff9d;           /* 炼金荧光翡翠绿 */
+    --theme-primary-hover: #5cffbe;
+    --theme-secondary: #c084fc;         /* 微光电光紫 */
+    --theme-border: rgba(0, 255, 157, 0.35);
+    --theme-border-highlight: #00ff9d;
+    --theme-inner-glow: inset 0 1px 0 0 rgba(0, 255, 157, 0.25);
 
-    --vibrancy-rim: rgba(0, 255, 157, 0.22);
-    --vibrancy-rim-bright: rgba(192, 132, 252, 0.4);
-    --vibrancy-inner-glow: inset 0 1px 0 0 rgba(0, 255, 157, 0.18);
+    /* Solid Opaque Active Tab Button */
+    --theme-tab-active-bg: linear-gradient(135deg, #00ff9d 0%, #00d27f 50%, #059669 100%);
+    --theme-tab-active-text: #020805;
+    --theme-tab-active-shadow: 0 0 22px rgba(0, 255, 157, 0.7);
 
-    --orb-color-1: rgba(0, 255, 157, 0.15);
-    --orb-color-2: rgba(192, 132, 252, 0.15);
-    --orb-color-3: rgba(244, 63, 94, 0.12);
+    /* Ambient Glow Orbs */
+    --orb-color-1: rgba(0, 255, 157, 0.25);
+    --orb-color-2: rgba(192, 132, 252, 0.24);
+    --orb-color-3: rgba(244, 63, 94, 0.18);
+  }
+
+  /* ========================================================
+     Theme 4: 🩸 诺克萨斯战血 (Noxus Crimson & Obsidian)
+     ======================================================== */
+  [data-theme="crimson"] {
+    --theme-bg: #15080b;
+    --theme-header-bg: #1f0b10;
+    --theme-nav-bg: #19080c;
+    --theme-tab-pill-bg: #0e0406;
+    --theme-card-bg: rgba(32, 12, 18, 0.82);
+    --theme-card-hover: rgba(45, 16, 24, 0.92);
+    --theme-dropdown-bg: #1d0a0f;
+
+    /* Noxus Crimson Accents */
+    --theme-primary: #ef4444;           /* 狂暴猩红 */
+    --theme-primary-hover: #f87171;
+    --theme-secondary: #fbbf24;         /* 战斧黑金 */
+    --theme-border: rgba(239, 68, 68, 0.35);
+    --theme-border-highlight: #ef4444;
+    --theme-inner-glow: inset 0 1px 0 0 rgba(239, 68, 68, 0.25);
+
+    /* Solid Opaque Active Tab Button */
+    --theme-tab-active-bg: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #b91c1c 100%);
+    --theme-tab-active-text: #ffffff;
+    --theme-tab-active-shadow: 0 0 20px rgba(239, 68, 68, 0.65);
+
+    /* Ambient Glow Orbs */
+    --orb-color-1: rgba(239, 68, 68, 0.26);
+    --orb-color-2: rgba(251, 146, 60, 0.22);
+    --orb-color-3: rgba(185, 28, 28, 0.25);
   }
 
   html, body, #root {
@@ -85,7 +137,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--vibrancy-bg);
+    background-color: var(--theme-bg);
     color: #f1f5f9;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     user-select: none;
@@ -93,52 +145,72 @@
   }
 }
 
-/* Vibrancy Frosted Glass Utility Classes */
+/* Solid Non-Transparent Tab Active & Inactive Utilities */
+.nav-tab-active {
+  background: var(--theme-tab-active-bg) !important;
+  color: var(--theme-tab-active-text) !important;
+  font-weight: 800 !important;
+  box-shadow: var(--theme-tab-active-shadow) !important;
+  border: 1px solid var(--theme-border-highlight) !important;
+}
+
+.nav-tab-inactive {
+  color: #94a3b8 !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+.nav-tab-inactive:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Solid Frosted Glass Cards (Non-Muddy) */
 .glass-panel {
-  background: var(--vibrancy-surface, rgba(15, 23, 42, 0.55));
+  background: var(--theme-card-bg);
   backdrop-filter: blur(28px) saturate(190%);
   -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid var(--vibrancy-rim, rgba(255, 255, 255, 0.1));
-  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.38), var(--vibrancy-inner-glow);
+  border: 1px solid var(--theme-border);
+  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.45), var(--theme-inner-glow);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .glass-card {
-  background: var(--vibrancy-surface, rgba(17, 24, 39, 0.5));
+  background: var(--theme-card-bg);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--vibrancy-rim, rgba(255, 255, 255, 0.08));
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3), var(--vibrancy-inner-glow);
+  border: 1px solid var(--theme-border);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35), var(--theme-inner-glow);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  background: var(--vibrancy-surface-hover, rgba(23, 33, 54, 0.65));
-  border-color: var(--vibrancy-rim-bright, rgba(255, 255, 255, 0.2));
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.45);
+  background: var(--theme-card-hover);
+  border-color: var(--theme-border-highlight);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.55);
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--vibrancy-rim, rgba(255, 255, 255, 0.1));
-  box-shadow: var(--vibrancy-inner-glow);
+  border: 1px solid var(--theme-border);
+  box-shadow: var(--theme-inner-glow);
   transition: all 0.18s ease;
 }
 
 .glass-pill:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--vibrancy-rim-bright, rgba(255, 255, 255, 0.25));
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--theme-border-highlight);
 }
 
 /* macOS Vibrancy Ambient Glow Elements */
 .aurora-orb-cyan {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(72px);
+  filter: blur(75px);
   pointer-events: none;
-  background: radial-gradient(circle, var(--orb-color-1, rgba(34, 211, 238, 0.18)) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--orb-color-1) 0%, transparent 70%);
   transition: all 0.5s ease;
 }
 
@@ -147,7 +219,7 @@
   border-radius: 9999px;
   filter: blur(80px);
   pointer-events: none;
-  background: radial-gradient(circle, var(--orb-color-2, rgba(129, 140, 248, 0.16)) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--orb-color-2) 0%, transparent 70%);
   transition: all 0.5s ease;
 }
 
@@ -156,7 +228,7 @@
   border-radius: 9999px;
   filter: blur(75px);
   pointer-events: none;
-  background: radial-gradient(circle, var(--orb-color-3, rgba(251, 113, 133, 0.14)) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--orb-color-3) 0%, transparent 70%);
   transition: all 0.5s ease;
 }
 
