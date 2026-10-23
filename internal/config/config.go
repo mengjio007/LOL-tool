@@ -40,6 +40,7 @@ type Config struct {
 	StartWithOS    bool             `json:"startWithOS"`
 	MinimizeToTray bool             `json:"minimizeToTray"`
 	AlwaysOnTop    bool             `json:"alwaysOnTop"`
+	Theme          string           `json:"theme"` // "hextech" (黑金), "aurora" (冷炭极光), "arcane" (双城赛博)
 	Algorithm      AlgorithmConfig  `json:"algorithm"`
 	DeathVideo     DeathVideoConfig `json:"deathVideo"`
 }
@@ -78,6 +79,7 @@ var (
 		StartWithOS:    false,
 		MinimizeToTray: true,
 		AlwaysOnTop:    false,
+		Theme:          "hextech",
 		Algorithm:      DefaultAlgorithm,
 		DeathVideo:     DefaultDeathVideo,
 	}
@@ -136,6 +138,9 @@ func Load() error {
 	}
 	if loaded.DeathVideo.Source == "" {
 		loaded.DeathVideo = DefaultDeathVideo
+	}
+	if loaded.Theme == "" {
+		loaded.Theme = "hextech"
 	}
 
 	currentCfg = loaded

@@ -22,6 +22,7 @@ import {
   Crosshair,
   TrendingUp,
   Award,
+  Palette,
 } from 'lucide-react';
 import type { Config, UpdateInfo, AlgorithmConfig } from '../services/wailsBridge';
 import { WailsBridge, defaultAlgorithmConfig } from '../services/wailsBridge';
@@ -306,12 +307,84 @@ export function SettingsModal({
               <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-emerald-300 text-[11px]">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                  <span className="font-bold">所有算法调整均已实时本地持久化</span>
+                  <span className="font-bold">所有算法与主题设置均已实时本地持久化</span>
                   <span className="text-slate-400 font-mono text-[10px] hidden sm:inline">(SQLite + config.json 双轨容灾)</span>
                 </div>
                 <span className="text-[10px] text-emerald-300 font-mono bg-emerald-900/50 px-2 py-0.5 rounded border border-emerald-400/30">
                   下次启动自动加载 · 永久保存
                 </span>
+              </div>
+
+              {/* Theme Selector Section */}
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-bold text-slate-400 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Palette className="w-3.5 h-3.5 text-amber-400" />
+                    <span>视觉色彩主题 (点击实时生效):</span>
+                  </span>
+                  <span className="text-[10px] text-cyan-300 font-mono">3 套高质量电竞调优主题</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    onClick={() => onUpdateConfig({ theme: 'hextech' })}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      (config.theme || 'hextech') === 'hextech'
+                        ? 'bg-amber-500/15 border-amber-400/50 shadow-[0_0_12px_rgba(200,155,60,0.25)]'
+                        : 'bg-black/30 border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#c89b3c]" />
+                        <span>官方黑金</span>
+                      </span>
+                      <span className="text-[9px] font-mono text-amber-400/80 bg-amber-950/60 px-1.5 py-0.2 rounded border border-amber-400/30">
+                        官方规范
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1">LOL官方海克斯夜蓝与符文纯金</div>
+                  </button>
+
+                  <button
+                    onClick={() => onUpdateConfig({ theme: 'aurora' })}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      config.theme === 'aurora'
+                        ? 'bg-sky-500/15 border-sky-400/50 shadow-[0_0_12px_rgba(56,189,248,0.25)]'
+                        : 'bg-black/30 border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sky-300 text-xs flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#38bdf8]" />
+                        <span>冷炭极光</span>
+                      </span>
+                      <span className="text-[9px] font-mono text-sky-400/80 bg-sky-950/60 px-1.5 py-0.2 rounded border border-sky-400/30">
+                        极简护眼
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1">macOS深炭灰与克制电竞冰蓝</div>
+                  </button>
+
+                  <button
+                    onClick={() => onUpdateConfig({ theme: 'arcane' })}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      config.theme === 'arcane'
+                        ? 'bg-emerald-500/15 border-emerald-400/50 shadow-[0_0_12px_rgba(0,255,157,0.25)]'
+                        : 'bg-black/30 border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-emerald-300 text-xs flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#00ff9d]" />
+                        <span>双城赛博</span>
+                      </span>
+                      <span className="text-[9px] font-mono text-emerald-400/80 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-400/30">
+                        高能电竞
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1">暗夜沥青底与炼金荧光翡翠绿</div>
+                  </button>
+                </div>
               </div>
 
               {/* Preset Profile Shortcuts */}

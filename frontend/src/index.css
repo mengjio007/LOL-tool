@@ -1,25 +1,77 @@
 @import "tailwindcss";
 
 @layer base {
-  :root {
-    /* macOS Vibrancy & Frosted Glass Palette */
-    --vibrancy-bg: #070a13;
-    --vibrancy-surface: rgba(14, 20, 34, 0.65);
-    --vibrancy-surface-hover: rgba(22, 30, 50, 0.78);
-    --vibrancy-surface-active: rgba(30, 42, 68, 0.85);
+  /* Default / Theme 1: 🏆 官方海克斯黑金 (Hextech Black & Gold) */
+  :root,
+  [data-theme="hextech"] {
+    --vibrancy-bg: #060c18;
+    --vibrancy-surface: rgba(10, 18, 34, 0.68);
+    --vibrancy-surface-hover: rgba(16, 28, 52, 0.82);
+    --vibrancy-surface-active: rgba(22, 38, 70, 0.9);
+
+    /* Riot Hextech Colors */
+    --vibrancy-primary: #c89b3c;        /* 符文纯金 */
+    --vibrancy-primary-glow: rgba(200, 155, 60, 0.28);
+    --vibrancy-secondary: #0ac8b9;      /* 海克斯魔法冰蓝 */
+    --vibrancy-accent-gold: #f0e6d2;    /* 香槟亮金 */
+    --vibrancy-coral: #fb7185;          /* 战斗猩红 */
+    --vibrancy-emerald: #0ac8b9;        /* 魔法青绿 */
+
+    --vibrancy-rim: rgba(200, 155, 60, 0.22);
+    --vibrancy-rim-bright: rgba(200, 155, 60, 0.45);
+    --vibrancy-inner-glow: inset 0 1px 0 0 rgba(200, 155, 60, 0.2);
+
+    --orb-color-1: rgba(200, 155, 60, 0.16);
+    --orb-color-2: rgba(10, 200, 185, 0.15);
+    --orb-color-3: rgba(24, 52, 98, 0.25);
+  }
+
+  /* Theme 2: 🌌 深空冷炭极光 (Minimalist Aurora Frost) */
+  [data-theme="aurora"] {
+    --vibrancy-bg: #07090e;
+    --vibrancy-surface: rgba(14, 17, 25, 0.65);
+    --vibrancy-surface-hover: rgba(22, 27, 40, 0.78);
+    --vibrancy-surface-active: rgba(30, 37, 55, 0.88);
 
     /* Frost Aurora Accents */
-    --vibrancy-primary: #22d3ee;        /* Frost Cyan / Electric Ice */
-    --vibrancy-primary-glow: rgba(34, 211, 238, 0.25);
-    --vibrancy-secondary: #818cf8;      /* Arcane Iris / Violet */
-    --vibrancy-accent-gold: #fde047;    /* Champagne / Hextech Radiant */
-    --vibrancy-coral: #fb7185;          /* Neon Coral / Ruby */
-    --vibrancy-emerald: #34d399;        /* Aurora Mint */
+    --vibrancy-primary: #38bdf8;        /* 极简电竞冰蓝 */
+    --vibrancy-primary-glow: rgba(56, 189, 248, 0.24);
+    --vibrancy-secondary: #818cf8;      /* 极光紫 */
+    --vibrancy-accent-gold: #fde047;    /* 亮星金 */
+    --vibrancy-coral: #fb7185;          /* 珊瑚红 */
+    --vibrancy-emerald: #34d399;        /* 极光薄荷绿 */
 
-    /* Glass Rim & Inner Highlighting */
     --vibrancy-rim: rgba(255, 255, 255, 0.12);
-    --vibrancy-rim-bright: rgba(255, 255, 255, 0.22);
+    --vibrancy-rim-bright: rgba(255, 255, 255, 0.25);
     --vibrancy-inner-glow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+
+    --orb-color-1: rgba(56, 189, 248, 0.16);
+    --orb-color-2: rgba(129, 140, 248, 0.14);
+    --orb-color-3: rgba(251, 113, 133, 0.1);
+  }
+
+  /* Theme 3: ⚡ 双城之战赛博 (Arcane Zaun Cyberpunk) */
+  [data-theme="arcane"] {
+    --vibrancy-bg: #050609;
+    --vibrancy-surface: rgba(12, 14, 22, 0.72);
+    --vibrancy-surface-hover: rgba(20, 22, 34, 0.85);
+    --vibrancy-surface-active: rgba(28, 30, 48, 0.92);
+
+    /* Chemtech & Shimmer Accents */
+    --vibrancy-primary: #00ff9d;        /* 炼金荧光翡翠绿 */
+    --vibrancy-primary-glow: rgba(0, 255, 157, 0.3);
+    --vibrancy-secondary: #c084fc;      /* 微光电光紫 */
+    --vibrancy-accent-gold: #fbbf24;    /* 暴击金 */
+    --vibrancy-coral: #f43f5e;          /* 炼金猩红 */
+    --vibrancy-emerald: #00ff9d;        /* 荧光绿 */
+
+    --vibrancy-rim: rgba(0, 255, 157, 0.22);
+    --vibrancy-rim-bright: rgba(192, 132, 252, 0.4);
+    --vibrancy-inner-glow: inset 0 1px 0 0 rgba(0, 255, 157, 0.18);
+
+    --orb-color-1: rgba(0, 255, 157, 0.15);
+    --orb-color-2: rgba(192, 132, 252, 0.15);
+    --orb-color-3: rgba(244, 63, 94, 0.12);
   }
 
   html, body, #root {
@@ -37,45 +89,47 @@
     color: #f1f5f9;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     user-select: none;
+    transition: background-color 0.3s ease;
   }
 }
 
 /* Vibrancy Frosted Glass Utility Classes */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.55);
+  background: var(--vibrancy-surface, rgba(15, 23, 42, 0.55));
   backdrop-filter: blur(28px) saturate(190%);
   -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.38), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--vibrancy-rim, rgba(255, 255, 255, 0.1));
+  box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.38), var(--vibrancy-inner-glow);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .glass-card {
-  background: rgba(17, 24, 39, 0.5);
+  background: var(--vibrancy-surface, rgba(17, 24, 39, 0.5));
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--vibrancy-rim, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3), var(--vibrancy-inner-glow);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
-  background: rgba(23, 33, 54, 0.65);
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.45), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  background: var(--vibrancy-surface-hover, rgba(23, 33, 54, 0.65));
+  border-color: var(--vibrancy-rim-bright, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.45);
 }
 
 .glass-pill {
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--vibrancy-rim, rgba(255, 255, 255, 0.1));
+  box-shadow: var(--vibrancy-inner-glow);
   transition: all 0.18s ease;
 }
 
 .glass-pill:hover {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--vibrancy-rim-bright, rgba(255, 255, 255, 0.25));
 }
 
 /* macOS Vibrancy Ambient Glow Elements */
@@ -84,7 +138,8 @@
   border-radius: 9999px;
   filter: blur(72px);
   pointer-events: none;
-  background: radial-gradient(circle, rgba(34, 211, 238, 0.18) 0%, rgba(34, 211, 238, 0) 70%);
+  background: radial-gradient(circle, var(--orb-color-1, rgba(34, 211, 238, 0.18)) 0%, transparent 70%);
+  transition: all 0.5s ease;
 }
 
 .aurora-orb-indigo {
@@ -92,7 +147,8 @@
   border-radius: 9999px;
   filter: blur(80px);
   pointer-events: none;
-  background: radial-gradient(circle, rgba(129, 140, 248, 0.16) 0%, rgba(129, 140, 248, 0) 70%);
+  background: radial-gradient(circle, var(--orb-color-2, rgba(129, 140, 248, 0.16)) 0%, transparent 70%);
+  transition: all 0.5s ease;
 }
 
 .aurora-orb-rose {
@@ -100,7 +156,8 @@
   border-radius: 9999px;
   filter: blur(75px);
   pointer-events: none;
-  background: radial-gradient(circle, rgba(251, 113, 133, 0.14) 0%, rgba(251, 113, 133, 0) 70%);
+  background: radial-gradient(circle, var(--orb-color-3, rgba(251, 113, 133, 0.14)) 0%, transparent 70%);
+  transition: all 0.5s ease;
 }
 
 /* Ultra-refined Glass Scrollbar */

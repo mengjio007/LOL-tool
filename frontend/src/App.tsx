@@ -43,6 +43,7 @@ import {
   FolderOpen,
   Film,
   Volume2,
+  Palette,
 } from 'lucide-react';
 import { translations, translateLog, type Language } from './i18n/translations';
 import { PlayerSearchView } from './components/PlayerSearchView';
@@ -97,6 +98,7 @@ export default function App() {
     startWithOS: false,
     minimizeToTray: true,
     alwaysOnTop: false,
+    theme: 'hextech',
     algorithm: defaultAlgorithmConfig,
     deathVideo: defaultDeathVideoConfig,
   });
@@ -129,6 +131,55 @@ export default function App() {
   const [isMiniMode, setIsMiniMode] = useState(false);
   const [platforms, setPlatforms] = useState<VideoPlatform[]>([]);
   const [activePlatformKey, setActivePlatformKey] = useState<string>('douyin');
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
+
+  const THEMES = [
+    {
+      id: 'hextech' as const,
+      name: '官方黑金',
+      sub: 'Hextech Gold',
+      desc: '英雄联盟官方经典海克斯夜蓝与符文纯金',
+      dots: ['#c89b3c', '#0ac8b9', '#060c18'],
+    },
+    {
+      id: 'aurora' as const,
+      name: '冷炭极光',
+      sub: 'Aurora Frost',
+      desc: 'macOS 极简深灰与克制电竞冰蓝，低调护眼',
+      dots: ['#38bdf8', '#818cf8', '#07090e'],
+    },
+    {
+      id: 'arcane' as const,
+      name: '双城赛博',
+      sub: 'Arcane Zaun',
+      desc: '暗夜沥青底色与炼金荧光翡翠绿，高能电竞',
+      dots: ['#00ff9d', '#c084fc', '#050609'],
+    },
+  ];
+
+  const currentTheme = THEMES.find((t) => t.id === (config.theme || 'hextech')) || THEMES[0];
+
+  // Sync active theme to html data-theme attribute
+  useEffect(() => {
+    const activeTheme = config.theme || 'hextech';
+    document.documentElement.setAttribute('data-theme', activeTheme);
+  }, [config.theme]);
+
+  // Click outside to close theme menu
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(e.target as Node)) {
+        setShowThemeMenu(false);
+      }
+    };
+    if (showThemeMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showThemeMenu]);
 
   // Load platforms from SQLite on video tab visit
   useEffect(() => {
@@ -445,14 +496,14 @@ export default function App() {
   }
 
   return (
-    <div className="relative flex flex-col w-full h-full select-none bg-[#070a13] text-[#f1f5f9] border border-white/[0.1] rounded-2xl overflow-hidden shadow-2xl">
+    <div className="relative flex flex-col w-full h-full select-none bg-[var(--vibrancy-bg,#060c18)] text-[#f1f5f9] border border-white/[0.1] rounded-2xl overflow-hidden shadow-2xl transition-colors duration-300">
       {/* macOS Vibrancy Ambient Background Auroras */}
       <div className="aurora-orb-cyan -top-24 -left-24 w-80 h-80 opacity-70" />
       <div className="aurora-orb-indigo top-1/4 -right-20 w-96 h-96 opacity-60" />
       <div className="aurora-orb-rose -bottom-24 left-1/3 w-80 h-80 opacity-50" />
 
       {/* 1. High-Contrast macOS Vibrancy Header Bar */}
-      <header className="draggable shrink-0 h-12 px-4 bg-[#0d1320] flex items-center justify-between border-b border-white/[0.12] relative z-20 shadow-md">
+      <header className="draggable shrink-0 h-12 px-4 bg-[var(--vibrancy-surface,rgba(10,18,34,0.68))] backdrop-blur-xl flex items-center justify-between border-b border-white/[0.12] relative z-20 shadow-md">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-xl bg-gradient-to-br from-cyan-400/25 via-indigo-500/25 to-cyan-400/10 border border-white/20 flex items-center justify-center p-1 shadow-sm overflow-hidden backdrop-blur-md">
             <img src={appLogo} alt="Logo" className="w-full h-full object-cover rounded-lg" />
@@ -474,6 +525,77 @@ export default function App() {
         </div>
 
         <div className="non-draggable flex items-center gap-1.5">
+          {/* Theme Switcher Dropdown */}
+          <div className="relative" ref={themeMenuRef}>
+            <button
+              onClick={() => setShowThemeMenu((prev) => !prev)}
+              title="切换色彩风格 (官方黑金 / 冷炭极光 / 双城赛博)"
+              className="px-2.5 py-1 rounded-full text-[10px] font-bold glass-pill flex items-center gap-1.5 cursor-pointer text-amber-300 hover:text-amber-200 border-amber-400/30"
+            >
+              <Palette className="w-3 h-3 text-amber-400" />
+              <span>{currentTheme.name}</span>
+              <div className="flex items-center -space-x-1 ml-0.5">
+                {currentTheme.dots.slice(0, 2).map((c, i) => (
+                  <span
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full border border-black/40"
+                    style={{ backgroundColor: c }}
+                  />
+                ))}
+              </div>
+            </button>
+
+            {showThemeMenu && (
+              <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl glass-panel p-2 shadow-2xl z-50 border border-white/15 backdrop-blur-3xl space-y-1.5 animate-in fade-in zoom-in-95 duration-150">
+                <div className="px-2 py-1 text-[10px] font-bold text-slate-400 border-b border-white/10 flex items-center justify-between">
+                  <span>选择色彩风格:</span>
+                  <span className="text-[9px] text-emerald-400 font-mono">实时秒切</span>
+                </div>
+                {THEMES.map((th) => {
+                  const isSelected = currentTheme.id === th.id;
+                  return (
+                    <button
+                      key={th.id}
+                      onClick={() => {
+                        updateConfig({ theme: th.id });
+                        setShowThemeMenu(false);
+                      }}
+                      className={`w-full text-left p-2 rounded-xl transition-all flex items-start gap-2.5 cursor-pointer ${
+                        isSelected
+                          ? 'bg-white/15 border border-white/20 shadow-md'
+                          : 'hover:bg-white/5 border border-transparent text-slate-300'
+                      }`}
+                    >
+                      <div className="flex flex-col gap-1 mt-0.5 shrink-0">
+                        <div className="flex items-center -space-x-1">
+                          {th.dots.map((c, i) => (
+                            <span
+                              key={i}
+                              className="w-2.5 h-2.5 rounded-full border border-black/50 shadow-sm"
+                              style={{ backgroundColor: c }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                            {th.name}
+                          </span>
+                          <span className="text-[9px] font-mono text-slate-400">{th.sub}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 leading-tight mt-0.5 line-clamp-1">{th.desc}</p>
+                      </div>
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 self-center" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Language Toggle */}
           <button
             onClick={toggleLang}
@@ -543,7 +665,7 @@ export default function App() {
       </header>
 
       {/* 2. Top-Level Segmented Tabs: 4 Capabilities in ONE ROW (一排) */}
-      <div className="shrink-0 px-4 py-2 bg-[#090e17] border-b border-white/[0.08] flex items-center justify-between relative z-10">
+      <div className="shrink-0 px-4 py-2 bg-black/30 backdrop-blur-md border-b border-white/[0.08] flex items-center justify-between relative z-10 transition-colors duration-300">
         <div className="flex items-center gap-1.5 p-1 glass-panel rounded-full text-xs">
           {/* Tab 1: Automation */}
           <button
