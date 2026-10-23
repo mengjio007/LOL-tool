@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"lol/internal/config"
 	"lol/internal/lcu"
 )
 
@@ -702,169 +703,9 @@ func (a *Analyzer) AnalyzePlayer(summonerID int64, puuid, name, team, role strin
 	}
 
 	// ==========================================
-	// 5大支柱战力评分引擎 (Base: 100)
+	// 2.0 千分制战力评分引擎与多维度自定义加权 (Base: 500 / 0 ~ 1000)
 	// ==========================================
-	score := 100
-
-	// 1. 战术占比维度 (Role Tactical Share: -25 ~ +25)
-	carryScore := 0
-	if res.DamageShare >= 31.0 {
-		carryScore = 25
-	} else if res.DamageShare >= 26.0 {
-		carryScore = 16
-	} else if res.DamageShare >= 21.0 {
-		carryScore = 6
-	} else if res.DamageShare >= 17.0 {
-		carryScore = 0
-	} else if res.DamageShare >= 13.0 {
-		carryScore = -12
-	} else {
-		carryScore = -22
-	}
-
-	tankScore := 0
-	if res.DamageTakenShare >= 35.0 || (res.AvgMitigated >= 26000 && res.DamageTakenShare >= 28.0) {
-		tankScore = 25
-	} else if res.DamageTakenShare >= 29.0 {
-		tankScore = 16
-	} else if res.DamageTakenShare >= 23.0 {
-		tankScore = 6
-	} else if res.DamageTakenShare >= 18.0 {
-		tankScore = 0
-	} else {
-		tankScore = -14
-	}
-
-	healScore := 0
-	if res.HealShare >= 45.0 && res.AvgHeal >= 14000 {
-		healScore = 24
-	} else if res.HealShare >= 30.0 {
-		healScore = 14
-	}
-
-	tacticalBonus := carryScore
-	if tankScore > tacticalBonus {
-		tacticalBonus = tankScore
-	}
-	if healScore > tacticalBonus {
-		tacticalBonus = healScore
-	}
-	score += tacticalBonus
-
-	// 2. 装备与时长认知维度 (Itemization: -12 ~ +15)
-	if res.GuardianRatio >= 35.0 {
-		score += 15
-	} else if res.GuardianRatio >= 20.0 {
-		score += 8
-	} else if res.GuardianRatio >= 10.0 {
-		score += 3
-	} else if res.GuardianRatio == 0.0 && res.AvgDeaths >= 8.5 && res.WinRate <= 45.0 {
-		score -= 12
-	}
-
-	// 3. 心态与即时状态维度 (Tilt & Streak: -25 ~ +15)
-	if streak >= 4 {
-		score += 15
-	} else if streak >= 2 {
-		score += 7
-	} else if streak <= -4 {
-		score -= 25
-		res.IsTilted = true
-	} else if streak <= -2 {
-		score -= 10
-	}
-
-	// 4. 高光爆发与拆塔维度 (Highlights: 0 ~ +15)
-	if res.PentaCount >= 1 {
-		score += 10
-	}
-	if res.QuadraCount >= 1 {
-		score += 5
-	}
-	if res.TripleCount >= 2 {
-		score += 3
-	}
-	if res.AvgTurretDamage >= 3200 {
-		score += 4
-	}
-
-	// 5. 极端胜率激活与段位基石 (-20 ~ +20)
-	if res.TotalGames >= 10 {
-		if res.WinRate >= 70.0 {
-			score += 20
-		} else if res.WinRate >= 60.0 {
-			score += 8
-		} else if res.WinRate <= 35.0 {
-			score -= 20
-		} else if res.WinRate <= 42.0 {
-			score -= 8
-		}
-	}
-
-	if strings.Contains(res.RankTier, "王者") || strings.Contains(res.RankTier, "宗师") {
-		score += 10
-	} else if strings.Contains(res.RankTier, "大师") {
-		score += 7
-	} else if strings.Contains(res.RankTier, "钻石") {
-		score += 4
-	}
-
-	// Tilt penalty override
-	if res.IsTilted && score >= 90 {
-		score = 80 // 连败破防选手强制降级
-	}
-
-	res.Score = score
-
-	// ==========================================
-	// 6 档战力金字塔映射 (S+ / S / A / B / C / D)
-	// ==========================================
-	if score >= 140 {
-		res.HorseTier = "s_plus"
-		res.HorseRank = "S+ 特等"
-		res.HorseName = "降维通天代"
-	} else if score >= 120 {
-		res.HorseTier = "s"
-		res.HorseRank = "S 上等"
-		res.HorseName = "全场掌舵者"
-	} else if score >= 100 {
-		res.HorseTier = "a"
-		res.HorseRank = "A 中等"
-		res.HorseName = "中流砥柱"
-	} else if score >= 85 {
-		res.HorseTier = "b"
-		res.HorseRank = "B 次等"
-		res.HorseName = "状态摇摆者"
-	} else if score >= 70 {
-		res.HorseTier = "c"
-		res.HorseRank = "C 下等"
-		res.HorseName = "红温突破口"
-	} else {
-		res.HorseTier = "d"
-		res.HorseRank = "D 劣等"
-		res.HorseName = "下水道纯牛马"
-	}
-
-	// Descriptive Tag Generation
-	if res.PentaCount >= 1 {
-		res.HorseTag = fmt.Sprintf("五杀弑神大爹(Penta×%d)", res.PentaCount)
-	} else if res.DamageShare >= 30.0 {
-		res.HorseTag = fmt.Sprintf("全队输出占比%.0f%%/绝对大核", res.DamageShare)
-	} else if res.DamageTakenShare >= 34.0 {
-		res.HorseTag = fmt.Sprintf("全队承伤占比%.0f%%/钢铁真前排", res.DamageTakenShare)
-	} else if res.HealShare >= 40.0 {
-		res.HorseTag = fmt.Sprintf("全队治愈占比%.0f%%/救赎天使", res.HealShare)
-	} else if res.IsTilted {
-		res.HorseTag = fmt.Sprintf("当天%d连败红温破防", -streak)
-	} else if res.GuardianRatio >= 35.0 {
-		res.HorseTag = fmt.Sprintf("守护者信仰(%.0f%%)/顶级理解", res.GuardianRatio)
-	} else if score >= 120 {
-		res.HorseTag = "核心掌舵/大局稳健"
-	} else if score < 70 {
-		res.HorseTag = "连败送头/下水道天坑"
-	} else {
-		res.HorseTag = "均势发挥/稳健基石"
-	}
+	calculateCompositeScoreV2(&res, streak)
 
 	// Generate visual tags
 	tags := make([]string, 0)
@@ -1333,4 +1174,235 @@ func (a *Analyzer) SearchAndAnalyzePlayer(query string) (*PlayerAnalysis, error)
 	}
 
 	return &res, nil
+}
+
+func calculateCompositeScoreV2(res *PlayerAnalysis, streak int) {
+	algoCfg := config.Get().Algorithm
+	weights := algoCfg
+	if !weights.CustomWeightsEnabled {
+		weights = config.DefaultAlgorithm
+	}
+
+	// 1. 输出压制分 (0 ~ 100)
+	var dmgSub float64
+	if res.DamageShare >= 34.0 {
+		dmgSub = 100
+	} else if res.DamageShare >= 29.0 {
+		dmgSub = 88
+	} else if res.DamageShare >= 25.0 {
+		dmgSub = 75
+	} else if res.DamageShare >= 21.0 {
+		dmgSub = 62
+	} else if res.DamageShare >= 17.0 {
+		dmgSub = 50
+	} else if res.DamageShare >= 13.0 {
+		dmgSub = 32
+	} else {
+		dmgSub = 15
+	}
+
+	// 2. 承伤抗压分 (0 ~ 100)
+	var tankSub float64
+	if res.DamageTakenShare >= 35.0 || (res.AvgMitigated >= 26000 && res.DamageTakenShare >= 28.0) {
+		tankSub = 100
+	} else if res.DamageTakenShare >= 30.0 {
+		tankSub = 85
+	} else if res.DamageTakenShare >= 25.0 {
+		tankSub = 72
+	} else if res.DamageTakenShare >= 20.0 {
+		tankSub = 58
+	} else if res.DamageTakenShare >= 16.0 {
+		tankSub = 45
+	} else {
+		tankSub = 22
+	}
+
+	// 3. 治疗护盾分 (0 ~ 100)
+	var healSub float64
+	if res.HealShare >= 40.0 && res.AvgHeal >= 12000 {
+		healSub = 100
+	} else if res.HealShare >= 28.0 {
+		healSub = 80
+	} else if res.HealShare >= 18.0 {
+		healSub = 65
+	} else {
+		healSub = 50
+	}
+
+	// 4. KDA与参团率分 (0 ~ 100)
+	var kdaSub float64
+	if res.KDA >= 4.5 || res.AvgKP >= 70.0 {
+		kdaSub = 100
+	} else if res.KDA >= 3.5 || res.AvgKP >= 60.0 {
+		kdaSub = 85
+	} else if res.KDA >= 2.8 || res.AvgKP >= 50.0 {
+		kdaSub = 70
+	} else if res.KDA >= 2.0 {
+		kdaSub = 52
+	} else if res.KDA >= 1.4 {
+		kdaSub = 32
+	} else {
+		kdaSub = 15
+	}
+
+	// 5. 胜率基石分 (0 ~ 100)
+	var winSub float64
+	if res.WinRate >= 72.0 {
+		winSub = 100
+	} else if res.WinRate >= 62.0 {
+		winSub = 86
+	} else if res.WinRate >= 54.0 {
+		winSub = 70
+	} else if res.WinRate >= 48.0 {
+		winSub = 50
+	} else if res.WinRate >= 40.0 {
+		winSub = 32
+	} else {
+		winSub = 12
+	}
+
+	// 6. 心态与即时连胜连败 (0 ~ 100)
+	var streakSub float64
+	if streak >= 5 {
+		streakSub = 100
+	} else if streak >= 3 {
+		streakSub = 88
+	} else if streak >= 1 {
+		streakSub = 68
+	} else if streak == 0 {
+		streakSub = 50
+	} else if streak <= -4 {
+		streakSub = 10
+		res.IsTilted = true
+	} else if streak <= -2 {
+		streakSub = 28
+	} else {
+		streakSub = 42
+	}
+
+	// 7. 出装与游戏理解 (0 ~ 100)
+	var guardianSub float64
+	if res.GuardianRatio >= 35.0 {
+		guardianSub = 100
+	} else if res.GuardianRatio >= 20.0 {
+		guardianSub = 82
+	} else if res.GuardianRatio >= 10.0 {
+		guardianSub = 66
+	} else if res.GuardianRatio == 0.0 && res.AvgDeaths >= 8.5 && res.WinRate <= 45.0 {
+		guardianSub = 15
+	} else {
+		guardianSub = 45
+	}
+
+	// 8. 排位段位基准 (0 ~ 100)
+	var rankSub float64
+	if strings.Contains(res.RankTier, "王者") || strings.Contains(res.RankTier, "宗师") {
+		rankSub = 100
+	} else if strings.Contains(res.RankTier, "大师") {
+		rankSub = 88
+	} else if strings.Contains(res.RankTier, "钻石") {
+		rankSub = 72
+	} else if strings.Contains(res.RankTier, "翡翠") {
+		rankSub = 58
+	} else if strings.Contains(res.RankTier, "铂金") {
+		rankSub = 48
+	} else if strings.Contains(res.RankTier, "黄金") {
+		rankSub = 38
+	} else {
+		rankSub = 28
+	}
+
+	// 9. 高光爆发与拆塔分 (0 ~ 100)
+	var highlightSub float64 = 40
+	if res.PentaCount >= 1 {
+		highlightSub = 100
+	} else if res.QuadraCount >= 1 {
+		highlightSub = 85
+	} else if res.TripleCount >= 2 || res.AvgTurretDamage >= 3500 {
+		highlightSub = 75
+	} else if res.AvgTurretDamage >= 2200 {
+		highlightSub = 58
+	}
+
+	// 权重归一化与千分制计算
+	totalW := float64(weights.DamageWeight + weights.TankWeight + weights.HealWeight + weights.KdaWeight + weights.WinRateWeight + weights.StreakWeight + weights.GuardianWeight + weights.RankTierWeight + weights.HighlightWeight)
+	if totalW <= 0 {
+		totalW = 100
+	}
+
+	rawScore := (dmgSub*float64(weights.DamageWeight) +
+		tankSub*float64(weights.TankWeight) +
+		healSub*float64(weights.HealWeight) +
+		kdaSub*float64(weights.KdaWeight) +
+		winSub*float64(weights.WinRateWeight) +
+		streakSub*float64(weights.StreakWeight) +
+		guardianSub*float64(weights.GuardianWeight) +
+		rankSub*float64(weights.RankTierWeight) +
+		highlightSub*float64(weights.HighlightWeight)) / totalW
+
+	finalScore := int(rawScore * 10)
+
+	// 连败破防熔断安全惩罚
+	if weights.StrictTiltPenalty && res.IsTilted {
+		finalScore -= 120
+		if finalScore > 480 {
+			finalScore = 480
+		}
+	}
+
+	if finalScore < 80 {
+		finalScore = 80
+	} else if finalScore > 1000 {
+		finalScore = 1000
+	}
+
+	res.Score = finalScore
+
+	// 6 档千分制战力金字塔映射 (S+ / S / A / B / C / D)
+	if finalScore >= 880 {
+		res.HorseTier = "s_plus"
+		res.HorseRank = "S+ 特等"
+		res.HorseName = "降维通天代"
+	} else if finalScore >= 740 {
+		res.HorseTier = "s"
+		res.HorseRank = "S 上等"
+		res.HorseName = "全场掌舵者"
+	} else if finalScore >= 580 {
+		res.HorseTier = "a"
+		res.HorseRank = "A 中等"
+		res.HorseName = "中流砥柱"
+	} else if finalScore >= 420 {
+		res.HorseTier = "b"
+		res.HorseRank = "B 次等"
+		res.HorseName = "状态摇摆者"
+	} else if finalScore >= 260 {
+		res.HorseTier = "c"
+		res.HorseRank = "C 下等"
+		res.HorseName = "红温突破口"
+	} else {
+		res.HorseTier = "d"
+		res.HorseRank = "D 劣等"
+		res.HorseName = "下水道纯牛马"
+	}
+
+	// 描述性标签
+	if res.PentaCount >= 1 {
+		res.HorseTag = fmt.Sprintf("五杀弑神大爹(Penta×%d)", res.PentaCount)
+	} else if res.DamageShare >= 30.0 {
+		res.HorseTag = fmt.Sprintf("全队输出占比%.0f%%/绝对大核", res.DamageShare)
+	} else if res.DamageTakenShare >= 34.0 {
+		res.HorseTag = fmt.Sprintf("全队承伤占比%.0f%%/钢铁真前排", res.DamageTakenShare)
+	} else if res.HealShare >= 40.0 {
+		res.HorseTag = fmt.Sprintf("全队治愈占比%.0f%%/救赎天使", res.HealShare)
+	} else if res.IsTilted {
+		res.HorseTag = fmt.Sprintf("当天%d连败红温破防", -streak)
+	} else if res.GuardianRatio >= 35.0 {
+		res.HorseTag = fmt.Sprintf("守护者信仰(%.0f%%)/顶级理解", res.GuardianRatio)
+	} else if finalScore >= 740 {
+		res.HorseTag = "核心掌舵/大局稳健"
+	} else if finalScore < 260 {
+		res.HorseTag = "连败送头/下水道天坑"
+	} else {
+		res.HorseTag = "均势发挥/稳健基石"
+	}
 }

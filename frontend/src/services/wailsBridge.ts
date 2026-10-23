@@ -1,3 +1,26 @@
+export interface AlgorithmConfig {
+  customWeightsEnabled: boolean;
+  damageWeight: number;    // 01 输出压制 (默认 22)
+  tankWeight: number;      // 02 承伤抗压 (默认 14)
+  healWeight: number;      // 03 治疗护盾 (默认 8)
+  kdaWeight: number;       // 04 参团/KDA (默认 14)
+  winRateWeight: number;   // 05 胜率基石 (默认 16)
+  streakWeight: number;    // 06 连胜/连败心态 (默认 12)
+  guardianWeight: number;  // 07 出装理解 (默认 6)
+  rankTierWeight: number;  // 08 排位段位 (默认 4)
+  highlightWeight: number; // 09 高光爆发与拆塔 (默认 4)
+  strictTiltPenalty: boolean; // 连败熔断降级 (默认 true)
+}
+
+export interface DeathVideoConfig {
+  enabled: boolean;
+  source: 'local' | 'douyin';
+  localFolder: string;
+  volume: number; // 0-100
+  autoCloseOnRespawn: boolean;
+  showCountdown: boolean;
+}
+
 export interface Config {
   autoAccept: boolean;
   acceptDelayMs: number;
@@ -8,6 +31,15 @@ export interface Config {
   startWithOS: boolean;
   minimizeToTray: boolean;
   alwaysOnTop: boolean;
+  algorithm: AlgorithmConfig;
+  deathVideo: DeathVideoConfig;
+}
+
+export interface DeathInfo {
+  isDead: boolean;
+  respawnTimer: number;
+  championName: string;
+  summonerName: string;
 }
 
 export interface SummonerInfo {
@@ -107,6 +139,29 @@ export interface UpdateProgress {
   total: number;
 }
 
+export const defaultAlgorithmConfig: AlgorithmConfig = {
+  customWeightsEnabled: false,
+  damageWeight: 22,
+  tankWeight: 14,
+  healWeight: 8,
+  kdaWeight: 14,
+  winRateWeight: 16,
+  streakWeight: 12,
+  guardianWeight: 6,
+  rankTierWeight: 4,
+  highlightWeight: 4,
+  strictTiltPenalty: true,
+};
+
+export const defaultDeathVideoConfig: DeathVideoConfig = {
+  enabled: true,
+  source: 'local',
+  localFolder: '',
+  volume: 40,
+  autoCloseOnRespawn: true,
+  showCountdown: true,
+};
+
 // Safely access Wails runtime and bound methods
 declare global {
   interface Window {
@@ -133,6 +188,11 @@ declare global {
           CheckForUpdate: () => Promise<UpdateInfo>;
           DownloadAndApplyUpdate: (downloadUrl: string) => Promise<void>;
           OpenBrowser: (url: string) => Promise<void>;
+          SelectDirectory: () => Promise<string>;
+          GetRandomVideoURL: (folder: string) => Promise<string>;
+          SetMiniMode: (enable: boolean) => Promise<void>;
+          TriggerTestDeath: (durationSec: number) => Promise<void>;
+          TriggerTestRespawn: () => Promise<void>;
         };
       };
     };
@@ -150,7 +210,12 @@ declare global {
 export const WailsBridge = {
   async getConfig(): Promise<Config> {
     if (window.go?.main?.App?.GetConfig) {
-      return await window.go.main.App.GetConfig();
+      const cfg = await window.go.main.App.GetConfig();
+      return {
+        ...cfg,
+        algorithm: cfg.algorithm || defaultAlgorithmConfig,
+        deathVideo: cfg.deathVideo || defaultDeathVideoConfig,
+      };
     }
     return {
       autoAccept: true,
@@ -162,6 +227,8 @@ export const WailsBridge = {
       startWithOS: false,
       minimizeToTray: true,
       alwaysOnTop: false,
+      algorithm: defaultAlgorithmConfig,
+      deathVideo: defaultDeathVideoConfig,
     };
   },
 
@@ -234,6 +301,38 @@ export const WailsBridge = {
     }
   },
 
+  async setMiniMode(enable: boolean): Promise<void> {
+    if (window.go?.main?.App?.SetMiniMode) {
+      await window.go.main.App.SetMiniMode(enable);
+    }
+  },
+
+  async selectDirectory(): Promise<string> {
+    if (window.go?.main?.App?.SelectDirectory) {
+      return await window.go.main.App.SelectDirectory();
+    }
+    return '';
+  },
+
+  async getRandomVideoURL(folder: string): Promise<string> {
+    if (window.go?.main?.App?.GetRandomVideoURL) {
+      return await window.go.main.App.GetRandomVideoURL(folder);
+    }
+    return '';
+  },
+
+  async triggerTestDeath(durationSec = 20): Promise<void> {
+    if (window.go?.main?.App?.TriggerTestDeath) {
+      await window.go.main.App.TriggerTestDeath(durationSec);
+    }
+  },
+
+  async triggerTestRespawn(): Promise<void> {
+    if (window.go?.main?.App?.TriggerTestRespawn) {
+      await window.go.main.App.TriggerTestRespawn();
+    }
+  },
+
   async startMatchmaking(): Promise<void> {
     if (window.go?.main?.App?.StartMatchmaking) {
       await window.go.main.App.StartMatchmaking();
@@ -261,7 +360,7 @@ export const WailsBridge = {
 
   async sendChatMessage(msg: string): Promise<void> {
     if (window.go?.main?.App?.SendChatMessage) {
-      return await window.go.main.App.SendChatMessage(msg);
+      await window.go.main.App.SendChatMessage(msg);
     }
   },
 
@@ -298,6 +397,27 @@ export const WailsBridge = {
     } else {
       window.open(url, '_blank');
     }
+  },
+
+  onPlayerDied(callback: (info: DeathInfo) => void): () => void {
+    if (window.runtime?.EventsOn) {
+      return window.runtime.EventsOn('live:player_died', callback);
+    }
+    return () => {};
+  },
+
+  onPlayerRespawned(callback: () => void): () => void {
+    if (window.runtime?.EventsOn) {
+      return window.runtime.EventsOn('live:player_respawned', callback);
+    }
+    return () => {};
+  },
+
+  onLiveTick(callback: (info: DeathInfo) => void): () => void {
+    if (window.runtime?.EventsOn) {
+      return window.runtime.EventsOn('live:tick', callback);
+    }
+    return () => {};
   },
 
   onUpdateProgress(callback: (progress: UpdateProgress) => void): () => void {

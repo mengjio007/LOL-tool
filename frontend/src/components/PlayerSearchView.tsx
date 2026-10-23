@@ -328,7 +328,7 @@ export function PlayerSearchView({
             <div className="text-right shrink-0">
               <div className="text-[10px] text-slate-400 font-medium">综合战力评分</div>
               <div className="text-2xl font-black font-mono text-[#c89b3c] flex items-baseline justify-end gap-0.5">
-                <span>{result.score || 100}</span>
+                <span>{result.score || 500}</span>
                 <span className="text-xs font-normal text-slate-400">分</span>
               </div>
             </div>

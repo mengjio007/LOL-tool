@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import {
   WailsBridge,
+  defaultAlgorithmConfig,
+  defaultDeathVideoConfig,
 } from './services/wailsBridge';
 import type {
   Config,
@@ -36,10 +38,14 @@ import {
   Loader2,
   Search,
   Settings,
+  Tv,
 } from 'lucide-react';
 import { translations, translateLog, type Language } from './i18n/translations';
 import { PlayerSearchView } from './components/PlayerSearchView';
 import { SettingsModal, type SettingsTab } from './components/SettingsModal';
+import { InGameMiniBar } from './components/InGameMiniBar';
+import { DeathVideoOverlay } from './components/DeathVideoOverlay';
+import type { DeathInfo } from './services/wailsBridge';
 import appLogo from './assets/appicon.png';
 
 export default function App() {
@@ -87,6 +93,8 @@ export default function App() {
     startWithOS: false,
     minimizeToTray: true,
     alwaysOnTop: false,
+    algorithm: defaultAlgorithmConfig,
+    deathVideo: defaultDeathVideoConfig,
   });
 
   const [status, setStatus] = useState<ServiceStatus>({
@@ -112,6 +120,36 @@ export default function App() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsTab, setSettingsTab] = useState<SettingsTab>('updates');
   const [updateToast, setUpdateToast] = useState<{ type: 'info' | 'success' | 'warn'; msg: string } | null>(null);
+  const [deathInfo, setDeathInfo] = useState<DeathInfo | null>(null);
+  const [isMiniMode, setIsMiniMode] = useState(false);
+
+  // 2.0 Live game death & respawn listeners
+  useEffect(() => {
+    const unsubDeath = WailsBridge.onPlayerDied((info) => {
+      if (config.deathVideo?.enabled) {
+        setDeathInfo(info);
+      }
+    });
+
+    const unsubRespawn = WailsBridge.onPlayerRespawned(() => {
+      setDeathInfo(null);
+    });
+
+    const unsubTick = WailsBridge.onLiveTick((info) => {
+      setDeathInfo((prev) => (prev ? { ...prev, respawnTimer: info.respawnTimer } : info));
+    });
+
+    return () => {
+      unsubDeath();
+      unsubRespawn();
+      unsubTick();
+    };
+  }, [config.deathVideo?.enabled]);
+
+  const handleToggleMiniMode = async (enable: boolean) => {
+    setIsMiniMode(enable);
+    await WailsBridge.setMiniMode(enable);
+  };
 
   const openSettings = (tab: SettingsTab = 'updates') => {
     setSettingsTab(tab);
@@ -342,6 +380,30 @@ export default function App() {
 
   const phaseInfo = getPhaseDisplay(status.phase);
 
+  // 2.0 In-Game Mini Overlay Bar Mode
+  if (isMiniMode) {
+    return (
+      <div className="w-screen h-screen overflow-hidden bg-transparent">
+        <InGameMiniBar
+          players={analysis?.blueTeam || []}
+          onRestore={() => handleToggleMiniMode(false)}
+          onMinimize={() => WailsBridge.minimize()}
+          onClose={() => WailsBridge.close()}
+        />
+        {deathInfo && config.deathVideo?.enabled && (
+          <DeathVideoOverlay
+            deathInfo={deathInfo}
+            config={config.deathVideo}
+            onClose={() => setDeathInfo(null)}
+            onUpdateFolder={(folder) =>
+              updateConfig({ deathVideo: { ...config.deathVideo, localFolder: folder } })
+            }
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col h-screen select-none bg-[#010a13] text-[#f0e6d2] border border-[#c89b3c]/30 rounded-lg overflow-hidden shadow-2xl">
       {/* 1. Custom Title Bar */}
@@ -380,11 +442,20 @@ export default function App() {
 
           {/* Settings & About Button */}
           <button
-            onClick={() => openSettings('updates')}
-            title={t.settingsModalTitle}
+            onClick={() => openSettings('algoConfig')}
+            title="控制与设置中心 (战力权重/死亡娱乐/更新)"
             className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-[#c89b3c] transition-colors cursor-pointer"
           >
             <Settings className="w-3.5 h-3.5" />
+          </button>
+
+          {/* In-Game Mini Bar Mode Button */}
+          <button
+            onClick={() => handleToggleMiniMode(true)}
+            title="进入极简局内小胶囊模式 (380×52，不挡游戏对线)"
+            className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-amber-300 transition-colors cursor-pointer"
+          >
+            <Tv className="w-3.5 h-3.5" />
           </button>
 
           <button
@@ -986,12 +1057,14 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Settings & About Modal */}
+      {/* Settings & Control Center Modal */}
       <SettingsModal
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
         initialTab={settingsTab}
         t={t}
+        config={config}
+        onUpdateConfig={updateConfig}
         updateInfo={updateInfo}
         isCheckingUpdate={isCheckingUpdate}
         isUpdating={isUpdating}
@@ -999,6 +1072,18 @@ export default function App() {
         onCheckUpdate={() => handleCheckUpdate(true)}
         onStartUpdate={handleStartUpdate}
       />
+
+      {/* Death Video Overlay (Triggered on In-game Death) */}
+      {deathInfo && config.deathVideo?.enabled && (
+        <DeathVideoOverlay
+          deathInfo={deathInfo}
+          config={config.deathVideo}
+          onClose={() => setDeathInfo(null)}
+          onUpdateFolder={(folder) =>
+            updateConfig({ deathVideo: { ...config.deathVideo, localFolder: folder } })
+          }
+        />
+      )}
 
       {/* Floating Toast Notification (Rendered on top of all modals) */}
       {updateToast && (

@@ -38,6 +38,10 @@ export function GetMatchAnalysis() {
   return window['go']['main']['App']['GetMatchAnalysis']();
 }
 
+export function GetRandomVideoURL(arg1) {
+  return window['go']['main']['App']['GetRandomVideoURL'](arg1);
+}
+
 export function GetStatus() {
   return window['go']['main']['App']['GetStatus']();
 }
@@ -66,12 +70,20 @@ export function SearchPlayerAnalysis(arg1) {
   return window['go']['main']['App']['SearchPlayerAnalysis'](arg1);
 }
 
+export function SelectDirectory() {
+  return window['go']['main']['App']['SelectDirectory']();
+}
+
 export function SendChatMessage(arg1) {
   return window['go']['main']['App']['SendChatMessage'](arg1);
 }
 
 export function SetAlwaysOnTop(arg1) {
   return window['go']['main']['App']['SetAlwaysOnTop'](arg1);
+}
+
+export function SetMiniMode(arg1) {
+  return window['go']['main']['App']['SetMiniMode'](arg1);
 }
 
 export function ShowWindow() {
@@ -88,4 +100,12 @@ export function StopMatchmaking() {
 
 export function ToggleMaximizeWindow() {
   return window['go']['main']['App']['ToggleMaximizeWindow']();
+}
+
+export function TriggerTestDeath(arg1) {
+  return window['go']['main']['App']['TriggerTestDeath'](arg1);
+}
+
+export function TriggerTestRespawn() {
+  return window['go']['main']['App']['TriggerTestRespawn']();
 }

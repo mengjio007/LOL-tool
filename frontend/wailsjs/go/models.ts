@@ -165,6 +165,60 @@ export namespace analysis {
 
 export namespace config {
 	
+	export class AlgorithmConfig {
+	    customWeightsEnabled: boolean;
+	    damageWeight: number;
+	    tankWeight: number;
+	    healWeight: number;
+	    kdaWeight: number;
+	    winRateWeight: number;
+	    streakWeight: number;
+	    guardianWeight: number;
+	    rankTierWeight: number;
+	    highlightWeight: number;
+	    strictTiltPenalty: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new AlgorithmConfig(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.customWeightsEnabled = source["customWeightsEnabled"];
+	        this.damageWeight = source["damageWeight"];
+	        this.tankWeight = source["tankWeight"];
+	        this.healWeight = source["healWeight"];
+	        this.kdaWeight = source["kdaWeight"];
+	        this.winRateWeight = source["winRateWeight"];
+	        this.streakWeight = source["streakWeight"];
+	        this.guardianWeight = source["guardianWeight"];
+	        this.rankTierWeight = source["rankTierWeight"];
+	        this.highlightWeight = source["highlightWeight"];
+	        this.strictTiltPenalty = source["strictTiltPenalty"];
+	    }
+	}
+	export class DeathVideoConfig {
+	    enabled: boolean;
+	    source: string;
+	    localFolder: string;
+	    volume: number;
+	    autoCloseOnRespawn: boolean;
+	    showCountdown: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new DeathVideoConfig(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.enabled = source["enabled"];
+	        this.source = source["source"];
+	        this.localFolder = source["localFolder"];
+	        this.volume = source["volume"];
+	        this.autoCloseOnRespawn = source["autoCloseOnRespawn"];
+	        this.showCountdown = source["showCountdown"];
+	    }
+	}
 	export class Config {
 	    autoAccept: boolean;
 	    acceptDelayMs: number;
@@ -175,6 +229,8 @@ export namespace config {
 	    startWithOS: boolean;
 	    minimizeToTray: boolean;
 	    alwaysOnTop: boolean;
+	    algorithm: AlgorithmConfig;
+	    deathVideo: DeathVideoConfig;
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -191,7 +247,27 @@ export namespace config {
 	        this.startWithOS = source["startWithOS"];
 	        this.minimizeToTray = source["minimizeToTray"];
 	        this.alwaysOnTop = source["alwaysOnTop"];
+	        this.algorithm = this.convertValues(source["algorithm"], AlgorithmConfig);
+	        this.deathVideo = this.convertValues(source["deathVideo"], DeathVideoConfig);
 	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
 	}
 
 }

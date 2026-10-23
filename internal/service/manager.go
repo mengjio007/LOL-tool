@@ -15,6 +15,7 @@ import (
 	"lol/internal/analysis"
 	"lol/internal/config"
 	"lol/internal/lcu"
+	"lol/internal/livegame"
 
 	"github.com/gorilla/websocket"
 )
@@ -48,10 +49,11 @@ type Manager struct {
 	queueCancel          context.CancelFunc
 	playAgainCancel      context.CancelFunc
 	stopChan             chan struct{}
+	liveMonitor          *livegame.LiveMonitor
 }
 
 func NewManager(eventEmitter func(eventName string, data ...interface{})) *Manager {
-	return &Manager{
+	mgr := &Manager{
 		eventEmitter: eventEmitter,
 		maxLogs:      200,
 		logs:         make([]LogEntry, 0, 200),
@@ -59,8 +61,31 @@ func NewManager(eventEmitter func(eventName string, data ...interface{})) *Manag
 			Connected: false,
 			Phase:     "None",
 		},
-		stopChan: make(chan struct{}),
+		stopChan:    make(chan struct{}),
+		liveMonitor: livegame.NewLiveMonitor(),
 	}
+
+	mgr.liveMonitor.SetCallbacks(
+		func(info livegame.DeathInfo) {
+			mgr.AddLog("warn", "[局内感知] 玩家阵亡！复活倒计时: %.0f秒", info.RespawnTimer)
+			if mgr.eventEmitter != nil {
+				mgr.eventEmitter("live:player_died", info)
+			}
+		},
+		func() {
+			mgr.AddLog("success", "[局内感知] 玩家已复活！自动关闭视频娱乐窗")
+			if mgr.eventEmitter != nil {
+				mgr.eventEmitter("live:player_respawned", true)
+			}
+		},
+		func(info livegame.DeathInfo) {
+			if mgr.eventEmitter != nil {
+				mgr.eventEmitter("live:tick", info)
+			}
+		},
+	)
+
+	return mgr
 }
 
 func (m *Manager) AddLog(level, format string, a ...interface{}) {
@@ -225,6 +250,9 @@ func (m *Manager) Start() {
 }
 
 func (m *Manager) Stop() {
+	if m.liveMonitor != nil {
+		m.liveMonitor.Stop()
+	}
 	close(m.stopChan)
 }
 
@@ -305,6 +333,18 @@ func (m *Manager) handlePhaseChange(phase string, client *lcu.Client) {
 	cfg := config.Get()
 	m.setPhase(phase)
 	m.AddLog("info", "游戏阶段状态转换 ➔ %s", phase)
+
+	// 2.0 局内对局感知生命周期控制 (2999 端口)
+	if phase == "InProgress" {
+		if cfg.DeathVideo.Enabled && m.liveMonitor != nil {
+			m.AddLog("info", "[局内感知] 对局已进入战场，激活死亡/复活状态监控 (2999端口)")
+			m.liveMonitor.Start()
+		}
+	} else {
+		if m.liveMonitor != nil {
+			m.liveMonitor.Stop()
+		}
+	}
 
 	// Whenever leaving Lobby, cancel active auto-queue immediately
 	m.mu.Lock()

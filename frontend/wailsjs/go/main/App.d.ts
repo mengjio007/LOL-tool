@@ -23,6 +23,8 @@ export function GetLogs():Promise<Array<service.LogEntry>>;
 
 export function GetMatchAnalysis():Promise<analysis.MatchAnalysisResult>;
 
+export function GetRandomVideoURL(arg1:string):Promise<string>;
+
 export function GetStatus():Promise<service.ServiceStatus>;
 
 export function HideWindow():Promise<void>;
@@ -37,9 +39,13 @@ export function SaveConfig(arg1:config.Config):Promise<void>;
 
 export function SearchPlayerAnalysis(arg1:string):Promise<analysis.PlayerAnalysis>;
 
+export function SelectDirectory():Promise<string>;
+
 export function SendChatMessage(arg1:string):Promise<void>;
 
 export function SetAlwaysOnTop(arg1:boolean):Promise<void>;
+
+export function SetMiniMode(arg1:boolean):Promise<void>;
 
 export function ShowWindow():Promise<void>;
 
@@ -48,3 +54,7 @@ export function StartMatchmaking():Promise<void>;
 export function StopMatchmaking():Promise<void>;
 
 export function ToggleMaximizeWindow():Promise<void>;
+
+export function TriggerTestDeath(arg1:number):Promise<void>;
+
+export function TriggerTestRespawn():Promise<void>;

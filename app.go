@@ -5,6 +5,7 @@ import (
 	"time"
 	"lol/internal/analysis"
 	"lol/internal/config"
+	"lol/internal/livegame"
 	"lol/internal/service"
 	"lol/internal/updater"
 
@@ -186,4 +187,58 @@ func (a *App) OpenBrowser(url string) {
 		wailsRuntime.BrowserOpenURL(a.ctx, url)
 	}
 }
+
+func (a *App) SelectDirectory() (string, error) {
+	if a.ctx == nil {
+		return "", nil
+	}
+	return wailsRuntime.OpenDirectoryDialog(a.ctx, wailsRuntime.OpenDialogOptions{
+		Title: "选择本地自定义视频文件夹 (存放 .mp4 / .webm)",
+	})
+}
+
+func (a *App) GetRandomVideoURL(folder string) (string, error) {
+	path, err := livegame.GetRandomVideoFromFolder(folder)
+	if err != nil {
+		return "", err
+	}
+	return livegame.GetMediaStreamURL(path), nil
+}
+
+func (a *App) SetMiniMode(enable bool) {
+	if a.ctx == nil {
+		return
+	}
+	if enable {
+		wailsRuntime.WindowSetSize(a.ctx, 420, 56)
+		wailsRuntime.WindowSetAlwaysOnTop(a.ctx, true)
+	} else {
+		wailsRuntime.WindowSetSize(a.ctx, 620, 720)
+		cfg := config.Get()
+		wailsRuntime.WindowSetAlwaysOnTop(a.ctx, cfg.AlwaysOnTop)
+	}
+}
+
+// TriggerTestDeath 供用户本地测试死亡弹窗效果
+func (a *App) TriggerTestDeath(durationSec int) {
+	if a.ctx != nil {
+		if durationSec <= 0 {
+			durationSec = 20
+		}
+		wailsRuntime.EventsEmit(a.ctx, "live:player_died", map[string]interface{}{
+			"isDead":       true,
+			"respawnTimer": float64(durationSec),
+			"championName": "Aatrox",
+			"summonerName": "测试玩家",
+		})
+	}
+}
+
+// TriggerTestRespawn 供用户本地测试复活关闭效果
+func (a *App) TriggerTestRespawn() {
+	if a.ctx != nil {
+		wailsRuntime.EventsEmit(a.ctx, "live:player_respawned", true)
+	}
+}
+
 

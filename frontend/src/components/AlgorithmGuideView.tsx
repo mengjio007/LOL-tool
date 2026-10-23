@@ -33,7 +33,7 @@ export function AlgorithmGuideView({ t }: AlgorithmGuideViewProps) {
             <h2 className="text-sm font-bold text-[#f0e6d2] flex items-center gap-2">
               <span>{t.algoTitle}</span>
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#c89b3c]/20 text-[#c89b3c] border border-[#c89b3c]/30">
-                v1.0.3 AI Engine
+                v2.0 AI Engine
               </span>
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed mt-1.5">
@@ -93,7 +93,7 @@ export function AlgorithmGuideView({ t }: AlgorithmGuideViewProps) {
             <Crown className="w-3.5 h-3.5 text-[#c89b3c]" />
             <span>{t.algoTiersTitle}</span>
           </div>
-          <span className="text-[10px] text-slate-400 font-mono">180+ Composite Scale</span>
+          <span className="text-[10px] text-slate-400 font-mono">0 ~ 1000 Composite Scale</span>
         </div>
         <p className="text-[11px] text-slate-400 px-1 -mt-1">{t.algoTiersDesc}</p>
 
@@ -107,7 +107,7 @@ export function AlgorithmGuideView({ t }: AlgorithmGuideViewProps) {
                   {t.tierSPlusBadge}
                 </span>
                 <span className="text-[10px] font-mono text-amber-300/80 bg-black/40 px-1.5 py-0.5 rounded">
-                  ≥ 140 分
+                  ≥ 880 分
                 </span>
               </div>
             </div>
@@ -125,7 +125,7 @@ export function AlgorithmGuideView({ t }: AlgorithmGuideViewProps) {
                   {t.tierSBadge}
                 </span>
                 <span className="text-[10px] font-mono text-amber-300/80 bg-black/40 px-1.5 py-0.5 rounded">
-                  120 ~ 139 分
+                  740 ~ 879 分
                 </span>
               </div>
             </div>
@@ -143,7 +143,7 @@ export function AlgorithmGuideView({ t }: AlgorithmGuideViewProps) {
                   {t.tierABadge}
                 </span>
                 <span className="text-[10px] font-mono text-emerald-300/80 bg-black/40 px-1.5 py-0.5 rounded">
-                  100 ~ 119 分
+                  580 ~ 739 分
                 </span>
               </div>
             </div>
@@ -161,7 +161,7 @@ export function AlgorithmGuideView({ t }: AlgorithmGuideViewProps) {
                   {t.tierBBadge}
                 </span>
                 <span className="text-[10px] font-mono text-cyan-300/80 bg-black/40 px-1.5 py-0.5 rounded">
-                  85 ~ 99 分
+                  420 ~ 579 分
                 </span>
               </div>
             </div>
@@ -179,7 +179,7 @@ export function AlgorithmGuideView({ t }: AlgorithmGuideViewProps) {
                   {t.tierCBadge}
                 </span>
                 <span className="text-[10px] font-mono text-orange-300/80 bg-black/40 px-1.5 py-0.5 rounded">
-                  70 ~ 84 分
+                  260 ~ 419 分
                 </span>
               </div>
             </div>
@@ -197,7 +197,7 @@ export function AlgorithmGuideView({ t }: AlgorithmGuideViewProps) {
                   {t.tierDBadge}
                 </span>
                 <span className="text-[10px] font-mono text-rose-300/80 bg-black/40 px-1.5 py-0.5 rounded">
-                  &lt; 70 分
+                  &lt; 260 分
                 </span>
               </div>
             </div>
