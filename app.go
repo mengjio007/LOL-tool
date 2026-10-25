@@ -284,6 +284,7 @@ var (
 	procGetWindowTextLengthW    = modUser32.NewProc("GetWindowTextLengthW")
 	procGetWindowTextW          = modUser32.NewProc("GetWindowTextW")
 	procPostMessageW            = modUser32.NewProc("PostMessageW")
+	procGetSystemMetrics        = modUser32.NewProc("GetSystemMetrics")
 )
 
 const (
@@ -293,6 +294,20 @@ const (
 	swpShowWindow = 0x0040
 	wmClose       = 0x0010      // WM_CLOSE 消息
 )
+
+var (
+	centeredWindows = make(map[uintptr]bool)
+	centeredMu      sync.Mutex
+)
+
+func getScreenResolution() (int, int) {
+	w, _, _ := procGetSystemMetrics.Call(0) // SM_CXSCREEN (主屏幕宽度)
+	h, _, _ := procGetSystemMetrics.Call(1) // SM_CYSCREEN (主屏幕高度)
+	if w == 0 || h == 0 {
+		return 1920, 1080
+	}
+	return int(w), int(h)
+}
 
 // getProcessTreePIDs 使用 Win32 Toolhelp 快照枚举 rootPID 及其所有派生的子进程 PID
 func getProcessTreePIDs(rootPID uint32) []uint32 {
@@ -351,8 +366,8 @@ func killProcessTreePIDs(pids []uint32) {
 	}
 }
 
-// pinProcessWindowsTopmost 寻找属于该目标进程或其子进程、或包含视频站标题的可见窗口并强行置顶 (浮现在英雄联盟等所有窗口最上层)
-func pinProcessWindowsTopmost(targetPID int) {
+// pinProcessWindowsTopmost 寻找属于该目标进程或其子进程、或包含视频站标题的可见窗口并强行居中且置顶 (浮现在英雄联盟等所有窗口最上层)
+func pinProcessWindowsTopmost(targetPID int, targetX, targetY, targetWidth, targetHeight int) {
 	targetPIDs := getProcessTreePIDs(uint32(targetPID))
 	pidSet := make(map[uint32]bool)
 	for _, p := range targetPIDs {
@@ -381,13 +396,33 @@ func pinProcessWindowsTopmost(targetPID int) {
 		if isTarget {
 			isVisible, _, _ := procIsWindowVisible.Call(hwnd)
 			if isVisible != 0 {
-				// 强行设为 HWND_TOPMOST
-				procSetWindowPos.Call(
-					hwnd,
-					hwndTopmost,
-					0, 0, 0, 0,
-					swpNoMove|swpNoSize|swpShowWindow,
-				)
+				centeredMu.Lock()
+				alreadyCentered := centeredWindows[hwnd]
+				if !alreadyCentered {
+					centeredWindows[hwnd] = true
+				}
+				centeredMu.Unlock()
+
+				if !alreadyCentered && targetWidth > 0 && targetHeight > 0 {
+					// 首次捕获该窗口：精确定位到屏幕正中央并强行 HWND_TOPMOST 置顶 (解决靠左上角的问题)
+					procSetWindowPos.Call(
+						hwnd,
+						hwndTopmost,
+						uintptr(targetX),
+						uintptr(targetY),
+						uintptr(targetWidth),
+						uintptr(targetHeight),
+						swpShowWindow,
+					)
+				} else {
+					// 后续维持置顶：保留当前位置，不影响用户后续拖动操作
+					procSetWindowPos.Call(
+						hwnd,
+						hwndTopmost,
+						0, 0, 0, 0,
+						swpNoMove|swpNoSize|swpShowWindow,
+					)
+				}
 			}
 		}
 		return 1 // 继续遍历
@@ -481,10 +516,22 @@ func (a *App) OpenWebVideoWindow(platformKey string) error {
 	profileDir := filepath.Join(appData, "lol-helper", platform.ProfileDir)
 	_ = os.MkdirAll(profileDir, 0755)
 
+	// 计算屏幕居中坐标 (确保弹出时精准位于屏幕正中央，而非左上方)
+	scrWidth, scrHeight := getScreenResolution()
+	posX := (scrWidth - platform.WindowWidth) / 2
+	posY := (scrHeight - platform.WindowHeight) / 2
+	if posX < 0 {
+		posX = 0
+	}
+	if posY < 0 {
+		posY = 0
+	}
+
 	cmd := exec.Command(edgePath,
 		fmt.Sprintf("--app=%s", platform.URL),
 		fmt.Sprintf("--user-data-dir=%s", profileDir),
 		fmt.Sprintf("--window-size=%d,%d", platform.WindowWidth, platform.WindowHeight),
+		fmt.Sprintf("--window-position=%d,%d", posX, posY),
 		"--disable-notifications",
 		"--disable-background-mode",
 		"--disable-features=Translate,msStartupBoost",
@@ -503,8 +550,8 @@ func (a *App) OpenWebVideoWindow(platformKey string) error {
 		_ = store.RecordHistory(platform.Key, "launch", "Champion", 0)
 	}
 
-	// 启动后台轮询置顶 (Edge 启动后持续轮询确保窗口在游戏最顶层)
-	go func(pid int) {
+	// 启动后台轮询置顶 (Edge 启动后持续轮询确保窗口在游戏最顶层并初始精确居中)
+	go func(pid, x, y, w, h int) {
 		for i := 0; i < 15; i++ {
 			time.Sleep(200 * time.Millisecond)
 			a.douyinMutex.Lock()
@@ -513,9 +560,9 @@ func (a *App) OpenWebVideoWindow(platformKey string) error {
 			if !running {
 				break
 			}
-			pinProcessWindowsTopmost(pid)
+			pinProcessWindowsTopmost(pid, x, y, w, h)
 		}
-	}(cmd.Process.Pid)
+	}(cmd.Process.Pid, posX, posY, platform.WindowWidth, platform.WindowHeight)
 
 	go func() {
 		_ = cmd.Wait()
@@ -536,6 +583,11 @@ func (a *App) OpenDouyinWindow() error {
 func (a *App) CloseWebVideoWindow() error {
 	a.douyinMutex.Lock()
 	defer a.douyinMutex.Unlock()
+
+	// 清理居中记录
+	centeredMu.Lock()
+	centeredWindows = make(map[uintptr]bool)
+	centeredMu.Unlock()
 
 	var targetPIDs []uint32
 	if a.douyinCmd != nil && a.douyinCmd.Process != nil {
