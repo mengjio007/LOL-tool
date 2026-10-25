@@ -183,7 +183,7 @@ export function SettingsModal({
               <h3 className="text-xs font-bold text-white flex items-center gap-2">
                 <span>控制与设置中心</span>
                 <span className="text-[10px] font-mono text-cyan-300 glass-pill px-1.5 py-0.5 rounded">
-                  v2.0.0
+                  v2.0.1
                 </span>
               </h3>
             </div>
@@ -656,11 +656,11 @@ export function SettingsModal({
               <div className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[11px] text-slate-400">当前版本: v2.0.0</div>
+                    <div className="text-[11px] text-slate-400">当前版本: v2.0.1</div>
                     <div className="text-sm font-bold text-[#f0e6d2] mt-0.5 flex items-center gap-2">
-                      <span>v2.0.0 正式版</span>
+                      <span>v2.0.1 正式版</span>
                       <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono">
-                        全新架构
+                        稳定迭代
                       </span>
                     </div>
                   </div>
@@ -726,7 +726,7 @@ export function SettingsModal({
                   <div>
                     <div className="font-bold text-xs text-white">当前已是最新版本</div>
                     <div className="text-[11px] text-slate-400 mt-0.5">
-                      你的助手版本为 v2.0.0，享受最新的千分制算法与局内娱乐系统。
+                      你的助手版本为 v2.0.1，享受最新的千分制算法、4套电竞主题与居中视频娱乐系统。
                     </div>
                   </div>
                 </div>
@@ -742,21 +742,40 @@ export function SettingsModal({
           {/* TAB 5: Changelog */}
           {activeTab === 'changelog' && (
             <div className="space-y-3 text-xs">
-              {/* v2.0.0 */}
+              {/* v2.0.1 */}
               <div className="rounded-xl border border-[#c89b3c]/60 bg-gradient-to-br from-[#1c1c28] to-[#091428] p-4 space-y-2 shadow-lg">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-sm text-amber-300 flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-[#c89b3c]" />
-                    <span>v2.0.0 重磅里程碑更新</span>
+                    <span>v2.0.1 视觉与交互体验升级</span>
                   </span>
                   <span className="text-[10px] font-mono text-[#c89b3c] bg-[#c89b3c]/20 px-2 py-0.5 rounded border border-[#c89b3c]/40">
                     当前版本
                   </span>
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-slate-200 text-[11px] leading-relaxed">
-                  <li><strong className="text-amber-300">千分制评分引擎与全指标可配置化</strong>：升级为 0~1000 战力值，分差彻底拉开！9大维度可自由配置百分比权重，并支持一键套用模板。</li>
-                  <li><strong className="text-rose-300">局内感知死亡娱乐系统</strong>：官方 2999 端口毫秒级识别阵亡状态，自动弹出置顶画中画小窗播放本地/抖音视频，复活秒关瞬闭。</li>
-                  <li><strong className="text-cyan-300">Material Design 3 现代质感</strong>：全面引入 Material 3 层次系统、自适应大屏仪表盘与极简局内置顶小胶囊条（380×52px，不挡游戏补刀）。</li>
+                  <li><strong className="text-amber-300">视频弹窗屏幕正中自适应</strong>：自动获取屏幕分辨率并居中定位，彻底告别靠左上方弹出。</li>
+                  <li><strong className="text-cyan-300">4套高反差电竞主题规范</strong>：官方黑金、冷炭极光、双城赛博、诺克萨斯战血，顶栏一键秒切。</li>
+                  <li><strong className="text-emerald-300">导航栏实色去透明重构</strong>：彻底解决选项卡底部发虚半透明问题，100%实体高光按钮，边界清晰锐利。</li>
+                  <li><strong className="text-purple-300">SQLite + 配置文件双轨容灾持久化</strong>：算法权重、站点登录态与主题偏好永久本地保存，无惧重启。</li>
+                  <li><strong className="text-rose-300">纯 Win32 API 0ms 静默关闭</strong>：完全移除命令行调用，彻底消除控制台黑框闪烁。</li>
+                </ul>
+              </div>
+
+              {/* v2.0.0 */}
+              <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm text-slate-300 flex items-center gap-1.5">
+                    <span>v2.0.0 重磅里程碑更新</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded">
+                    历史版本
+                  </span>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-slate-300 text-[11px] leading-relaxed">
+                  <li><strong className="text-amber-300">千分制评分引擎与全指标可配置化</strong>：升级为 0~1000 战力值，9大维度自由配置百分比权重。</li>
+                  <li><strong className="text-rose-300">局内感知死亡娱乐系统</strong>：毫秒级识别阵亡状态，自动弹出置顶画中画小窗播放视频。</li>
+                  <li><strong className="text-cyan-300">极简局内置顶小胶囊条</strong>：380×52px，不挡游戏补刀。</li>
                 </ul>
               </div>
 

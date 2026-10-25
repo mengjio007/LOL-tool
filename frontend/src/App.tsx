@@ -528,7 +528,7 @@ export default function App() {
             className="non-draggable relative flex items-center gap-1.5 text-[10px] px-2.5 py-0.5 rounded-full bg-[var(--theme-tab-pill-bg)] text-[var(--theme-primary)] font-bold border border-[var(--theme-border)] shadow-sm transition-all hover:scale-105 cursor-pointer"
           >
             <Sparkles className="w-3 h-3 text-[var(--theme-primary)]" />
-            <span>v2.0.0 Pro</span>
+            <span>v2.0.1 Pro</span>
             {updateInfo?.hasUpdate && (
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
             )}

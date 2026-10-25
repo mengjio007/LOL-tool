@@ -20,7 +20,7 @@ func main() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:     "LOL 智能助手 v2.0.0",
+		Title:     "LOL 智能助手 v2.0.1",
 		Width:     620,
 		Height:    720,
 		MinWidth:  380,
