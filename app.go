@@ -277,6 +277,7 @@ func (a *App) TriggerTestRespawn() {
 
 var (
 	modUser32                   = syscall.NewLazyDLL("user32.dll")
+	modKernel32                 = syscall.NewLazyDLL("kernel32.dll")
 	procEnumWindows             = modUser32.NewProc("EnumWindows")
 	procGetWindowThreadProcessId = modUser32.NewProc("GetWindowThreadProcessId")
 	procSetWindowPos            = modUser32.NewProc("SetWindowPos")
@@ -285,6 +286,12 @@ var (
 	procGetWindowTextW          = modUser32.NewProc("GetWindowTextW")
 	procPostMessageW            = modUser32.NewProc("PostMessageW")
 	procGetSystemMetrics        = modUser32.NewProc("GetSystemMetrics")
+	procBringWindowToTop        = modUser32.NewProc("BringWindowToTop")
+	procSetForegroundWindow     = modUser32.NewProc("SetForegroundWindow")
+	procGetForegroundWindow     = modUser32.NewProc("GetForegroundWindow")
+	procAttachThreadInput       = modUser32.NewProc("AttachThreadInput")
+	procGetClassNameW           = modUser32.NewProc("GetClassNameW")
+	procGetCurrentThreadId      = modKernel32.NewProc("GetCurrentThreadId")
 )
 
 const (
@@ -292,6 +299,7 @@ const (
 	swpNoMove     = 0x0002
 	swpNoSize     = 0x0001
 	swpShowWindow = 0x0040
+	swpNoActivate = 0x0010
 	wmClose       = 0x0010      // WM_CLOSE 消息
 )
 
@@ -366,6 +374,28 @@ func killProcessTreePIDs(pids []uint32) {
 	}
 }
 
+// forceForegroundWindow 强制突破 Windows 焦点限制，将指定窗口无视前台独占置于最顶层
+func forceForegroundWindow(hwnd uintptr) {
+	fgHwnd, _, _ := procGetForegroundWindow.Call()
+	if fgHwnd != 0 && fgHwnd != hwnd {
+		var fgPid uint32
+		fgThreadId, _, _ := procGetWindowThreadProcessId.Call(fgHwnd, uintptr(unsafe.Pointer(&fgPid)))
+		curThreadId, _, _ := procGetCurrentThreadId.Call()
+		if fgThreadId != 0 && curThreadId != 0 && fgThreadId != curThreadId {
+			procAttachThreadInput.Call(curThreadId, fgThreadId, 1)
+			procBringWindowToTop.Call(hwnd)
+			procSetForegroundWindow.Call(hwnd)
+			procAttachThreadInput.Call(curThreadId, fgThreadId, 0)
+		} else {
+			procBringWindowToTop.Call(hwnd)
+			procSetForegroundWindow.Call(hwnd)
+		}
+	} else {
+		procBringWindowToTop.Call(hwnd)
+		procSetForegroundWindow.Call(hwnd)
+	}
+}
+
 // pinProcessWindowsTopmost 寻找属于该目标进程或其子进程、或包含视频站标题的可见窗口并强行居中且置顶 (浮现在英雄联盟等所有窗口最上层)
 func pinProcessWindowsTopmost(targetPID int, targetX, targetY, targetWidth, targetHeight int) {
 	targetPIDs := getProcessTreePIDs(uint32(targetPID))
@@ -396,6 +426,15 @@ func pinProcessWindowsTopmost(targetPID int, targetX, targetY, targetWidth, targ
 		if isTarget {
 			isVisible, _, _ := procIsWindowVisible.Call(hwnd)
 			if isVisible != 0 {
+				var clsBuf [256]uint16
+				procGetClassNameW.Call(hwnd, uintptr(unsafe.Pointer(&clsBuf[0])), 256)
+				cls := syscall.UTF16ToString(clsBuf[:])
+
+				// 过滤 Edge 附属辅助窗口，精准锁定主网页窗口或有效独立窗口
+				if cls == "UAC_InputIndicatorOverlayWnd" || cls == "UAC Input Indicator" || cls == "Touch Tooltip Window" {
+					return 1
+				}
+
 				centeredMu.Lock()
 				alreadyCentered := centeredWindows[hwnd]
 				if !alreadyCentered {
@@ -404,7 +443,8 @@ func pinProcessWindowsTopmost(targetPID int, targetX, targetY, targetWidth, targ
 				centeredMu.Unlock()
 
 				if !alreadyCentered && targetWidth > 0 && targetHeight > 0 {
-					// 首次捕获该窗口：精确定位到屏幕正中央并强行 HWND_TOPMOST 置顶 (解决靠左上角的问题)
+					// 首次捕获该窗口：突破 Windows 焦点限制强制提升前台，定位到屏幕正中央并强行 HWND_TOPMOST 置顶
+					forceForegroundWindow(hwnd)
 					procSetWindowPos.Call(
 						hwnd,
 						hwndTopmost,
@@ -415,12 +455,13 @@ func pinProcessWindowsTopmost(targetPID int, targetX, targetY, targetWidth, targ
 						swpShowWindow,
 					)
 				} else {
-					// 后续维持置顶：保留当前位置，不影响用户后续拖动操作
+					// 后续维持置顶：BringWindowToTop 并在 Topmost Z-order 中维护，swpNoActivate 避免夺走玩家游戏键鼠焦点
+					procBringWindowToTop.Call(hwnd)
 					procSetWindowPos.Call(
 						hwnd,
 						hwndTopmost,
 						0, 0, 0, 0,
-						swpNoMove|swpNoSize|swpShowWindow,
+						swpNoMove|swpNoSize|swpShowWindow|swpNoActivate,
 					)
 				}
 			}
@@ -550,10 +591,11 @@ func (a *App) OpenWebVideoWindow(platformKey string) error {
 		_ = store.RecordHistory(platform.Key, "launch", "Champion", 0)
 	}
 
-	// 启动后台轮询置顶 (Edge 启动后持续轮询确保窗口在游戏最顶层并初始精确居中)
+	// 启动后台持续置顶维护 (在整个视频播放期间持续轮询置顶，确保在英雄联盟无边框游戏画面正中央持续浮现，绝不被游戏覆盖)
 	go func(pid, x, y, w, h int) {
-		for i := 0; i < 15; i++ {
-			time.Sleep(200 * time.Millisecond)
+		ticker := time.NewTicker(300 * time.Millisecond)
+		defer ticker.Stop()
+		for range ticker.C {
 			a.douyinMutex.Lock()
 			running := (a.douyinCmd != nil && a.douyinCmd.Process != nil && a.douyinCmd.Process.Pid == pid)
 			a.douyinMutex.Unlock()
