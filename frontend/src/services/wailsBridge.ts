@@ -54,6 +54,7 @@ export interface Config {
   minimizeToTray: boolean;
   alwaysOnTop: boolean;
   theme?: 'hextech' | 'aurora' | 'arcane' | 'crimson';
+  fontScale?: 'auto' | 'compact' | 'standard' | 'large' | 'extra-large';
   algorithm: AlgorithmConfig;
   deathVideo: DeathVideoConfig;
 }

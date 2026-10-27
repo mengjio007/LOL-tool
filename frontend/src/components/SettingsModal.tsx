@@ -23,6 +23,7 @@ import {
   TrendingUp,
   Award,
   Palette,
+  Type,
 } from 'lucide-react';
 import type { Config, UpdateInfo, AlgorithmConfig } from '../services/wailsBridge';
 import { WailsBridge, defaultAlgorithmConfig } from '../services/wailsBridge';
@@ -30,7 +31,7 @@ import type { translations } from '../i18n/translations';
 import { AlgorithmGuideView } from './AlgorithmGuideView';
 import appLogo from '../assets/appicon.png';
 
-export type SettingsTab = 'algoConfig' | 'updates' | 'algorithm' | 'changelog' | 'contact';
+export type SettingsTab = 'algoConfig' | 'appearance' | 'updates' | 'algorithm' | 'changelog' | 'contact';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -211,6 +212,19 @@ export function SettingsModal({
           >
             <Sliders className="w-3.5 h-3.5" />
             <span>算法权重配置</span>
+          </button>
+
+          {/* Tab: Appearance & Typography */}
+          <button
+            onClick={() => setActiveTab('appearance')}
+            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap cursor-pointer ${
+              activeTab === 'appearance'
+                ? 'border-purple-400 text-purple-300 font-bold'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Type className="w-3.5 h-3.5 text-purple-400" />
+            <span>字体与自适应</span>
           </button>
 
           {/* Tab: Updates */}
@@ -646,6 +660,110 @@ export function SettingsModal({
                     }`}
                   />
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB: Appearance & Typography */}
+          {activeTab === 'appearance' && (
+            <div className="space-y-4 text-xs">
+              {/* Introduction Card */}
+              <div className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                      <Type className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-sm">自适应字阶与电竞排版引擎</h4>
+                      <p className="text-[11px] text-slate-400">
+                        系统级 CJK 黑体与 Monospace 等宽对齐，支持随视口大小动态自适应
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-full">
+                    抗锯齿已启用
+                  </span>
+                </div>
+              </div>
+
+              {/* Font Scale Presets */}
+              <div className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-200">字号与缩放模式</span>
+                  <span className="text-[11px] text-slate-400">当前生效: <span className="text-purple-300 font-mono font-bold">{config.fontScale || 'auto'}</span></span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 pt-1">
+                  {[
+                    { id: 'auto', label: '智能自适应', badge: '推荐', desc: '根据窗口宽度与屏幕DPI动态自适应，小窗防挤、大屏清晰' },
+                    { id: 'compact', label: '紧凑精致', badge: '92%', desc: '字阶缩小，信息密度高，适合小屏幕或多窗口并排' },
+                    { id: 'standard', label: '标准电竞', badge: '100%', desc: '默认黄金比例，视觉层次清晰平衡' },
+                    { id: 'large', label: '清晰大字', badge: '108%', desc: '字号微放，适合2K/4K大显示屏或稍微远距离观看' },
+                    { id: 'extra-large', label: '舒适特大', badge: '118%', desc: '放大显示，视线更轻松护眼' },
+                  ].map((scale) => {
+                    const isSelected = (config.fontScale || 'auto') === scale.id;
+                    return (
+                      <button
+                        key={scale.id}
+                        onClick={() => onUpdateConfig({ fontScale: scale.id as any })}
+                        className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all cursor-pointer ${
+                          isSelected
+                            ? 'border-purple-400/80 bg-purple-500/15 shadow-sm ring-1 ring-purple-400/30'
+                            : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-white/15'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between w-full mb-1.5">
+                          <span className={`font-bold text-xs ${isSelected ? 'text-purple-200' : 'text-slate-200'}`}>
+                            {scale.label}
+                          </span>
+                          <span className={`text-[9px] font-mono px-1.5 py-0.2 rounded ${
+                            isSelected
+                              ? 'bg-purple-400 text-black font-bold'
+                              : 'bg-white/10 text-slate-300'
+                          }`}>
+                            {scale.badge}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 leading-snug line-clamp-2">
+                          {scale.desc}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Live Preview Card */}
+              <div className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-3">
+                <span className="font-bold text-slate-200">排版与渲染实时预览效果</span>
+
+                <div className="p-3.5 rounded-lg border border-white/5 bg-black/60 space-y-2.5">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                    <span className="text-xs font-bold text-[#f0e6d2]">狂暴之心 凯南 (Kennen)</span>
+                    <span className="text-[11px] font-mono text-emerald-400 font-bold">948 战力 · S+ 评级</span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-[11px]">
+                    <div className="bg-white/[0.03] p-2 rounded border border-white/5">
+                      <div className="text-[10px] text-slate-500">实战战绩 (KDA)</div>
+                      <div className="font-mono font-bold text-slate-200 mt-0.5">14 / 2 / 9 (82%)</div>
+                    </div>
+                    <div className="bg-white/[0.03] p-2 rounded border border-white/5">
+                      <div className="text-[10px] text-slate-500">分均输出 (DPM)</div>
+                      <div className="font-mono font-bold text-cyan-300 mt-0.5">1,024 dmg/min</div>
+                    </div>
+                    <div className="bg-white/[0.03] p-2 rounded border border-white/5">
+                      <div className="text-[10px] text-slate-500">抗压承伤占比</div>
+                      <div className="font-mono font-bold text-purple-300 mt-0.5">28.4% 团队贡献</div>
+                    </div>
+                  </div>
+
+                  <div className="text-[10px] text-slate-400 flex items-center justify-between pt-1">
+                    <span>💡 当前字体：系统原生无衬线 CJK + Tabular-Nums 对齐</span>
+                    <span className="text-emerald-400">已实时自动保存</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}

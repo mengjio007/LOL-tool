@@ -171,11 +171,13 @@ export default function App() {
 
   const currentTheme = THEMES.find((t) => t.id === (config.theme || 'hextech')) || THEMES[0];
 
-  // Sync active theme to html data-theme attribute
+  // Sync active theme and font-scale to html data attributes
   useEffect(() => {
     const activeTheme = config.theme || 'hextech';
     document.documentElement.setAttribute('data-theme', activeTheme);
-  }, [config.theme]);
+    const activeFontScale = config.fontScale || 'auto';
+    document.documentElement.setAttribute('data-font-scale', activeFontScale);
+  }, [config.theme, config.fontScale]);
 
   // Click outside to close theme menu
   useEffect(() => {

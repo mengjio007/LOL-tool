@@ -41,6 +41,7 @@ type Config struct {
 	MinimizeToTray bool             `json:"minimizeToTray"`
 	AlwaysOnTop    bool             `json:"alwaysOnTop"`
 	Theme          string           `json:"theme"` // "hextech" (黑金), "aurora" (冷炭极光), "arcane" (双城赛博)
+	FontScale      string           `json:"fontScale"` // "auto", "compact", "standard", "large", "extra-large"
 	Algorithm      AlgorithmConfig  `json:"algorithm"`
 	DeathVideo     DeathVideoConfig `json:"deathVideo"`
 }
@@ -80,6 +81,7 @@ var (
 		MinimizeToTray: true,
 		AlwaysOnTop:    false,
 		Theme:          "hextech",
+		FontScale:      "auto",
 		Algorithm:      DefaultAlgorithm,
 		DeathVideo:     DefaultDeathVideo,
 	}

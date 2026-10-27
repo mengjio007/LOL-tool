@@ -230,6 +230,7 @@ export namespace config {
 	    minimizeToTray: boolean;
 	    alwaysOnTop: boolean;
 	    theme: string;
+	    fontScale: string;
 	    algorithm: AlgorithmConfig;
 	    deathVideo: DeathVideoConfig;
 	
@@ -249,6 +250,7 @@ export namespace config {
 	        this.minimizeToTray = source["minimizeToTray"];
 	        this.alwaysOnTop = source["alwaysOnTop"];
 	        this.theme = source["theme"];
+	        this.fontScale = source["fontScale"];
 	        this.algorithm = this.convertValues(source["algorithm"], AlgorithmConfig);
 	        this.deathVideo = this.convertValues(source["deathVideo"], DeathVideoConfig);
 	    }
