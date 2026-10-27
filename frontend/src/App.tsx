@@ -160,6 +160,14 @@ export default function App() {
       dots: ['#1e293b', '#64748b', '#f8fafc'],
     },
     {
+      id: 'titanium' as const,
+      name: '钛空中灰',
+      sub: 'Titanium Gray',
+      desc: '介于黑白之间的中性灰色调，温和沉稳不刺眼，久看不累（类似 GitHub Dimmed / macOS 空间灰）',
+      tag: '中性灰·护眼',
+      dots: ['#94a3b8', '#64748b', '#22272e'],
+    },
+    {
       id: 'hextech' as const,
       name: '官方黑金',
       sub: 'Hextech Gold',
@@ -588,7 +596,7 @@ export default function App() {
             className="non-draggable relative flex items-center gap-1.5 text-[10px] px-2.5 py-0.5 rounded-full bg-[var(--theme-tab-pill-bg)] text-[var(--theme-primary)] font-bold border border-[var(--theme-border)] shadow-sm transition-all hover:scale-105 cursor-pointer"
           >
             <Sparkles className="w-3 h-3 text-[var(--theme-primary)]" />
-            <span>v2.0.1 Pro</span>
+            <span>v2.0.2 Pro</span>
             {updateInfo?.hasUpdate && (
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
             )}

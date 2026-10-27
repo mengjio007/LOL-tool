@@ -16,7 +16,7 @@ import (
 )
 
 // CurrentVersion is the hardcoded version of this release
-var CurrentVersion = "v2.0.1"
+var CurrentVersion = "v2.0.2"
 
 // Repository configuration
 const (

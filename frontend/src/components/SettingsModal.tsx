@@ -199,7 +199,7 @@ export function SettingsModal({
               <h3 className="text-xs font-bold text-white flex items-center gap-2">
                 <span>控制与设置中心</span>
                 <span className="text-[10px] font-mono text-cyan-300 glass-pill px-1.5 py-0.5 rounded">
-                  v2.0.1 Pro
+                  v2.0.2 Pro
                 </span>
               </h3>
             </div>
@@ -672,7 +672,38 @@ export function SettingsModal({
                   </div>
                 </div>
 
-                {/* Section 2: Dark Esports Themes */}
+                {/* Section 2: Mid-Tone Gray Theme (Between White & Black) */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="text-[10px] font-bold text-slate-300 flex items-center justify-between">
+                    <span className="flex items-center gap-1">
+                      <span>⚙️ 介于黑白之间的中性灰色调 (柔和平衡 · 舒缓护眼)</span>
+                    </span>
+                    <span className="text-[9px] font-mono text-slate-400">类似 GitHub Dimmed / 空间钛灰</span>
+                  </div>
+                  <button
+                    onClick={() => onUpdateConfig({ theme: 'titanium' })}
+                    className={`w-full p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      config.theme === 'titanium'
+                        ? 'bg-slate-700/30 border-slate-400 shadow-[0_0_14px_rgba(148,163,184,0.35)] ring-1 ring-slate-400/40'
+                        : 'bg-black/40 border-white/10 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-200 text-xs flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#94a3b8] shadow-sm ring-1 ring-white/50" />
+                        <span>钛空中灰 (Titanium Mid-Gray)</span>
+                      </span>
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-500/20 text-slate-300 font-bold border border-slate-500/30">
+                        中性中灰 · 50% 柔和
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1 leading-snug">
+                      纯白与纯黑的黄金平衡点，冷调钛金灰底座，既没有白色的刺眼，也没有纯黑的压抑沉闷，久看战绩极度护眼舒适。
+                    </div>
+                  </button>
+                </div>
+
+                {/* Section 3: Dark Esports Themes */}
                 <div className="space-y-1.5 pt-1">
                   <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
                     <span>🌙 经典暗黑电竞风格</span>
@@ -848,9 +879,9 @@ export function SettingsModal({
               <div className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[11px] text-slate-400">当前版本: v2.0.1</div>
+                    <div className="text-[11px] text-slate-400">当前版本: v2.0.2</div>
                     <div className="text-sm font-bold text-[#f0e6d2] mt-0.5 flex items-center gap-2">
-                      <span>v2.0.1 正式版</span>
+                      <span>v2.0.2 正式版</span>
                       <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-mono">
                         稳定迭代
                       </span>
@@ -918,7 +949,7 @@ export function SettingsModal({
                   <div>
                     <div className="font-bold text-xs text-white">当前已是最新版本</div>
                     <div className="text-[11px] text-slate-400 mt-0.5">
-                      你的助手版本为 v2.0.1，享受最新的千分制算法、4套电竞主题与居中视频娱乐系统。
+                      你的助手版本为 v2.0.2，享受最新的纯白主体现代美学、全局等比自适应缩放与零白屏防御体系。
                     </div>
                   </div>
                 </div>
@@ -934,18 +965,37 @@ export function SettingsModal({
           {/* TAB 5: Changelog */}
           {activeTab === 'changelog' && (
             <div className="space-y-3 text-xs">
-              {/* v2.0.1 */}
-              <div className="rounded-xl border border-[#c89b3c]/60 bg-gradient-to-br from-[#1c1c28] to-[#091428] p-4 space-y-2 shadow-lg">
+              {/* v2.0.2 */}
+              <div className="rounded-xl border border-blue-500/60 bg-gradient-to-br from-[#101c38] to-[#091428] p-4 space-y-2 shadow-lg">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-amber-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-[#c89b3c]" />
-                    <span>v2.0.1 视觉与交互体验升级</span>
+                  <span className="font-bold text-sm text-blue-300 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-blue-400" />
+                    <span>v2.0.2 纯白主体美学与全局自适应升级</span>
                   </span>
-                  <span className="text-[10px] font-mono text-[#c89b3c] bg-[#c89b3c]/20 px-2 py-0.5 rounded border border-[#c89b3c]/40">
+                  <span className="text-[10px] font-mono text-blue-300 bg-blue-500/20 px-2 py-0.5 rounded border border-blue-500/40 font-bold">
                     当前版本
                   </span>
                 </div>
                 <ul className="list-disc list-inside space-y-1 text-slate-200 text-[11px] leading-relaxed">
+                  <li><strong className="text-blue-300">纯白主体高质感浅色主题上线</strong>：新增「晴空蓝白 (SaaS风格)」、「蓝紫白」、「极简白灰看板」，告别深黑审美疲劳。</li>
+                  <li><strong className="text-cyan-300">880px 宽屏默认黄金尺寸</strong>：顶栏与四大核心标签单行完整展开，杜绝换行挤压与折叠。</li>
+                  <li><strong className="text-emerald-300">全局等比自适应动态缩放引擎</strong>：最大化全屏等比舒适放大，大屏充盈不留白；常规窗口严格 1.0 标准无错位。</li>
+                  <li><strong className="text-purple-300">设置中心全新重构与快捷退出</strong>：弹窗顶栏固定常显，醒目关闭按钮 + Esc 键 + 蒙层一键退出，6 大标签单行全显。</li>
+                  <li><strong className="text-amber-300">全局 ErrorBoundary 零白屏防护</strong>：彻底解决 React 渲染异常导致白屏问题，全链路健壮防御。</li>
+                </ul>
+              </div>
+
+              {/* v2.0.1 */}
+              <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm text-slate-300 flex items-center gap-1.5">
+                    <span>v2.0.1 视觉与交互体验升级</span>
+                  </span>
+                  <span className="text-[10px] font-mono text-slate-400 bg-white/5 px-2 py-0.5 rounded">
+                    历史版本
+                  </span>
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-slate-300 text-[11px] leading-relaxed">
                   <li><strong className="text-amber-300">视频弹窗屏幕正中自适应</strong>：自动获取屏幕分辨率并居中定位，彻底告别靠左上方弹出。</li>
                   <li><strong className="text-cyan-300">4套高反差电竞主题规范</strong>：官方黑金、冷炭极光、双城赛博、诺克萨斯战血，顶栏一键秒切。</li>
                   <li><strong className="text-emerald-300">导航栏实色去透明重构</strong>：彻底解决选项卡底部发虚半透明问题，100%实体高光按钮，边界清晰锐利。</li>
