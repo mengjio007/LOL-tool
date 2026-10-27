@@ -136,11 +136,35 @@ export default function App() {
 
   const THEMES = [
     {
+      id: 'azure' as const,
+      name: '晴空蓝白',
+      sub: 'Azure Light',
+      desc: '纯白主体底色配明澈晴空蓝，清爽通透极高对比度（参考图1现代SaaS风格）',
+      tag: '纯白主体·推荐',
+      dots: ['#2563eb', '#38bdf8', '#ffffff'],
+    },
+    {
+      id: 'iris' as const,
+      name: '蓝紫白',
+      sub: 'Iris Violet',
+      desc: '纯白雅致底配双城星穹蓝紫，现代极简灵动设计（类似Linear/Dribbble现代风）',
+      tag: '现代蓝紫',
+      dots: ['#6366f1', '#a855f7', '#ffffff'],
+    },
+    {
+      id: 'slate-white' as const,
+      name: '极简白灰',
+      sub: 'Slate White',
+      desc: '纯白主体与高级石板冷灰构架，沉静克制无视觉疲劳（参考图2看板风格）',
+      tag: '白灰极简',
+      dots: ['#1e293b', '#64748b', '#f8fafc'],
+    },
+    {
       id: 'hextech' as const,
       name: '官方黑金',
       sub: 'Hextech Gold',
       desc: '海克斯深蓝与符文纯金高光，LOL官方原版典雅气质',
-      tag: '官方黑金',
+      tag: '暗黑电竞',
       dots: ['#c89b3c', '#0ac8b9', '#061022'],
     },
     {
@@ -169,11 +193,11 @@ export default function App() {
     },
   ];
 
-  const currentTheme = THEMES.find((t) => t.id === (config.theme || 'hextech')) || THEMES[0];
+  const currentTheme = THEMES.find((t) => t.id === (config.theme || 'azure')) || THEMES[0];
 
   // Sync active theme and font-scale to html data attributes
   useEffect(() => {
-    const activeTheme = config.theme || 'hextech';
+    const activeTheme = config.theme || 'azure';
     document.documentElement.setAttribute('data-theme', activeTheme);
     const activeFontScale = config.fontScale || 'auto';
     document.documentElement.setAttribute('data-font-scale', activeFontScale);
@@ -509,7 +533,7 @@ export default function App() {
   }
 
   return (
-    <div className="relative flex flex-col w-full h-full select-none bg-[var(--theme-bg)] text-[#f1f5f9] border border-[var(--theme-border)] rounded-2xl overflow-hidden shadow-2xl transition-colors duration-300">
+    <div className="relative flex flex-col w-full h-full select-none bg-[var(--theme-bg)] text-[var(--theme-text,#f1f5f9)] border border-[var(--theme-border)] rounded-2xl overflow-hidden shadow-2xl transition-colors duration-300">
       {/* Ambient Background Glows */}
       <div className="aurora-orb-cyan -top-24 -left-24 w-80 h-80 opacity-70" />
       <div className="aurora-orb-indigo top-1/4 -right-20 w-96 h-96 opacity-60" />

@@ -80,7 +80,7 @@ var (
 		StartWithOS:    false,
 		MinimizeToTray: true,
 		AlwaysOnTop:    false,
-		Theme:          "hextech",
+		Theme:          "azure",
 		FontScale:      "auto",
 		Algorithm:      DefaultAlgorithm,
 		DeathVideo:     DefaultDeathVideo,
