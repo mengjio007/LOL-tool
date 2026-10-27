@@ -240,16 +240,29 @@
   }
 
   [data-font-scale="large"] {
-    --app-font-scale: 1.08;
-  }
-
-  [data-font-scale="extra-large"] {
     --app-font-scale: 1.18;
   }
 
-  /* 智能动态自适应：根据视口宽度 380px ~ 1200px 线性微调 */
+  [data-font-scale="extra-large"] {
+    --app-font-scale: 1.35;
+  }
+
+  /* 智能动态全局自适应缩放（兼顾视口宽高的全局等比放大） */
   [data-font-scale="auto"] {
-    --app-font-scale: clamp(0.92, calc(0.86 + 0.22 * ((100vw - 380px) / 540)), 1.15);
+    --app-font-scale: clamp(
+      0.95,
+      calc(0.94 + (100vw - 1000px) * 0.00035 + (100vh - 680px) * 0.0003),
+      1.42
+    );
+  }
+
+  /* 最大化时额外强化整体放大 */
+  [data-maximized="true"][data-font-scale="auto"] {
+    --app-font-scale: clamp(
+      1.24,
+      calc(1.14 + (100vw - 1200px) * 0.0003 + (100vh - 720px) * 0.0003),
+      1.45
+    );
   }
 
   html, body {
@@ -279,7 +292,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    zoom: var(--app-font-scale, 1);
+    zoom: var(--dynamic-auto-scale, var(--app-font-scale, 1));
   }
 }
 

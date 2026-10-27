@@ -195,13 +195,51 @@ export default function App() {
 
   const currentTheme = THEMES.find((t) => t.id === (config.theme || 'azure')) || THEMES[0];
 
-  // Sync active theme and font-scale to html data attributes
+  // Sync active theme, font-scale, and window maximized state to html data attributes
   useEffect(() => {
     const activeTheme = config.theme || 'azure';
     document.documentElement.setAttribute('data-theme', activeTheme);
     const activeFontScale = config.fontScale || 'auto';
     document.documentElement.setAttribute('data-font-scale', activeFontScale);
-  }, [config.theme, config.fontScale]);
+    document.documentElement.setAttribute('data-maximized', isMaximized ? 'true' : 'false');
+  }, [config.theme, config.fontScale, isMaximized]);
+
+  // Dynamic Proportional UI Zoom Engine (整体等比自适应放大引擎)
+  useEffect(() => {
+    const updateDynamicScale = () => {
+      const activeFontScale = config.fontScale || 'auto';
+      if (activeFontScale !== 'auto') {
+        document.documentElement.style.removeProperty('--dynamic-auto-scale');
+        return;
+      }
+
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // 智能计算自适应放大系数 (从默认小窗 1.0 到 1080p/2K/4K 整体放大 1.25 ~ 1.40)
+      let targetScale = 1.0;
+      if (isMaximized || w >= 1700) {
+        // 最大化全屏或 1080p/2K/4K 大屏显示：按宽高空间舒适整体放大
+        const vwFactor = Math.max(0, (w - 1000) * 0.00032);
+        const vhFactor = Math.max(0, (h - 700) * 0.00030);
+        targetScale = Math.min(1.42, Math.max(1.24, 1.0 + vwFactor + vhFactor));
+      } else if (w >= 1300) {
+        // 宽屏笔记本或中等视口：微幅提升至 1.10 ~ 1.20
+        targetScale = Math.min(1.20, Math.max(1.06, 1.0 + (w - 1000) * 0.0003));
+      } else if (w <= 980) {
+        // 小窗：紧凑排版防溢出
+        targetScale = Math.max(0.92, 0.92 + (w - 380) / 600 * 0.08);
+      } else {
+        targetScale = 1.0;
+      }
+
+      document.documentElement.style.setProperty('--dynamic-auto-scale', targetScale.toFixed(3));
+    };
+
+    updateDynamicScale();
+    window.addEventListener('resize', updateDynamicScale);
+    return () => window.removeEventListener('resize', updateDynamicScale);
+  }, [isMaximized, config.fontScale]);
 
   // Click outside to close theme menu
   useEffect(() => {
@@ -775,7 +813,7 @@ export default function App() {
 
       {/* Main Content Area (min-h-0 prevents flexbox vertical clipping) */}
       <div ref={mainContentRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-3 relative z-10">
-        <div className="max-w-5xl mx-auto w-full space-y-3.5">
+        <div className="w-full max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto space-y-4 transition-all duration-300">
         {/* Client Status Hero Card */}
         <section className="relative overflow-hidden rounded-2xl glass-panel p-4 shadow-xl">
           <div className="flex items-center justify-between">
@@ -1105,7 +1143,7 @@ export default function App() {
                 </button>
               </div>
 
-              <div ref={logsContainerRef} className="h-44 rounded-2xl glass-panel p-3 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5 shadow-inner">
+              <div ref={logsContainerRef} className="h-44 xl:h-64 2xl:h-72 rounded-2xl glass-panel p-3 overflow-y-auto font-mono text-[11px] leading-relaxed space-y-1.5 shadow-inner">
                 {logs.length === 0 ? (
                   <div className="h-full flex items-center justify-center text-slate-500 text-xs italic">
                     {t.noLogs}

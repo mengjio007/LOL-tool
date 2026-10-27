@@ -765,11 +765,11 @@ export function SettingsModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 pt-1">
                   {[
-                    { id: 'auto', label: '智能自适应', badge: '推荐', desc: '根据窗口宽度与屏幕DPI动态自适应，小窗防挤、大屏清晰' },
+                    { id: 'auto', label: '自适应放大', badge: '推荐', desc: '随窗口拉大/最大化自动等比放大整体UI (100%~140%)，大屏充盈不留白' },
                     { id: 'compact', label: '紧凑精致', badge: '92%', desc: '字阶缩小，信息密度高，适合小屏幕或多窗口并排' },
-                    { id: 'standard', label: '标准电竞', badge: '100%', desc: '默认黄金比例，视觉层次清晰平衡' },
-                    { id: 'large', label: '清晰大字', badge: '108%', desc: '字号微放，适合2K/4K大显示屏或稍微远距离观看' },
-                    { id: 'extra-large', label: '舒适特大', badge: '118%', desc: '放大显示，视线更轻松护眼' },
+                    { id: 'standard', label: '标准模式', badge: '100%', desc: '默认 1:1 比例，视觉层次清晰平衡' },
+                    { id: 'large', label: '舒适大字', badge: '118%', desc: '整体等比放大 18%，适合 2K/4K 大显示屏' },
+                    { id: 'extra-large', label: '超大视野', badge: '135%', desc: '整体等比放大 35%，大屏开阔极度清晰护眼' },
                   ].map((scale) => {
                     const isSelected = (config.fontScale || 'auto') === scale.id;
                     return (
