@@ -1,3 +1,7 @@
+# Rust & Cargo targets
+src-tauri/target/
+src-tauri/gen/
+
 # Binaries and build intermediates
 build/bin/
 frontend/dist/

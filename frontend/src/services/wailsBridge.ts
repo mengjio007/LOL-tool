@@ -1,3 +1,10 @@
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+
+export const isTauri = (): boolean => {
+  return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+};
+
 export interface AlgorithmConfig {
   customWeightsEnabled: boolean;
   damageWeight: number;    // 01 输出压制 (默认 22)
@@ -241,6 +248,18 @@ declare global {
 
 export const WailsBridge = {
   async getConfig(): Promise<Config> {
+    if (isTauri()) {
+      try {
+        const cfg = await invoke<Config>('get_config');
+        return {
+          ...cfg,
+          algorithm: cfg.algorithm || defaultAlgorithmConfig,
+          deathVideo: cfg.deathVideo || defaultDeathVideoConfig,
+        };
+      } catch (e) {
+        console.error('Tauri get_config error:', e);
+      }
+    }
     if (window.go?.main?.App?.GetConfig) {
       const cfg = await window.go.main.App.GetConfig();
       return {
@@ -265,12 +284,27 @@ export const WailsBridge = {
   },
 
   async saveConfig(cfg: Config): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('save_config', { cfg });
+        return;
+      } catch (e) {
+        console.error('Tauri save_config error:', e);
+      }
+    }
     if (window.go?.main?.App?.SaveConfig) {
       await window.go.main.App.SaveConfig(cfg);
     }
   },
 
   async getStatus(): Promise<ServiceStatus> {
+    if (isTauri()) {
+      try {
+        return await invoke<ServiceStatus>('get_status');
+      } catch (e) {
+        console.error('Tauri get_status error:', e);
+      }
+    }
     if (window.go?.main?.App?.GetStatus) {
       return await window.go.main.App.GetStatus();
     }
@@ -282,6 +316,13 @@ export const WailsBridge = {
   },
 
   async getLogs(): Promise<LogEntry[]> {
+    if (isTauri()) {
+      try {
+        return await invoke<LogEntry[]>('get_logs');
+      } catch (e) {
+        console.error('Tauri get_logs error:', e);
+      }
+    }
     if (window.go?.main?.App?.GetLogs) {
       return await window.go.main.App.GetLogs();
     }
@@ -289,12 +330,28 @@ export const WailsBridge = {
   },
 
   async clearLogs(): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('clear_logs');
+        return;
+      } catch (e) {
+        console.error('Tauri clear_logs error:', e);
+      }
+    }
     if (window.go?.main?.App?.ClearLogs) {
       await window.go.main.App.ClearLogs();
     }
   },
 
   async minimize(): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('minimize_window');
+        return;
+      } catch (e) {
+        console.error('Tauri minimize error:', e);
+      }
+    }
     if (window.go?.main?.App?.MinimizeWindow) {
       await window.go.main.App.MinimizeWindow();
     } else if (window.runtime?.WindowMinimise) {
@@ -303,6 +360,14 @@ export const WailsBridge = {
   },
 
   async toggleMaximize(): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('toggle_maximize_window');
+        return;
+      } catch (e) {
+        console.error('Tauri toggle_maximize error:', e);
+      }
+    }
     if (window.go?.main?.App?.ToggleMaximizeWindow) {
       await window.go.main.App.ToggleMaximizeWindow();
     } else if (window.runtime?.WindowToggleMaximise) {
@@ -311,6 +376,13 @@ export const WailsBridge = {
   },
 
   async isMaximized(): Promise<boolean> {
+    if (isTauri()) {
+      try {
+        return await invoke<boolean>('is_window_maximized');
+      } catch (e) {
+        console.error('Tauri is_maximized error:', e);
+      }
+    }
     if (window.go?.main?.App?.IsWindowMaximized) {
       return await window.go.main.App.IsWindowMaximized();
     } else if (window.runtime?.WindowIsMaximised) {
@@ -320,6 +392,14 @@ export const WailsBridge = {
   },
 
   async close(): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('close_app');
+        return;
+      } catch (e) {
+        console.error('Tauri close error:', e);
+      }
+    }
     if (window.go?.main?.App?.CloseApp) {
       await window.go.main.App.CloseApp();
     } else if (window.runtime?.Quit) {
@@ -328,12 +408,28 @@ export const WailsBridge = {
   },
 
   async setAlwaysOnTop(onTop: boolean): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('set_always_on_top', { onTop });
+        return;
+      } catch (e) {
+        console.error('Tauri set_always_on_top error:', e);
+      }
+    }
     if (window.go?.main?.App?.SetAlwaysOnTop) {
       await window.go.main.App.SetAlwaysOnTop(onTop);
     }
   },
 
   async setMiniMode(enable: boolean): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('set_mini_mode', { enable });
+        return;
+      } catch (e) {
+        console.error('Tauri set_mini_mode error:', e);
+      }
+    }
     if (window.go?.main?.App?.SetMiniMode) {
       await window.go.main.App.SetMiniMode(enable);
     }
@@ -366,24 +462,55 @@ export const WailsBridge = {
   },
 
   async startMatchmaking(): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('start_matchmaking');
+        return;
+      } catch (e) {
+        console.error('Tauri start_matchmaking error:', e);
+      }
+    }
     if (window.go?.main?.App?.StartMatchmaking) {
       await window.go.main.App.StartMatchmaking();
     }
   },
 
   async stopMatchmaking(): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('stop_matchmaking');
+        return;
+      } catch (e) {
+        console.error('Tauri stop_matchmaking error:', e);
+      }
+    }
     if (window.go?.main?.App?.StopMatchmaking) {
       await window.go.main.App.StopMatchmaking();
     }
   },
 
   async acceptMatch(): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('accept_match');
+        return;
+      } catch (e) {
+        console.error('Tauri accept_match error:', e);
+      }
+    }
     if (window.go?.main?.App?.AcceptMatch) {
       await window.go.main.App.AcceptMatch();
     }
   },
 
   async getMatchAnalysis(): Promise<MatchAnalysisResult | null> {
+    if (isTauri()) {
+      try {
+        return await invoke<MatchAnalysisResult>('get_match_analysis');
+      } catch (e) {
+        console.error('Tauri get_match_analysis error:', e);
+      }
+    }
     if (window.go?.main?.App?.GetMatchAnalysis) {
       return await window.go.main.App.GetMatchAnalysis();
     }
@@ -397,6 +524,13 @@ export const WailsBridge = {
   },
 
   async generateHorseReport(): Promise<string> {
+    if (isTauri()) {
+      try {
+        return await invoke<string>('get_horse_report');
+      } catch (e) {
+        console.error('Tauri get_horse_report error:', e);
+      }
+    }
     if (window.go?.main?.App?.GenerateHorseReport) {
       return await window.go.main.App.GenerateHorseReport();
     }
@@ -424,6 +558,14 @@ export const WailsBridge = {
   },
 
   async openBrowser(url: string): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('open_browser', { url });
+        return;
+      } catch (e) {
+        console.error('Tauri open_browser error:', e);
+      }
+    }
     if (window.go?.main?.App?.OpenBrowser) {
       await window.go.main.App.OpenBrowser(url);
     } else {
@@ -432,18 +574,21 @@ export const WailsBridge = {
   },
 
   async openDouyinWindow(): Promise<void> {
-    if (window.go?.main?.App?.OpenDouyinWindow) {
-      await window.go.main.App.OpenDouyinWindow();
-    }
+    await this.openWebVideoWindow('douyin');
   },
 
   async closeDouyinWindow(): Promise<void> {
-    if (window.go?.main?.App?.CloseDouyinWindow) {
-      await window.go.main.App.CloseDouyinWindow();
-    }
+    await this.closeWebVideoWindow();
   },
 
   async getVideoPlatforms(): Promise<VideoPlatform[]> {
+    if (isTauri()) {
+      try {
+        return await invoke<VideoPlatform[]>('get_video_platforms');
+      } catch (e) {
+        console.error('Tauri get_video_platforms error:', e);
+      }
+    }
     if (window.go?.main?.App?.GetVideoPlatforms) {
       return await window.go.main.App.GetVideoPlatforms();
     }
@@ -463,6 +608,13 @@ export const WailsBridge = {
   },
 
   async getVideoHistory(): Promise<VideoHistory[]> {
+    if (isTauri()) {
+      try {
+        return await invoke<VideoHistory[]>('get_video_history', { limit: 20 });
+      } catch (e) {
+        console.error('Tauri get_video_history error:', e);
+      }
+    }
     if (window.go?.main?.App?.GetVideoHistory) {
       return await window.go.main.App.GetVideoHistory();
     }
@@ -470,6 +622,14 @@ export const WailsBridge = {
   },
 
   async openWebVideoWindow(platformKey?: string): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('open_web_video_window', { platformKey: platformKey || null });
+        return;
+      } catch (e) {
+        console.error('Tauri open_web_video_window error:', e);
+      }
+    }
     if (window.go?.main?.App?.OpenWebVideoWindow) {
       await window.go.main.App.OpenWebVideoWindow(platformKey || '');
     } else {
@@ -478,6 +638,14 @@ export const WailsBridge = {
   },
 
   async closeWebVideoWindow(): Promise<void> {
+    if (isTauri()) {
+      try {
+        await invoke('close_web_video_window');
+        return;
+      } catch (e) {
+        console.error('Tauri close_web_video_window error:', e);
+      }
+    }
     if (window.go?.main?.App?.CloseWebVideoWindow) {
       await window.go.main.App.CloseWebVideoWindow();
     } else {
@@ -514,6 +682,15 @@ export const WailsBridge = {
   },
 
   onStatusChange(callback: (status: ServiceStatus) => void): () => void {
+    if (isTauri()) {
+      let unlistenFn: (() => void) | null = null;
+      listen<ServiceStatus>('service:status', (event) => callback(event.payload)).then((fn) => {
+        unlistenFn = fn;
+      });
+      return () => {
+        if (unlistenFn) unlistenFn();
+      };
+    }
     if (window.runtime?.EventsOn) {
       return window.runtime.EventsOn('status:change', callback);
     }
@@ -521,6 +698,15 @@ export const WailsBridge = {
   },
 
   onAnalysisUpdate(callback: (result: MatchAnalysisResult) => void): () => void {
+    if (isTauri()) {
+      let unlistenFn: (() => void) | null = null;
+      listen<MatchAnalysisResult>('match:analysis', (event) => callback(event.payload)).then((fn) => {
+        unlistenFn = fn;
+      });
+      return () => {
+        if (unlistenFn) unlistenFn();
+      };
+    }
     if (window.runtime?.EventsOn) {
       return window.runtime.EventsOn('analysis:update', callback);
     }
@@ -528,6 +714,15 @@ export const WailsBridge = {
   },
 
   onNewLog(callback: (log: LogEntry) => void): () => void {
+    if (isTauri()) {
+      let unlistenFn: (() => void) | null = null;
+      listen<LogEntry>('service:log', (event) => callback(event.payload)).then((fn) => {
+        unlistenFn = fn;
+      });
+      return () => {
+        if (unlistenFn) unlistenFn();
+      };
+    }
     if (window.runtime?.EventsOn) {
       return window.runtime.EventsOn('log:new', callback);
     }
