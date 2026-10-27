@@ -16,6 +16,13 @@ pub fn run() {
     let _ = db::DbStore::init();
 
     tauri::Builder::default()
+        // .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+        //     if let Some(win) = app.get_webview_window("main") {
+        //         let _ = win.show();
+        //         let _ = win.unminimize();
+        //         let _ = win.set_focus();
+        //     }
+        // }))
         .plugin(tauri_plugin_log::Builder::default().build())
         .setup(|app| {
             let manager = Arc::new(ServiceManager::new(app.handle().clone()));
