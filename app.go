@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -396,9 +395,15 @@ func forceForegroundWindow(hwnd uintptr) {
 	}
 }
 
-// pinProcessWindowsTopmost 寻找属于该目标进程或其子进程、或包含视频站标题的可见窗口并强行居中且置顶 (浮现在英雄联盟等所有窗口最上层)
+// pinProcessWindowsTopmost 寻找属于该目标进程或其子进程的可见窗口并强行居中且置顶 (浮现在英雄联盟等所有窗口最上层)
 func pinProcessWindowsTopmost(targetPID int, targetX, targetY, targetWidth, targetHeight int) {
+	if targetPID <= 0 {
+		return
+	}
 	targetPIDs := getProcessTreePIDs(uint32(targetPID))
+	if len(targetPIDs) == 0 {
+		return
+	}
 	pidSet := make(map[uint32]bool)
 	for _, p := range targetPIDs {
 		pidSet[p] = true
@@ -408,62 +413,50 @@ func pinProcessWindowsTopmost(targetPID int, targetX, targetY, targetWidth, targ
 		var pid uint32
 		procGetWindowThreadProcessId.Call(hwnd, uintptr(unsafe.Pointer(&pid)))
 
-		isTarget := pidSet[pid]
-		if !isTarget {
-			length, _, _ := procGetWindowTextLengthW.Call(hwnd)
-			if length > 0 {
-				buf := make([]uint16, length+1)
-				procGetWindowTextW.Call(hwnd, uintptr(unsafe.Pointer(&buf[0])), length+1)
-				title := syscall.UTF16ToString(buf)
-				if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") ||
-					strings.Contains(title, "哔哩哔哩") || strings.Contains(title, "bilibili") ||
-					strings.Contains(title, "爱奇艺") || strings.Contains(title, "iqiyi") {
-					isTarget = true
-				}
-			}
+		// 严格限定只处理属于 targetPID 自身进程树的窗口，严禁全局搜索标题，防止误干扰用户个人的浏览器
+		if !pidSet[pid] {
+			return 1
 		}
 
-		if isTarget {
-			isVisible, _, _ := procIsWindowVisible.Call(hwnd)
-			if isVisible != 0 {
-				var clsBuf [256]uint16
-				procGetClassNameW.Call(hwnd, uintptr(unsafe.Pointer(&clsBuf[0])), 256)
-				cls := syscall.UTF16ToString(clsBuf[:])
+		isVisible, _, _ := procIsWindowVisible.Call(hwnd)
+		if isVisible != 0 {
+			var clsBuf [256]uint16
+			procGetClassNameW.Call(hwnd, uintptr(unsafe.Pointer(&clsBuf[0])), 256)
+			cls := syscall.UTF16ToString(clsBuf[:])
 
-				// 过滤 Edge 附属辅助窗口，精准锁定主网页窗口或有效独立窗口
-				if cls == "UAC_InputIndicatorOverlayWnd" || cls == "UAC Input Indicator" || cls == "Touch Tooltip Window" {
-					return 1
-				}
+			// 过滤 Edge 附属辅助窗口，精准锁定主网页窗口或有效独立窗口
+			if cls == "UAC_InputIndicatorOverlayWnd" || cls == "UAC Input Indicator" || cls == "Touch Tooltip Window" {
+				return 1
+			}
 
-				centeredMu.Lock()
-				alreadyCentered := centeredWindows[hwnd]
-				if !alreadyCentered {
-					centeredWindows[hwnd] = true
-				}
-				centeredMu.Unlock()
+			centeredMu.Lock()
+			alreadyCentered := centeredWindows[hwnd]
+			if !alreadyCentered {
+				centeredWindows[hwnd] = true
+			}
+			centeredMu.Unlock()
 
-				if !alreadyCentered && targetWidth > 0 && targetHeight > 0 {
-					// 首次捕获该窗口：突破 Windows 焦点限制强制提升前台，定位到屏幕正中央并强行 HWND_TOPMOST 置顶
-					forceForegroundWindow(hwnd)
-					procSetWindowPos.Call(
-						hwnd,
-						hwndTopmost,
-						uintptr(targetX),
-						uintptr(targetY),
-						uintptr(targetWidth),
-						uintptr(targetHeight),
-						swpShowWindow,
-					)
-				} else {
-					// 后续维持置顶：BringWindowToTop 并在 Topmost Z-order 中维护，swpNoActivate 避免夺走玩家游戏键鼠焦点
-					procBringWindowToTop.Call(hwnd)
-					procSetWindowPos.Call(
-						hwnd,
-						hwndTopmost,
-						0, 0, 0, 0,
-						swpNoMove|swpNoSize|swpShowWindow|swpNoActivate,
-					)
-				}
+			if !alreadyCentered && targetWidth > 0 && targetHeight > 0 {
+				// 首次捕获该窗口：突破 Windows 焦点限制强制提升前台，定位到屏幕正中央并强行 HWND_TOPMOST 置顶
+				forceForegroundWindow(hwnd)
+				procSetWindowPos.Call(
+					hwnd,
+					hwndTopmost,
+					uintptr(targetX),
+					uintptr(targetY),
+					uintptr(targetWidth),
+					uintptr(targetHeight),
+					swpShowWindow,
+				)
+			} else {
+				// 后续维持置顶：BringWindowToTop 并在 Topmost Z-order 中维护，swpNoActivate 避免夺走玩家游戏键鼠焦点
+				procBringWindowToTop.Call(hwnd)
+				procSetWindowPos.Call(
+					hwnd,
+					hwndTopmost,
+					0, 0, 0, 0,
+					swpNoMove|swpNoSize|swpShowWindow|swpNoActivate,
+				)
 			}
 		}
 		return 1 // 继续遍历
@@ -631,11 +624,17 @@ func (a *App) CloseWebVideoWindow() error {
 	centeredWindows = make(map[uintptr]bool)
 	centeredMu.Unlock()
 
-	var targetPIDs []uint32
-	if a.douyinCmd != nil && a.douyinCmd.Process != nil {
-		rootPID := uint32(a.douyinCmd.Process.Pid)
-		targetPIDs = getProcessTreePIDs(rootPID)
-		a.douyinCmd = nil
+	// 关键安全校验：若当前程序并未唤起视频子进程，直接返回，绝对不枚举全局窗口
+	if a.douyinCmd == nil || a.douyinCmd.Process == nil {
+		return nil
+	}
+
+	rootPID := uint32(a.douyinCmd.Process.Pid)
+	a.douyinCmd = nil
+
+	targetPIDs := getProcessTreePIDs(rootPID)
+	if len(targetPIDs) == 0 {
+		return nil
 	}
 
 	pidSet := make(map[uint32]bool)
@@ -643,32 +642,14 @@ func (a *App) CloseWebVideoWindow() error {
 		pidSet[p] = true
 	}
 
-	// 1. 枚举所有带视频站标题或属于目标进程树的窗口，通过 Win32 PostMessage 发送 WM_CLOSE 毫秒级关闭
+	// 1. 仅枚举属于本程序唤起的视频进程树的窗口，通过 Win32 PostMessage 发送 WM_CLOSE 毫秒级关闭
 	// 这样 Edge/Chrome 会正常将 session、cookies 和进度安全写盘入库
+	// 严格按 pidSet[pid] 匹配，绝对不按标题搜索，彻底杜绝误伤用户的个人浏览器！
 	cb := syscall.NewCallback(func(hwnd uintptr, lParam uintptr) uintptr {
 		var pid uint32
 		procGetWindowThreadProcessId.Call(hwnd, uintptr(unsafe.Pointer(&pid)))
 
-		isTarget := pidSet[pid]
-		if !isTarget {
-			length, _, _ := procGetWindowTextLengthW.Call(hwnd)
-			if length > 0 {
-				buf := make([]uint16, length+1)
-				procGetWindowTextW.Call(hwnd, uintptr(unsafe.Pointer(&buf[0])), length+1)
-				title := syscall.UTF16ToString(buf)
-				if strings.Contains(title, "抖音") || strings.Contains(title, "Douyin") ||
-					strings.Contains(title, "哔哩哔哩") || strings.Contains(title, "bilibili") ||
-					strings.Contains(title, "爱奇艺") || strings.Contains(title, "iqiyi") {
-					isTarget = true
-					if pid > 4 && !pidSet[pid] {
-						pidSet[pid] = true
-						targetPIDs = append(targetPIDs, pid)
-					}
-				}
-			}
-		}
-
-		if isTarget {
+		if pidSet[pid] {
 			procPostMessageW.Call(hwnd, wmClose, 0, 0)
 		}
 		return 1
@@ -677,14 +658,12 @@ func (a *App) CloseWebVideoWindow() error {
 
 	// 2. 给予浏览器 350ms 充分保存登录态写盘后，使用纯 Win32 API 静默清理可能残留的孤儿进程
 	// 绝不调用 taskkill 或 powershell，彻底杜绝黑色控制台窗口闪烁
-	if len(targetPIDs) > 0 {
-		pidsToClean := make([]uint32, len(targetPIDs))
-		copy(pidsToClean, targetPIDs)
-		go func() {
-			time.Sleep(350 * time.Millisecond)
-			killProcessTreePIDs(pidsToClean)
-		}()
-	}
+	pidsToClean := make([]uint32, len(targetPIDs))
+	copy(pidsToClean, targetPIDs)
+	go func() {
+		time.Sleep(350 * time.Millisecond)
+		killProcessTreePIDs(pidsToClean)
+	}()
 
 	return nil
 }
