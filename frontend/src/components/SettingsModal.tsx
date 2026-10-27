@@ -171,11 +171,25 @@ export function SettingsModal({
     return Math.round((w / totalWeight) * 100);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-[580px] max-h-[90vh] glass-panel border border-white/[0.16] rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-100">
-        {/* 1. Header Bar */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-slate-950/40 backdrop-blur-xl shrink-0">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-start sm:justify-center p-2 sm:p-4 bg-black/65 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-[760px] my-auto max-h-[90vh] glass-panel border border-white/[0.16] rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-100"
+      >
+        {/* 1. Header Bar (Sticky at Top) */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-slate-950/60 backdrop-blur-xl shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-cyan-400/20 to-indigo-500/20 border border-white/15 overflow-hidden flex items-center justify-center p-0.5 shadow-inner">
               <img src={appLogo} alt="Logo" className="w-full h-full object-cover rounded" />
@@ -184,7 +198,7 @@ export function SettingsModal({
               <h3 className="text-xs font-bold text-white flex items-center gap-2">
                 <span>控制与设置中心</span>
                 <span className="text-[10px] font-mono text-cyan-300 glass-pill px-1.5 py-0.5 rounded">
-                  v2.0.1
+                  v2.0.1 Pro
                 </span>
               </h3>
             </div>
@@ -192,10 +206,11 @@ export function SettingsModal({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white glass-pill transition-colors cursor-pointer"
-            title="关闭"
+            className="px-2.5 py-1 rounded-lg text-slate-300 hover:text-white hover:bg-rose-500/25 border border-white/10 hover:border-rose-400/40 transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer shadow-sm active:scale-95"
+            title="关闭设置 (Esc)"
           >
             <X className="w-4 h-4" />
+            <span>关闭</span>
           </button>
         </div>
 
@@ -204,33 +219,33 @@ export function SettingsModal({
           {/* Tab: Algorithm Config */}
           <button
             onClick={() => setActiveTab('algoConfig')}
-            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'algoConfig'
                 ? 'border-cyan-400 text-cyan-300 font-bold'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
-            <span>算法权重配置</span>
+            <span>算法权重</span>
           </button>
 
           {/* Tab: Appearance & Typography */}
           <button
             onClick={() => setActiveTab('appearance')}
-            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'appearance'
                 ? 'border-purple-400 text-purple-300 font-bold'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Type className="w-3.5 h-3.5 text-purple-400" />
-            <span>字体与自适应</span>
+            <Palette className="w-3.5 h-3.5 text-purple-400" />
+            <span>界面与字体</span>
           </button>
 
           {/* Tab: Updates */}
           <button
             onClick={() => setActiveTab('updates')}
-            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap relative cursor-pointer ${
+            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap shrink-0 relative cursor-pointer ${
               activeTab === 'updates'
                 ? 'border-emerald-400 text-emerald-300 font-bold'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -246,20 +261,20 @@ export function SettingsModal({
           {/* Tab: Algorithm Guide */}
           <button
             onClick={() => setActiveTab('algorithm')}
-            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'algorithm'
                 ? 'border-[#0ac8b9] text-[#0ac8b9] font-bold'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5 text-[#0ac8b9]" />
-            <span>算法原理解读</span>
+            <span>算法解读</span>
           </button>
 
           {/* Tab: Changelog */}
           <button
             onClick={() => setActiveTab('changelog')}
-            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'changelog'
                 ? 'border-amber-400 text-amber-300 font-bold'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -272,7 +287,7 @@ export function SettingsModal({
           {/* Tab: Contact */}
           <button
             onClick={() => setActiveTab('contact')}
-            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 py-2.5 px-3 border-b-2 font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
               activeTab === 'contact'
                 ? 'border-indigo-400 text-indigo-300 font-bold'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -318,164 +333,12 @@ export function SettingsModal({
               </div>
 
               {/* Local Storage Indicator Banner */}
-              <div className="flex items-center justify-between px-3 py-2 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-emerald-300 text-[11px]">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-emerald-300 text-[11px]">
+                <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                  <span className="font-bold">所有算法与主题设置均已实时本地持久化</span>
-                  <span className="text-slate-400 font-mono text-[10px] hidden sm:inline">(SQLite + config.json 双轨容灾)</span>
+                  <span className="font-bold">算法与参数已实时本地自动持久化 (SQLite + JSON)</span>
                 </div>
-                <span className="text-[10px] text-emerald-300 font-mono bg-emerald-900/50 px-2 py-0.5 rounded border border-emerald-400/30">
-                  下次启动自动加载 · 永久保存
-                </span>
-              </div>
-
-              {/* Theme Selector Section */}
-              <div className="space-y-3">
-                <div className="text-[11px] font-bold text-slate-400 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <Palette className="w-3.5 h-3.5 text-amber-400" />
-                    <span>视觉色彩主题 (点击实时切换与热生效):</span>
-                  </span>
-                  <span className="text-[10px] text-blue-400 font-mono font-bold">新增 3 款现代纯白主体主题</span>
-                </div>
-
-                {/* Section 1: Modern White Themes */}
-                <div className="space-y-1.5">
-                  <div className="text-[10px] font-bold text-blue-400 flex items-center gap-1">
-                    <span>☀️ 现代纯白主体风格 (清爽通透 · 高质感)</span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <button
-                      onClick={() => onUpdateConfig({ theme: 'azure' })}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        (config.theme || 'azure') === 'azure'
-                          ? 'bg-blue-500/15 border-blue-400 shadow-[0_0_14px_rgba(37,99,235,0.35)] ring-1 ring-blue-400/30'
-                          : 'bg-black/40 border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-blue-400 text-xs flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb] shadow-sm ring-1 ring-white" />
-                          <span>晴空蓝白 (图1推荐)</span>
-                        </span>
-                        <span className="text-[9px] px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 font-bold">主白</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">纯白主体与明澈湛蓝，清新通透高对比度</div>
-                    </button>
-
-                    <button
-                      onClick={() => onUpdateConfig({ theme: 'iris' })}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        config.theme === 'iris'
-                          ? 'bg-indigo-500/15 border-indigo-400 shadow-[0_0_14px_rgba(99,102,241,0.35)] ring-1 ring-indigo-400/30'
-                          : 'bg-black/40 border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-indigo-400 text-xs flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#6366f1] shadow-sm ring-1 ring-white" />
-                          <span>蓝紫白 (极简灵动)</span>
-                        </span>
-                        <span className="text-[9px] px-1 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-bold">主白</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">纯白主体配双城星穹蓝紫，现代现代感</div>
-                    </button>
-
-                    <button
-                      onClick={() => onUpdateConfig({ theme: 'slate-white' })}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        config.theme === 'slate-white'
-                          ? 'bg-slate-500/15 border-slate-400 shadow-[0_0_14px_rgba(100,116,139,0.35)] ring-1 ring-slate-400/30'
-                          : 'bg-black/40 border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-300 text-xs flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#1e293b] shadow-sm ring-1 ring-white" />
-                          <span>极简白灰 (图2看板)</span>
-                        </span>
-                        <span className="text-[9px] px-1 py-0.2 rounded bg-slate-500/20 text-slate-300 font-bold">白灰</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">高级白灰双色看板架构，沉稳克制无干扰</div>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Section 2: Dark Esports Themes */}
-                <div className="space-y-1.5 pt-1">
-                  <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
-                    <span>🌙 经典暗黑电竞风格</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <button
-                      onClick={() => onUpdateConfig({ theme: 'hextech' })}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        config.theme === 'hextech'
-                          ? 'bg-amber-500/20 border-amber-400 shadow-[0_0_14px_rgba(200,155,60,0.4)]'
-                          : 'bg-black/40 border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#c89b3c] shadow-sm" />
-                          <span>官方黑金</span>
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">海克斯夜蓝与纯金</div>
-                    </button>
-
-                    <button
-                      onClick={() => onUpdateConfig({ theme: 'aurora' })}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        config.theme === 'aurora'
-                          ? 'bg-sky-500/20 border-sky-400 shadow-[0_0_14px_rgba(56,189,248,0.4)]'
-                          : 'bg-black/40 border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-sky-300 text-xs flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8] shadow-sm" />
-                          <span>冷炭极光</span>
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">冷炭深灰与电竞冰蓝</div>
-                    </button>
-
-                    <button
-                      onClick={() => onUpdateConfig({ theme: 'arcane' })}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        config.theme === 'arcane'
-                          ? 'bg-emerald-500/20 border-emerald-400 shadow-[0_0_14px_rgba(0,255,157,0.4)]'
-                          : 'bg-black/40 border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-emerald-300 text-xs flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#00ff9d] shadow-sm" />
-                          <span>双城赛博</span>
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">暗夜紫黑与荧光绿</div>
-                    </button>
-
-                    <button
-                      onClick={() => onUpdateConfig({ theme: 'crimson' })}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        config.theme === 'crimson'
-                          ? 'bg-red-500/20 border-red-400 shadow-[0_0_14px_rgba(239,68,68,0.4)]'
-                          : 'bg-black/40 border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-rose-300 text-xs flex items-center gap-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444] shadow-sm" />
-                          <span>诺克萨斯</span>
-                        </span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">曜石黑底与狂暴猩红</div>
-                    </button>
-                  </div>
-                </div>
+                <span className="text-[10px] text-emerald-400 font-mono">即时生效 · 永久保存</span>
               </div>
 
               {/* Preset Profile Shortcuts */}
@@ -736,6 +599,147 @@ export function SettingsModal({
           {/* TAB: Appearance & Typography */}
           {activeTab === 'appearance' && (
             <div className="space-y-4 text-xs">
+              {/* Theme Selector Section */}
+              <div className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-3">
+                <div className="text-[11px] font-bold text-slate-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Palette className="w-3.5 h-3.5 text-blue-400" />
+                    <span>视觉色彩主题 (点击实时热切换):</span>
+                  </span>
+                  <span className="text-[10px] text-blue-400 font-mono font-bold">已新增 3 款现代纯白主题</span>
+                </div>
+
+                {/* Section 1: Modern White Themes */}
+                <div className="space-y-1.5">
+                  <div className="text-[10px] font-bold text-blue-400 flex items-center gap-1">
+                    <span>☀️ 现代纯白主体风格 (清爽通透 · 高质感)</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button
+                      onClick={() => onUpdateConfig({ theme: 'azure' })}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        (config.theme || 'azure') === 'azure'
+                          ? 'bg-blue-500/15 border-blue-400 shadow-[0_0_14px_rgba(37,99,235,0.35)] ring-1 ring-blue-400/30'
+                          : 'bg-black/40 border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-blue-400 text-xs flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#2563eb] shadow-sm ring-1 ring-white" />
+                          <span>晴空蓝白 (图1推荐)</span>
+                        </span>
+                        <span className="text-[9px] px-1 py-0.2 rounded bg-blue-500/20 text-blue-300 font-bold">主白</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">纯白主体与明澈湛蓝，清新通透高对比度</div>
+                    </button>
+
+                    <button
+                      onClick={() => onUpdateConfig({ theme: 'iris' })}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        config.theme === 'iris'
+                          ? 'bg-indigo-500/15 border-indigo-400 shadow-[0_0_14px_rgba(99,102,241,0.35)] ring-1 ring-indigo-400/30'
+                          : 'bg-black/40 border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-indigo-400 text-xs flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#6366f1] shadow-sm ring-1 ring-white" />
+                          <span>蓝紫白 (极简灵动)</span>
+                        </span>
+                        <span className="text-[9px] px-1 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-bold">主白</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">纯白主体配双城星穹蓝紫，现代时尚感</div>
+                    </button>
+
+                    <button
+                      onClick={() => onUpdateConfig({ theme: 'slate-white' })}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        config.theme === 'slate-white'
+                          ? 'bg-slate-500/15 border-slate-400 shadow-[0_0_14px_rgba(100,116,139,0.35)] ring-1 ring-slate-400/30'
+                          : 'bg-black/40 border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-300 text-xs flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#1e293b] shadow-sm ring-1 ring-white" />
+                          <span>极简白灰 (图2看板)</span>
+                        </span>
+                        <span className="text-[9px] px-1 py-0.2 rounded bg-slate-500/20 text-slate-300 font-bold">白灰</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-1 leading-snug">高级白灰双色看板架构，沉稳克制无干扰</div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Section 2: Dark Esports Themes */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+                    <span>🌙 经典暗黑电竞风格</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <button
+                      onClick={() => onUpdateConfig({ theme: 'hextech' })}
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                        config.theme === 'hextech'
+                          ? 'bg-amber-500/20 border-amber-400 shadow-[0_0_14px_rgba(200,155,60,0.4)]'
+                          : 'bg-black/40 border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <span className="font-bold text-amber-300 text-xs flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#c89b3c] shadow-sm" />
+                        <span>官方黑金</span>
+                      </span>
+                      <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">海克斯夜蓝与纯金</div>
+                    </button>
+
+                    <button
+                      onClick={() => onUpdateConfig({ theme: 'aurora' })}
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                        config.theme === 'aurora'
+                          ? 'bg-sky-500/20 border-sky-400 shadow-[0_0_14px_rgba(56,189,248,0.4)]'
+                          : 'bg-black/40 border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <span className="font-bold text-sky-300 text-xs flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8] shadow-sm" />
+                        <span>冷炭极光</span>
+                      </span>
+                      <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">冷炭深灰与电竞冰蓝</div>
+                    </button>
+
+                    <button
+                      onClick={() => onUpdateConfig({ theme: 'arcane' })}
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                        config.theme === 'arcane'
+                          ? 'bg-emerald-500/20 border-emerald-400 shadow-[0_0_14px_rgba(0,255,157,0.4)]'
+                          : 'bg-black/40 border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <span className="font-bold text-emerald-300 text-xs flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#00ff9d] shadow-sm" />
+                        <span>双城赛博</span>
+                      </span>
+                      <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">暗夜紫黑与荧光绿</div>
+                    </button>
+
+                    <button
+                      onClick={() => onUpdateConfig({ theme: 'crimson' })}
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                        config.theme === 'crimson'
+                          ? 'bg-red-500/20 border-red-400 shadow-[0_0_14px_rgba(239,68,68,0.4)]'
+                          : 'bg-black/40 border-white/10 hover:border-white/20'
+                      }`}
+                    >
+                      <span className="font-bold text-rose-300 text-xs flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#ef4444] shadow-sm" />
+                        <span>诺克萨斯</span>
+                      </span>
+                      <div className="text-[10px] text-slate-400 mt-0.5 leading-snug">曜石黑底与狂暴猩红</div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               {/* Introduction Card */}
               <div className="rounded-xl border border-white/10 bg-black/40 p-4 space-y-2">
                 <div className="flex items-center justify-between">

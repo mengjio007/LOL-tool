@@ -216,21 +216,17 @@ export default function App() {
       const w = window.innerWidth;
       const h = window.innerHeight;
 
-      // 智能计算自适应放大系数 (从默认小窗 1.0 到 1080p/2K/4K 整体放大 1.25 ~ 1.40)
+      // 智能计算自适应放大系数 (窗口模式严格保持 1.0 标准无错位，最大化大屏适度放大 1.15 ~ 1.25)
       let targetScale = 1.0;
-      if (isMaximized || w >= 1700) {
-        // 最大化全屏或 1080p/2K/4K 大屏显示：按宽高空间舒适整体放大
-        const vwFactor = Math.max(0, (w - 1000) * 0.00032);
-        const vhFactor = Math.max(0, (h - 700) * 0.00030);
-        targetScale = Math.min(1.42, Math.max(1.24, 1.0 + vwFactor + vhFactor));
-      } else if (w >= 1300) {
-        // 宽屏笔记本或中等视口：微幅提升至 1.10 ~ 1.20
-        targetScale = Math.min(1.20, Math.max(1.06, 1.0 + (w - 1000) * 0.0003));
-      } else if (w <= 980) {
-        // 小窗：紧凑排版防溢出
-        targetScale = Math.max(0.92, 0.92 + (w - 380) / 600 * 0.08);
+      if (isMaximized) {
+        // 最大化全屏：根据屏幕分辨率轻度等比微放，防止内容与弹窗超界溢出
+        const vwFactor = Math.max(0, (w - 1100) * 0.00022);
+        const vhFactor = Math.max(0, (h - 750) * 0.00020);
+        targetScale = Math.min(1.26, Math.max(1.12, 1.0 + vwFactor + vhFactor));
+      } else if (w >= 1600) {
+        targetScale = 1.12;
       } else {
-        targetScale = 1.0;
+        targetScale = 1.0; // 默认常规窗口模式下严格 1.0，保障顶栏与设置弹窗完整无错位
       }
 
       document.documentElement.style.setProperty('--dynamic-auto-scale', targetScale.toFixed(3));
@@ -745,7 +741,7 @@ export default function App() {
           {/* Tab 1: Automation */}
           <button
             onClick={() => setActiveTab('automation')}
-            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'automation'
                 ? 'nav-tab-active'
                 : 'nav-tab-inactive'
@@ -758,7 +754,7 @@ export default function App() {
           {/* Tab 2: Death Video Entertainment */}
           <button
             onClick={() => setActiveTab('video')}
-            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer relative ${
+            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer relative whitespace-nowrap shrink-0 ${
               activeTab === 'video'
                 ? 'nav-tab-active'
                 : 'nav-tab-inactive'
@@ -774,7 +770,7 @@ export default function App() {
           {/* Tab 3: Analysis */}
           <button
             onClick={() => setActiveTab('analysis')}
-            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer relative ${
+            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer relative whitespace-nowrap shrink-0 ${
               activeTab === 'analysis'
                 ? 'nav-tab-active'
                 : 'nav-tab-inactive'
@@ -790,7 +786,7 @@ export default function App() {
           {/* Tab 4: Search */}
           <button
             onClick={() => setActiveTab('search')}
-            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 py-1.5 px-4 rounded-full font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === 'search'
                 ? 'nav-tab-active'
                 : 'nav-tab-inactive'
@@ -804,7 +800,7 @@ export default function App() {
         {/* Quick Action to Algorithm Weight Config */}
         <button
           onClick={() => openSettings('algoConfig')}
-          className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-3.5 py-1.5 rounded-full cursor-pointer bg-[var(--theme-tab-pill-bg)] border border-[var(--theme-border)] hover:border-[var(--theme-border-highlight)] text-[var(--theme-primary)] shadow-sm transition-all"
+          className="hidden sm:flex items-center gap-1.5 text-[11px] font-bold px-3.5 py-1.5 rounded-full cursor-pointer bg-[var(--theme-tab-pill-bg)] border border-[var(--theme-border)] hover:border-[var(--theme-border-highlight)] text-[var(--theme-primary)] shadow-sm transition-all whitespace-nowrap shrink-0"
         >
           <Sliders className="w-3 h-3" />
           <span>算法权重: {config.algorithm?.customWeightsEnabled ? '已自定义' : '官方平衡'}</span>
